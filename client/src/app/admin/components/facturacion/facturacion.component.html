@@ -1,0 +1,47 @@
+﻿<div class="container-fluid">
+  <h2 class="page-title">Facturación</h2>
+
+  <div class="mb-3 mt-3">
+    <select class="form-select form-select-sm w-auto" [ngModel]="tipoFilter()" (ngModelChange)="filterByTipo($event)">
+      <option value="">Todos los tipos</option>
+      <option value="Boleta">Boleta</option>
+      <option value="Factura">Factura</option>
+      <option value="Nota de Venta">Nota de Venta</option>
+    </select>
+  </div>
+
+  @if (loading()) {
+    <app-loading></app-loading>
+  } @else {
+    <div class="table-responsive">
+      <table class="data-table table table-hover align-middle">
+        <thead>
+          <tr class="table-header-row">
+            <th class="table-header small fw-semibold">Serie</th>
+            <th class="table-header small fw-semibold">Correlativo</th>
+            <th class="table-header small fw-semibold">Tipo</th>
+            <th class="table-header small fw-semibold">Cliente</th>
+            <th class="table-header small fw-semibold text-end">Total</th>
+            <th class="table-header small fw-semibold">Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (comp of comprobantes(); track comp.id_comprobante) {
+            <tr>
+              <td class="small fw-semibold">{{ comp.serie }}</td>
+              <td class="small">{{ comp.correlativo }}</td>
+              <td>
+                <span class="type-badge badge">
+                  {{ comp.tipo }}
+                </span>
+              </td>
+              <td class="small">{{ comp.cliente }}</td>
+              <td class="total-cell small text-end fw-semibold">S/ {{ comp.total.toFixed(2) }}</td>
+              <td class="date-cell small">{{ comp.fecha | date:'dd/MM/yyyy' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

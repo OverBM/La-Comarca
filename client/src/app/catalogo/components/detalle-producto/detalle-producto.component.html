@@ -1,0 +1,114 @@
+<app-navbar></app-navbar>
+<div class="detalle-wrapper">
+
+  <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+    <a routerLink="/" class="breadcrumb-link">Inicio</a>
+    <span class="breadcrumb-separator">/</span>
+    <a routerLink="/catalogo" class="breadcrumb-link">Catálogo</a>
+    @if (producto(); as product) {
+      <span class="breadcrumb-separator">/</span>
+      <span class="breadcrumb-current">{{ product.nombre }}</span>
+    }
+  </nav>
+
+  @if (loading()) {
+    <app-loading></app-loading>
+  } @else if (producto(); as product) {
+    <button (click)="volver()" class="btn-volver">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+      </svg>
+      Volver
+    </button>
+
+    <div class="detalle-grid">
+      <div class="detalle-image-col">
+        <img
+          [src]="product.imagen"
+          [alt]="product.nombre"
+          class="detalle-image"
+          (error)="onImgError($event)"
+        >
+      </div>
+
+      <div class="detalle-info-col">
+        <span class="detalle-categoria">{{ categoriaNombre() }}</span>
+        <h1 class="detalle-nombre">{{ product.nombre }}</h1>
+        <p class="detalle-precio">S/ {{ product.precio_unitario.toFixed(2) }}</p>
+        <p class="detalle-descripcion">{{ product.descripcion }}</p>
+
+        <div class="detalle-actions">
+          <div class="detalle-cantidad">
+            <label class="cantidad-label">Cantidad:</label>
+            <div class="cantidad-control">
+              <button
+                (click)="decrementar()"
+                class="cantidad-btn"
+                [disabled]="cantidad() <= 1"
+                aria-label="Disminuir cantidad"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 13H5v-2h14v2z"/>
+                </svg>
+              </button>
+              <span class="cantidad-valor">{{ cantidad() }}</span>
+              <button
+                (click)="incrementar()"
+                class="cantidad-btn"
+                [disabled]="cantidad() >= 99"
+                aria-label="Aumentar cantidad"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <button
+            (click)="agregarAlCarrito()"
+            class="detalle-btn"
+            [class.detalle-btn--added]="added()"
+          >
+            @if (added()) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+              Agregado al Carrito
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25z"/>
+              </svg>
+              Agregar al Carrito
+            }
+          </button>
+
+          <p class="detalle-total">
+            Total: <span class="detalle-total-valor">S/ {{ (product.precio_unitario * cantidad()).toFixed(2) }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    @if (relacionados().length > 0) {
+      <section class="relacionados-seccion">
+        <h2 class="relacionados-titulo">También te puede interesar</h2>
+        <div class="relacionados-grid">
+          @for (rel of relacionados(); track rel.id_producto) {
+            <a [routerLink]="['/catalogo', rel.id_producto]" class="relacionados-card">
+              <div class="relacionados-img-wrap">
+                <img [src]="rel.imagen" [alt]="rel.nombre" class="relacionados-img" loading="lazy" (error)="onImgError($event)">
+              </div>
+              <div class="relacionados-cuerpo">
+                <h3 class="relacionados-nombre">{{ rel.nombre }}</h3>
+                <p class="relacionados-precio">S/ {{ rel.precio_unitario.toFixed(2) }}</p>
+              </div>
+            </a>
+          }
+        </div>
+      </section>
+    }
+  }
+
+<app-footer></app-footer>
+</div>

@@ -1,0 +1,121 @@
+<app-navbar></app-navbar>
+
+<main class="catalogo-main">
+
+  <section class="hero-banner hero-banner--img">
+    <div class="hero-overlay"></div>
+    <div class="hero-contenido">
+      <span class="hero-badge">TRADICIÓN PERUANA</span>
+      <h1 class="hero-title">El aroma de lo auténtico, recién horneado.</h1>
+      <p class="hero-desc">Descubre nuestra selección artesanal de panes, pasteles y café, horneados diariamente con ingredientes locales y el calor de nuestra tierra.</p>
+      <div class="hero-actions">
+        <a routerLink="/historia" class="btn-outline">Nuestra Historia</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature bar: Pan Caliente -->
+  <section class="feature-bar">
+    <svg class="feature-icon" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
+      <path d="M17.66 11.2c-.18-4.92-3.66-7.2-5.66-9.2-1.5 1.5-3.16 4.66-3.5 7.74-.24 2.14.74 4.18 2.46 5.47-.86-.27-1.46-1.07-1.46-2.01 0-.44.12-.86.34-1.22.12-.2.14-.45.04-.66-.1-.21-.3-.35-.54-.4-.24-.05-.48.03-.66.2-.88.82-1.39 1.97-1.39 3.22 0 2.32 1.87 4.19 4.19 4.19 2.7 0 4.64-2.14 4.82-4.83.04-.38.02-.76-.1-1.12-.09-.3-.14-.72-.14-1.14 0-.32.02-.64.08-.96.14.18.28.36.4.56.4.66.64 1.46.64 2.32 0 1.1-.5 2.1-1.28 2.74 1.5-1.1 2.48-2.62 2.48-4.64z"/>
+    </svg>
+    <span class="feature-text"><strong>Pan Caliente</strong> — Cada 30 minutos</span>
+  </section>
+
+  <div class="catalogo-container">
+
+    <!-- Título de la sección + category pills -->
+    <div class="catalogo-header">
+      <h2 class="catalogo-label">Nuestro Catálogo</h2>
+      <div class="category-pills">
+        <button
+          class="pill"
+          [class.pill--active]="selectedCategory() === ''"
+          (click)="clearFilters()"
+        >Todos</button>
+        @for (cat of categorias(); track cat.id_categoria) {
+          <button
+            class="pill"
+            [class.pill--active]="selectedCategory() === cat.id_categoria"
+            (click)="filterByCategory(cat.id_categoria)"
+          >{{ cat.nombre }}</button>
+        }
+      </div>
+    </div>
+
+    <!-- Sort + Search bar -->
+    <div class="toolbar">
+      <div class="sort-wrap">
+        <svg class="toolbar-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+          <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
+        </svg>
+        <select class="sort-select" [ngModel]="sortBy()" (ngModelChange)="onSort($event)">
+          <option value="">Ordenar por: Recientes</option>
+          <option value="nombre">Nombre</option>
+          <option value="precio">Precio</option>
+        </select>
+      </div>
+      <div class="search-wrap">
+        <svg class="toolbar-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Buscar productos..."
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearch($event)"
+        >
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    @if (loading()) {
+      <app-loading></app-loading>
+    } @else if (productos().length === 0) {
+      <div class="empty-state">
+        <svg class="empty-icon" viewBox="0 0 24 24" width="64" height="64" fill="currentColor" aria-hidden="true">
+          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        <p class="empty-text">No se encontraron productos</p>
+      </div>
+    } @else {
+      <div class="product-grid" id="productos">
+        @for (product of productos(); track product.id_producto) {
+          <article class="product-card">
+            <a [routerLink]="['/catalogo', product.id_producto]" class="product-link">
+              <div class="product-img-wrap">
+                <img [src]="product.imagen" [alt]="product.nombre" class="product-img" loading="lazy">
+              </div>
+              <span class="product-category">{{ getCategoryName(product.id_categoria) }}</span>
+              <h3 class="product-name">{{ product.nombre }}</h3>
+              <p class="product-desc">{{ product.descripcion }}</p>
+              <p class="product-price">S/ {{ product.precio_unitario.toFixed(2) }}</p>
+            </a>
+            <button
+              class="btn-add"
+              [class.btn-add--done]="addedProductIds().has(product.id_producto)"
+              (click)="agregarAlCarrito($event, product)"
+            >
+              @if (addedProductIds().has(product.id_producto)) {
+                <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+                Agregado
+              } @else {
+                <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                  <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25z"/>
+                </svg>
+                Añadir al Carrito
+              }
+            </button>
+          </article>
+        }
+      </div>
+    }
+
+  </div>
+
+</main>
+
+<app-footer></app-footer>

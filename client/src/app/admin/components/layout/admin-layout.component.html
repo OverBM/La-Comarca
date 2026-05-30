@@ -1,0 +1,85 @@
+<!-- Contenedor principal del panel de administración con sidebar fijo -->
+<div class="admin-wrapper d-flex">
+
+  <!-- Sidebar de navegación del admin con ancho fijo de 250px -->
+  <aside class="admin-sidebar d-flex flex-column flex-shrink-0">
+    <!-- Logo y título del panel -->
+    <div class="p-3">
+      <a routerLink="/" class="text-decoration-none">
+        <h5 class="sidebar-brand mb-0 fw-bold">La Comarca</h5>
+      </a>
+      <small class="sidebar-subtitle">Panel Admin</small>
+    </div>
+
+    <!-- Navegación del sidebar con enlaces a cada sección del panel -->
+    <nav class="flex-grow-1 px-2">
+      <ul class="nav flex-column">
+        <!-- Enlace: Dashboard -->
+        <li class="nav-item">
+          <a class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 mb-1 rounded" routerLink="/admin/dashboard" routerLinkActive="sidebar-link-active">
+            <svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+            </svg>
+            Dashboard
+          </a>
+        </li>
+        <!-- Enlace: Productos -->
+        <li class="nav-item">
+          <a class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 mb-1 rounded" routerLink="/admin/productos" routerLinkActive="sidebar-link-active">
+            <svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
+              <path d="M7 9h2v2H7V9zm4 0h2v2h-2V9zm4 0h2v2h-2V9z"/>
+            </svg>
+            Productos
+          </a>
+        </li>
+        <!-- Enlace: Inventario -->
+        <li class="nav-item">
+          <a class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 mb-1 rounded" routerLink="/admin/inventario" routerLinkActive="sidebar-link-active">
+            <svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+              <path d="M7 12h2v5H7v-5zm4-3h2v8h-2V9zm4 5h2v3h-2v-3z"/>
+            </svg>
+            Inventario
+          </a>
+        </li>
+        <!-- Enlace: Pedidos -->
+        <li class="nav-item">
+          <a class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 mb-1 rounded" routerLink="/admin/pedidos" routerLinkActive="sidebar-link-active">
+            <svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+            </svg>
+            Pedidos
+          </a>
+        </li>
+        <!-- Enlace: Facturación -->
+        <li class="nav-item">
+          <a class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 mb-1 rounded" routerLink="/admin/facturacion" routerLinkActive="sidebar-link-active">
+            <svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>
+            </svg>
+            Facturación
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Botón de cerrar sesión al final del sidebar -->
+    <div class="sidebar-logout-section p-3 border-top">
+      <a href="#" class="sidebar-logout-link d-block small" (click)="logout(); $event.preventDefault()">
+        <svg class="sidebar-logout-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+        </svg>
+        Cerrar Sesión
+      </a>
+    </div>
+  </aside>
+
+  <!-- Área de contenido principal donde se renderizan las rutas hijas del admin -->
+  <main class="main-content flex-grow-1 d-flex flex-column">
+    <div class="p-4 flex-grow-1">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+</div>

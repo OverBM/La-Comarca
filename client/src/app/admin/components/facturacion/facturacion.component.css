@@ -1,0 +1,31 @@
+/* Estilos de facturación */
+
+.page-title {
+  font-family: var(--font-headline);
+  color: var(--color-primary);
+}
+
+.data-table {
+  border-color: var(--color-outline-variant);
+}
+
+.table-header-row {
+  border-bottom: 2px solid var(--color-secondary);
+}
+
+.table-header {
+  color: var(--color-on-surface);
+}
+
+.type-badge {
+  background-color: var(--color-surface-container);
+  color: var(--color-on-surface);
+}
+
+.total-cell {
+  color: var(--color-primary-container);
+}
+
+.date-cell {
+  color: var(--color-on-surface-variant);
+}

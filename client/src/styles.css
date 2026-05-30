@@ -1,1 +1,43 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+:root {
+  --color-primary: #32170d;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #4b2c20;
+  --color-on-primary-container: #bf9282;
+  --color-secondary: #904d00;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #fe932c;
+  --color-on-secondary-container: #663500;
+  --color-tertiary: #341700;
+  --color-tertiary-container: #4e2b0d;
+  --color-surface: #fef9f2;
+  --color-surface-container: #f2ede6;
+  --color-surface-container-low: #f8f3ec;
+  --color-surface-container-high: #ece7e1;
+  --color-on-surface: #1d1c18;
+  --color-on-surface-variant: #504440;
+  --color-outline: #83746f;
+  --color-outline-variant: #d5c3bd;
+  --color-error: #ba1a1a;
+  --color-success: #6B705C;
+  --font-headline: 'Newsreader', Georgia, serif;
+  --font-body: 'Be Vietnam Pro', system-ui, sans-serif;
+  --radius-sm: 0.25rem;
+  --radius-default: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-headline);
+  color: var(--color-primary);
+}
+

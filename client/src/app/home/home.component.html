@@ -1,0 +1,142 @@
+<app-navbar></app-navbar>
+
+<section class="hero-home">
+  <div class="hero-bg"></div>
+  <div class="hero-home-contenido">
+    <span class="hero-badge">TRADICIÓN & CALIDAD</span>
+    <h1 class="hero-titulo-principal">El aroma de lo auténtico</h1>
+    <p class="hero-descripcion-principal">Panadería artesanal peruana. Cada horneada cuenta una historia de tradición, calidad y sabor.</p>
+    <div class="hero-acciones-principal">
+      <a routerLink="/catalogo" class="btn-primario">Ver Catálogo</a>
+      <a routerLink="/historia" class="btn-secundario">Nuestra Historia</a>
+    </div>
+  </div>
+</section>
+
+
+<section class="stats-seccion">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <span class="stat-numero">100%</span>
+      <span class="stat-etiqueta">Artesanal</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-numero">0%</span>
+      <span class="stat-etiqueta">Aditivos</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-numero">30+</span>
+      <span class="stat-etiqueta">Años de Tradición</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-numero">100%</span>
+      <span class="stat-etiqueta">Peruano</span>
+    </div>
+  </div>
+</section>
+
+<section class="esencia-seccion">
+  <div class="esencia-container">
+    <h2 class="seccion-titulo">Nuestra Esencia</h2>
+    <p class="seccion-subtitulo">Tres pilares que definen cada pieza que horneamos.</p>
+    <div class="esencia-grid">
+      <article class="esencia-card">
+        <div class="esencia-icono-wrapper">
+          <svg class="esencia-icono" viewBox="0 0 24 24" width="40" height="40" fill="currentColor" aria-hidden="true">
+            <path d="M23 5.5V20c0 2.2-1.8 4-4 4h-7.3c-1.08 0-2.1-.43-2.85-1.19L1 14.83c-.34-.34-.34-.88.02-1.21.34-.32.87-.3 1.19-.03.08.07.16.14.24.21.43.41.96.81 1.38 1.15 1.4 1.15 1.58 1.39 2.17 2.04V5.5C5.5 4.67 6.17 4 7 4s1.5.67 1.5 1.5v5.5c0 .28.22.5.5.5s.5-.22.5-.5V3c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v8.5c0 .28.22.5.5.5s.5-.22.5-.5V4c0-.83.67-1.5 1.5-1.5S16.5 3.17 16.5 4v7.5c0 .28.22.5.5.5s.5-.22.5-.5V5.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5z"/>
+          </svg>
+        </div>
+        <h3 class="esencia-card-titulo">Artesanal</h3>
+        <p class="esencia-card-desc">Respetamos los tiempos naturales de fermentación, utilizando técnicas ancestrales que garantizan un sabor y textura inigualables.</p>
+      </article>
+      <article class="esencia-card">
+        <div class="esencia-icono-wrapper">
+          <svg class="esencia-icono" viewBox="0 0 24 24" width="40" height="40" fill="currentColor" aria-hidden="true">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+          </svg>
+        </div>
+        <h3 class="esencia-card-titulo">Local</h3>
+        <p class="esencia-card-desc">Colaboramos con productores locales para obtener granos de la mejor calidad, apoyando el crecimiento de nuestra comunidad.</p>
+      </article>
+      <article class="esencia-card">
+        <div class="esencia-icono-wrapper">
+          <svg class="esencia-icono" viewBox="0 0 24 24" width="40" height="40" fill="currentColor" aria-hidden="true">
+            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+          </svg>
+        </div>
+        <h3 class="esencia-card-titulo">Fresco</h3>
+        <p class="esencia-card-desc">Horneamos diariamente en lotes pequeños para asegurar que cada bocado llegue a tu mesa con la máxima frescura posible.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="slide-seccion">
+  <div class="slide-contenedor">
+    <h2 class="seccion-titulo">Favoritos de la Comarca</h2>
+    <p class="seccion-subtitulo">Desliza para descubrir nuestros panes más queridos.</p>
+
+    @if (loading()) {
+      <app-loading></app-loading>
+    } @else if (featuredProducts().length > 0) {
+      <div class="slide-wrapper">
+        <button class="slide-flecha slide-flecha--izq" (click)="scrollSlide(-1)" aria-label="Anterior">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+          </svg>
+        </button>
+        <div class="slide-track" #slideTrack (scroll)="actualizarSlidePosicion()">
+          @for (product of featuredProducts(); track product.id_producto) {
+            <article class="slide-card">
+              <a [routerLink]="['/catalogo', product.id_producto]" class="slide-card-enlace">
+                <div class="slide-card-img-wrap">
+                  <img [src]="product.imagen" [alt]="product.nombre" class="slide-card-img" loading="lazy" />
+                </div>
+                <div class="slide-card-cuerpo">
+                  <span class="slide-card-categoria">{{ getCategoriaName(product.id_categoria) }}</span>
+                  <h3 class="slide-card-nombre">{{ product.nombre }}</h3>
+                  <p class="slide-card-desc">{{ product.descripcion }}</p>
+                  <p class="slide-card-precio">S/ {{ product.precio_unitario.toFixed(2) }}</p>
+                </div>
+              </a>
+              <button class="slide-card-btn" [class.slide-card-btn--added]="isAdded(product.id_producto)" (click)="addToCart(product, $event)">
+                @if (isAdded(product.id_producto)) {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                  </svg>
+                  Agregado
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25z"/>
+                  </svg>
+                  Añadir al Carrito
+                }
+              </button>
+            </article>
+          }
+        </div>
+        <button class="slide-flecha slide-flecha--der" (click)="scrollSlide(1)" aria-label="Siguiente">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="slide-dots">
+        @for (product of featuredProducts(); track product.id_producto; let i = $index) {
+          <button class="slide-dot" [class.slide-dot--activo]="slideIndex() === i" (click)="irASlide(i)" aria-label="Ir al slide {{i+1}}"></button>
+        }
+      </div>
+    }
+
+    <div class="slide-ver-todos">
+      <a routerLink="/catalogo" class="btn-ver-todos-home">
+        Ver todo el catálogo
+        <svg class="icon-arrow-home" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>

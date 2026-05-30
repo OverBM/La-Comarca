@@ -1,0 +1,79 @@
+/* Estilos de gestión de inventario */
+
+.page-title {
+  font-family: var(--font-headline);
+  color: var(--color-primary);
+}
+
+.btn-primary {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: var(--radius-default);
+}
+
+.btn-secondary {
+  border: 1.5px solid var(--color-outline);
+  color: var(--color-on-surface-variant);
+  border-radius: var(--radius-default);
+}
+
+.form-card {
+  background-color: var(--color-surface-container-low);
+  border-radius: var(--radius-default);
+}
+
+.form-input {
+  border-radius: var(--radius-default);
+}
+
+.section-card {
+  background-color: var(--color-surface-container-low);
+  border-radius: var(--radius-default);
+}
+
+.section-title {
+  color: var(--color-primary);
+}
+
+.data-table {
+  border-color: var(--color-outline-variant);
+}
+
+.table-header-row {
+  border-bottom: 2px solid var(--color-secondary);
+}
+
+.table-header {
+  color: var(--color-on-surface);
+}
+
+.bg-low-stock {
+  background-color: #fff5f5;
+}
+
+.stock-badge-low {
+  background-color: var(--color-error);
+  color: white;
+}
+
+.stock-badge-normal {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.text-positive {
+  color: var(--color-success);
+}
+
+.text-negative {
+  color: var(--color-error);
+}
+
+.text-on-surface-variant {
+  color: var(--color-on-surface-variant);
+}
+
+.movement-item {
+  border-color: var(--color-outline-variant) !important;
+}

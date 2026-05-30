@@ -1,0 +1,92 @@
+<div class="login-page">
+  <div class="login-imagen-col">
+    <div class="login-imagen-overlay"></div>
+    <div class="login-imagen-contenido">
+      <a routerLink="/" class="login-back-btn" aria-label="Volver al inicio">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Volver
+      </a>
+      <svg class="login-imagen-logo" viewBox="0 0 24 24" width="56" height="56" fill="currentColor" aria-hidden="true">
+        <path d="M17.66 11.2c-.18-4.92-3.66-7.2-5.66-9.2-1.5 1.5-3.16 4.66-3.5 7.74-.24 2.14.74 4.18 2.46 5.47-.86-.27-1.46-1.07-1.46-2.01 0-.44.12-.86.34-1.22.12-.2.14-.45.04-.66-.1-.21-.3-.35-.54-.4-.24-.05-.48.03-.66.2-.88.82-1.39 1.97-1.39 3.22 0 2.32 1.87 4.19 4.19 4.19 2.7 0 4.64-2.14 4.82-4.83.04-.38.02-.76-.1-1.12-.09-.3-.14-.72-.14-1.14 0-.32.02-.64.08-.96.14.18.28.36.4.56.4.66.64 1.46.64 2.32 0 1.1-.5 2.1-1.28 2.74 1.5-1.1 2.48-2.62 2.48-4.64z"/>
+      </svg>
+      <h2 class="login-imagen-titulo">La Comarca</h2>
+      <p class="login-imagen-desc">Panadería artesanal peruana. Tradición y calidad en cada horneada.</p>
+    </div>
+  </div>
+
+  <div class="login-form-col">
+    <div class="login-form-wrapper">
+      <div class="login-form-header">
+        <h1 class="login-titulo">Bienvenido</h1>
+        <p class="login-subtitulo">Inicia sesión para continuar</p>
+      </div>
+
+      @if (error) {
+        <div class="login-alerta" role="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+          <span>{{ error }}</span>
+        </div>
+      }
+
+      <form (ngSubmit)="login()" class="login-form">
+        <div class="login-campo">
+          <label for="email" class="login-label">Correo Electrónico</label>
+          <div class="login-input-wrapper">
+            <svg class="login-input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+            <input
+              id="email"
+              type="email"
+              class="login-input"
+              [(ngModel)]="email"
+              name="email"
+              placeholder="correo@ejemplo.com"
+              required
+              autocomplete="email"
+            >
+          </div>
+        </div>
+
+        <div class="login-campo">
+          <label for="password" class="login-label">Contraseña</label>
+          <div class="login-input-wrapper">
+            <svg class="login-input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+            </svg>
+            <input
+              id="password"
+              type="password"
+              class="login-input"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="••••••••"
+              required
+              autocomplete="current-password"
+            >
+          </div>
+        </div>
+
+        <button type="submit" class="login-btn" [disabled]="loading">
+          @if (loading) {
+            <span class="login-spinner"></span>
+          }
+          @if (!loading) {
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+            </svg>
+          }
+          {{ loading ? 'Ingresando...' : 'Iniciar Sesión' }}
+        </button>
+      </form>
+
+      <p class="login-demo">
+        Demo: admin&#64;comarca.com / admin123
+      </p>
+    </div>
+  </div>
+</div>

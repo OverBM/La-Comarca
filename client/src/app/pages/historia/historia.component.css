@@ -1,0 +1,26 @@
+/* Estilos compartidos para páginas placeholder */
+.placeholder-page {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Icono decorativo de la página con opacidad sutil */
+.placeholder-icon {
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.placeholder-title {
+  font-family: var(--font-headline);
+  color: var(--color-primary);
+  margin-bottom: 0.75rem;
+}
+
+.placeholder-subtitle {
+  color: var(--color-on-surface-variant);
+}
