@@ -15,6 +15,7 @@ import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo
 
 @Component({
   selector: 'app-carrito',
+  standalone: true,
   imports: [RouterLink, FormsModule, FormatoPrecioPipe, LoadingComponent, NavbarComponent, FooterComponent, DialogoConfirmacionComponent],
   templateUrl: './carrito.component.html',
   styleUrl: './carrito.component.css',
@@ -37,8 +38,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
   protected addedProducts = signal<Set<string>>(new Set());
 
   readonly envio = computed(() => this.recogerEnTienda() ? 0 : (this.carritoService.total() > 50 ? 0 : 9.90));
-  readonly descuento = computed(() => this.carritoService.total() > 100 ? this.carritoService.total() * 0.05 : 0);
-  readonly totalFinal = computed(() => this.carritoService.total() + this.envio() - this.descuento());
+  readonly totalFinal = computed(() => this.carritoService.total() + this.envio());
 
   protected pendingAction = signal<{ id: string; tipo: 'eliminar' | 'decrementar' } | null>(null);
 

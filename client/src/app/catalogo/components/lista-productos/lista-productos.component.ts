@@ -14,6 +14,7 @@ import { DURACION_FEEDBACK } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-lista-productos',
+  standalone: true,
   imports: [RouterLink, FormsModule, LoadingComponent, NavbarComponent, FooterComponent, FormatoPrecioPipe],
   templateUrl: './lista-productos.component.html',
   styleUrl: './lista-productos.component.css',

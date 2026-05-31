@@ -4,6 +4,7 @@ import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo
 
 @Component({
   selector: 'app-gestion-roles',
+  standalone: true,
   imports: [DialogoConfirmacionComponent],
   templateUrl: './gestion-roles.component.html',
   styleUrl: './gestion-roles.component.css',

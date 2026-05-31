@@ -13,6 +13,7 @@ import { DURACION_FEEDBACK } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-home',
+  standalone: true,
   imports: [RouterLink, LoadingComponent, NavbarComponent, FooterComponent, FormatoPrecioPipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',

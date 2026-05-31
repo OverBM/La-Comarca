@@ -11,19 +11,17 @@ export class DireccionService {
   constructor() {
     effect(() => {
       const data = this.direccionesSignal();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     });
   }
 
   private cargarDesdeStorage(): Direccion[] {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = sessionStorage.getItem(STORAGE_KEY);
       if (stored) return JSON.parse(stored) as Direccion[];
     } catch {
     }
-    return [
-      { id: 'dir-001', calle: 'Av. Los Panaderos 456', ciudad: 'Miraflores', referencia: 'Cerca a la plaza', esPrincipal: true },
-    ];
+    return [];
   }
 
   agregarDireccion(d: Omit<Direccion, 'id'>): void {

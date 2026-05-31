@@ -27,7 +27,7 @@ export class AdminProductosService {
     if (environment.useMock) {
       const nuevo = { ...producto, id_producto: `prod-${Date.now()}` };
       MOCK_PRODUCTOS.push(nuevo);
-      return of(nuevo).pipe(delay(RETARDO_MOCK));
+      return of({ ...nuevo }).pipe(delay(RETARDO_MOCK));
     }
     return this.http.post<Producto>(this.apiUrl, producto);
   }
@@ -36,7 +36,7 @@ export class AdminProductosService {
     if (environment.useMock) {
       const idx = MOCK_PRODUCTOS.findIndex(p => p.id_producto === id);
       if (idx !== -1) MOCK_PRODUCTOS[idx] = { ...MOCK_PRODUCTOS[idx], ...producto };
-      return of(MOCK_PRODUCTOS[idx]).pipe(delay(RETARDO_MOCK));
+      return of({ ...MOCK_PRODUCTOS[idx] }).pipe(delay(RETARDO_MOCK));
     }
     return this.http.put<Producto>(`${this.apiUrl}/${id}`, producto);
   }

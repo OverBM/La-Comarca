@@ -9,6 +9,7 @@ import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
   imports: [LoadingComponent, FormatoPrecioPipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',

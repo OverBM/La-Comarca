@@ -1,19 +1,23 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
+import { delay, takeUntil } from 'rxjs/operators';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { TelefonoPipe } from '../../shared/pipes/telefono.pipe';
 import { RETARDO_MOCK } from '../../core/constants/app.constants';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-contacto',
+  standalone: true,
   imports: [FormsModule, NavbarComponent, FooterComponent, TelefonoPipe],
   templateUrl: './contacto.component.html',
   styleUrl: './contacto.component.css',
 })
-export class ContactoComponent {
+export class ContactoComponent implements OnDestroy {
+  private document = inject(DOCUMENT);
+  private destroy$ = new Subject<void>();
   private _nombre = signal('');
   get nombre(): string { return this._nombre(); }
   set nombre(v: string) { this._nombre.set(v); }
@@ -41,7 +45,7 @@ export class ContactoComponent {
     }
     this.enviando.set(true);
     this.error.set('');
-    of({ exito: true }).pipe(delay(RETARDO_MOCK)).subscribe({
+    of({ exito: true }).pipe(delay(RETARDO_MOCK), takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.enviado.set(true);
         this.enviando.set(false);
@@ -55,5 +59,14 @@ export class ContactoComponent {
         this.enviando.set(false);
       },
     });
+  }
+
+  abrirMapa(): void {
+    this.document.defaultView?.open('https://maps.google.com/?q=Av+La+Mar+1234+Miraflores+Lima', '_blank');
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

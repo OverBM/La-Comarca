@@ -4,6 +4,7 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
 
 @Component({
   selector: 'app-pedidos',
+  standalone: true,
   imports: [NavbarComponent, FooterComponent],
   templateUrl: './pedidos.component.html',
   styleUrl: './pedidos.component.css',

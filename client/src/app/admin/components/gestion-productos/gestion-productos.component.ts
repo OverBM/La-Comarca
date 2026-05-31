@@ -10,6 +10,7 @@ import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo
 
 @Component({
   selector: 'app-gestion-productos',
+  standalone: true,
   imports: [FormsModule, LoadingComponent, DialogoConfirmacionComponent],
   templateUrl: './gestion-productos.component.html',
   styleUrl: './gestion-productos.component.css',

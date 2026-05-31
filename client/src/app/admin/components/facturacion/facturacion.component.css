@@ -257,13 +257,13 @@
 }
 
 .fact-badge--enviando {
-  background: #fff3e0;
-  color: #e65100;
+  background: var(--color-warning-container);
+  color: var(--color-warning);
 }
 
 .fact-badge--pendiente {
-  background: #fff8e1;
-  color: #f57f17;
+  background: var(--color-warning-container);
+  color: var(--color-on-warning-container);
 }
 
 .fact-badge--rechazado {

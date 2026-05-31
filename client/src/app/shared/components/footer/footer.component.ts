@@ -4,6 +4,7 @@ import { DURACION_FEEDBACK_NEWSLETTER } from '../../../core/constants/app.consta
 
 @Component({
   selector: 'app-footer',
+  standalone: true,
   imports: [RouterLink],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.css',

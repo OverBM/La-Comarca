@@ -9,6 +9,7 @@ import { FormatoPrecioPipe } from '../../shared/pipes/formato-precio.pipe';
 
 @Component({
   selector: 'app-perfil',
+  standalone: true,
   imports: [FormsModule, NavbarComponent, FooterComponent, FormatoPrecioPipe, DatePipe],
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.css',

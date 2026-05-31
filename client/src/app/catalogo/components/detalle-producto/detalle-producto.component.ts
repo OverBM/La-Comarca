@@ -13,6 +13,7 @@ import { DURACION_FEEDBACK, URL_IMAGEN_PLACEHOLDER } from '../../../core/constan
 
 @Component({
   selector: 'app-detalle-producto',
+  standalone: true,
   imports: [RouterLink, LoadingComponent, NavbarComponent, FooterComponent, FormatoPrecioPipe],
   templateUrl: './detalle-producto.component.html',
   styleUrl: './detalle-producto.component.css',

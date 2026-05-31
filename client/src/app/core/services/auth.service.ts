@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 import { StorageService } from './storage.service';
 import { RETARDO_MOCK } from '../constants/app.constants';
 import { MOCK_USUARIOS } from '../mocks/usuarios.mock';
-import { Token, TokenPayload } from '../../auth/models/token.model';
+import { TokenPayload } from '../../auth/models/token.model';
 
 export interface AuthState {
   isAuthenticated: boolean;

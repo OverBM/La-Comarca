@@ -125,17 +125,6 @@
   cursor: pointer;
   font-family: var(--font-body);
 }
-.nav-admin-link {
-  background-color: var(--color-primary-container);
-  color: var(--color-on-primary) !important;
-  padding: 0.4rem 0.75rem;
-  border-radius: var(--radius-default);
-  font-weight: 600;
-  font-size: 0.8rem;
-}
-.nav-admin-link:hover {
-  filter: brightness(1.1);
-}
 .nav-badge {
   position: absolute;
   top: -2px;

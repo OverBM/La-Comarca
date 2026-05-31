@@ -21,6 +21,10 @@
   --color-outline-variant: #d5c3bd;
   --color-error: #ba1a1a;
   --color-success: #6B705C;
+  --color-warning: #904d00;
+  --color-warning-container: #ffdcc3;
+  --color-on-warning: #ffffff;
+  --color-on-warning-container: #2f1500;
   --font-headline: 'Newsreader', Georgia, serif;
   --font-body: 'Be Vietnam Pro', system-ui, sans-serif;
   --radius-sm: 0.25rem;

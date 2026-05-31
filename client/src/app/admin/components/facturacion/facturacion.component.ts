@@ -8,6 +8,7 @@ import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
 
 @Component({
   selector: 'app-facturacion',
+  standalone: true,
   imports: [DatePipe, LoadingComponent, FormatoPrecioPipe],
   templateUrl: './facturacion.component.html',
   styleUrl: './facturacion.component.css',

@@ -9,6 +9,7 @@ import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
 
 @Component({
   selector: 'app-gestion-pedidos',
+  standalone: true,
   imports: [LoadingComponent, DatePipe, FormatoPrecioPipe],
   templateUrl: './gestion-pedidos.component.html',
   styleUrl: './gestion-pedidos.component.css',

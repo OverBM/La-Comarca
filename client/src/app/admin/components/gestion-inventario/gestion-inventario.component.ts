@@ -8,6 +8,7 @@ import { Producto } from '../../../core/models/producto.model';
 import { CatalogoService } from '../../../catalogo/services/catalogo.service';
 @Component({
   selector: 'app-gestion-inventario',
+  standalone: true,
   imports: [FormsModule],
   templateUrl: './gestion-inventario.component.html',
   styleUrl: './gestion-inventario.component.css',

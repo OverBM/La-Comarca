@@ -5,6 +5,7 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
 
 @Component({
   selector: 'app-admin-layout',
+  standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, FooterComponent],
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.css',
