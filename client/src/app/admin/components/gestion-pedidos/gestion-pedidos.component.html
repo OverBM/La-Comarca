@@ -37,15 +37,15 @@
               <tr>
                 <td class="small">{{ det.id_producto }}</td>
                 <td class="small text-end">{{ det.cantidad }}</td>
-                <td class="small text-end">S/ {{ det.precio_unitario.toFixed(2) }}</td>
-                <td class="small text-end fw-semibold">S/ {{ det.subtotal.toFixed(2) }}</td>
+                <td class="small text-end">{{ det.precio_unitario | formatoPrecio }}</td>
+                <td class="small text-end fw-semibold">{{ det.subtotal | formatoPrecio }}</td>
               </tr>
             }
           </tbody>
           <tfoot>
             <tr>
               <td colspan="3" class="text-end fw-bold small">Total</td>
-              <td class="total-cell text-end fw-bold">S/ {{ pedido.total.toFixed(2) }}</td>
+              <td class="total-cell text-end fw-bold">{{ pedido.total | formatoPrecio }}</td>
             </tr>
           </tfoot>
         </table>
@@ -72,7 +72,7 @@
                 <td class="small fw-semibold">{{ ped.id_pedido }}</td>
                 <td class="small">{{ ped.cliente }}</td>
                 <td class="small">{{ ped.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
-                <td class="total-cell small text-end fw-semibold">S/ {{ ped.total.toFixed(2) }}</td>
+                <td class="total-cell small text-end fw-semibold">{{ ped.total | formatoPrecio }}</td>
                 <td>
                   <button class="btn btn-sm btn-view" (click)="viewDetail(ped.id_pedido)">Ver</button>
                 </td>

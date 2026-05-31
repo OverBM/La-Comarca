@@ -1,21 +1,24 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subject, forkJoin, switchMap, takeUntil } from 'rxjs';
 import { CatalogoService } from '../../services/catalogo.service';
-import { Producto } from '../../models/producto.model';
-import { Categoria } from '../../models/categoria.model';
+import { Producto } from '../../../core/models/producto.model';
+import { Categoria } from '../../../core/models/categoria.model';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
-import { CartService } from '../../../core/services/cart.service';
+import { CarritoService } from '../../../shared/services/carrito.service';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
+import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
+import { DURACION_FEEDBACK } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-lista-productos',
-  imports: [RouterLink, FormsModule, LoadingComponent, NavbarComponent, FooterComponent],
+  imports: [RouterLink, FormsModule, LoadingComponent, NavbarComponent, FooterComponent, FormatoPrecioPipe],
   templateUrl: './lista-productos.component.html',
   styleUrl: './lista-productos.component.css',
 })
-export class ListaProductosComponent implements OnInit {
+export class ListaProductosComponent implements OnInit, OnDestroy {
   productos = signal<Producto[]>([]);
   categorias = signal<Categoria[]>([]);
   loading = signal(true);
@@ -23,29 +26,38 @@ export class ListaProductosComponent implements OnInit {
   selectedCategory = signal('');
   sortBy = signal('');
 
-  private allProducts: Producto[] = [];
+  private allProducts = signal<Producto[]>([]);
   private catalogoService = inject(CatalogoService);
-  private cartService = inject(CartService);
+  private carritoService = inject(CarritoService);
   private route = inject(ActivatedRoute);
+  private destroy$ = new Subject<void>();
 
   addedProductIds = signal<Set<string>>(new Set());
 
   ngOnInit(): void {
-    this.catalogoService.getCategorias().subscribe(cats => this.categorias.set(cats));
-    this.catalogoService.getProductos().subscribe({
-      next: (products) => {
-        this.allProducts = products;
-        this.route.queryParams.subscribe(params => {
-          const q = params['q'];
-          if (q) {
-            this.searchQuery.set(q);
-          }
-          this.applyFilters();
-        });
+    forkJoin({
+      categorias: this.catalogoService.getCategorias().pipe(takeUntil(this.destroy$)),
+      productos: this.catalogoService.getProductos().pipe(takeUntil(this.destroy$)),
+    }).pipe(
+      takeUntil(this.destroy$),
+      switchMap(({ categorias, productos }) => {
+        this.categorias.set(categorias);
+        this.allProducts.set(productos);
         this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
+        return this.route.queryParams.pipe(takeUntil(this.destroy$));
+      }),
+    ).subscribe(params => {
+      const q = params['q'];
+      if (q) {
+        this.searchQuery.set(q);
+      }
+      this.applyFilters();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   filterByCategory(categoriaId: string): void {
@@ -64,7 +76,7 @@ export class ListaProductosComponent implements OnInit {
   }
 
   private applyFilters(): void {
-    let filtered = [...this.allProducts];
+    let filtered = [...this.allProducts()];
     const cat = this.selectedCategory();
     if (cat) {
       filtered = filtered.filter(p => p.id_categoria === cat);
@@ -89,13 +101,13 @@ export class ListaProductosComponent implements OnInit {
   clearFilters(): void {
     this.selectedCategory.set('');
     this.searchQuery.set('');
-    this.productos.set([...this.allProducts]);
+    this.productos.set([...this.allProducts()]);
   }
 
   agregarAlCarrito(event: Event, product: Producto): void {
     event.stopPropagation();
     event.preventDefault();
-    this.cartService.addItem(product, 1);
+    this.carritoService.agregarItem(product, 1);
     this.addedProductIds.update(set => {
       const newSet = new Set(set);
       newSet.add(product.id_producto);
@@ -107,6 +119,6 @@ export class ListaProductosComponent implements OnInit {
         newSet.delete(product.id_producto);
         return newSet;
       });
-    }, 1500);
+    }, DURACION_FEEDBACK);
   }
 }

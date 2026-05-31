@@ -1,25 +1,31 @@
-﻿import { Component, OnInit, signal } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { AdminProductosService } from '../../services/admin-productos.service';
-import { Producto } from '../../../catalogo/models/producto.model';
-import { Categoria } from '../../../catalogo/models/categoria.model';
+import { Producto } from '../../../core/models/producto.model';
+import { Categoria } from '../../../core/models/categoria.model';
 import { CatalogoService } from '../../../catalogo/services/catalogo.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
+import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo-confirmacion/dialogo-confirmacion.component';
 
 @Component({
   selector: 'app-gestion-productos',
-  imports: [FormsModule, LoadingComponent],
+  imports: [FormsModule, LoadingComponent, DialogoConfirmacionComponent],
   templateUrl: './gestion-productos.component.html',
   styleUrl: './gestion-productos.component.css',
 })
-export class GestionProductosComponent implements OnInit {
+export class GestionProductosComponent implements OnInit, OnDestroy {
   productos = signal<Producto[]>([]);
   categorias = signal<Categoria[]>([]);
   loading = signal(true);
   selectedCategory = signal('');
   editingProduct = signal<Producto | null>(null);
   showForm = signal(false);
-  formData: Omit<Producto, 'id_producto'> = { id_categoria: '', nombre: '', precio_unitario: 0, descripcion: '', imagen: '' };
+  formData = signal<Omit<Producto, 'id_producto'>>({ id_categoria: '', nombre: '', precio_unitario: 0, descripcion: '', imagen: '' });
+  showConfirmDialog = signal(false);
+  pendingDeleteId = signal('');
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private adminProductosService: AdminProductosService,
@@ -27,13 +33,19 @@ export class GestionProductosComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.catalogoService.getCategorias().subscribe(c => this.categorias.set(c));
-    this.loadProductos();
+    forkJoin({
+      categorias: this.catalogoService.getCategorias().pipe(takeUntil(this.destroy$)),
+      productos: this.adminProductosService.getProductos().pipe(takeUntil(this.destroy$)),
+    }).pipe(takeUntil(this.destroy$)).subscribe(({ categorias, productos }) => {
+      this.categorias.set(categorias);
+      this.productos.set(productos);
+      this.loading.set(false);
+    });
   }
 
   loadProductos(): void {
     this.loading.set(true);
-    this.adminProductosService.getProductos().subscribe(p => {
+    this.adminProductosService.getProductos().pipe(takeUntil(this.destroy$)).subscribe(p => {
       this.productos.set(p);
       this.loading.set(false);
     });
@@ -43,7 +55,7 @@ export class GestionProductosComponent implements OnInit {
     this.selectedCategory.set(catId);
     this.loading.set(true);
     if (catId) {
-      this.adminProductosService.getProductosByCategoria(catId).subscribe(p => {
+      this.adminProductosService.getProductosByCategoria(catId).pipe(takeUntil(this.destroy$)).subscribe(p => {
         this.productos.set(p);
         this.loading.set(false);
       });
@@ -54,29 +66,34 @@ export class GestionProductosComponent implements OnInit {
 
   openCreateForm(): void {
     this.editingProduct.set(null);
-    this.formData = { id_categoria: '', nombre: '', precio_unitario: 0, descripcion: '', imagen: '' };
+    this.formData.set({ id_categoria: '', nombre: '', precio_unitario: 0, descripcion: '', imagen: '' });
     this.showForm.set(true);
   }
 
   openEditForm(product: Producto): void {
     this.editingProduct.set(product);
-    this.formData = { id_categoria: product.id_categoria, nombre: product.nombre, precio_unitario: product.precio_unitario, descripcion: product.descripcion, imagen: product.imagen };
+    this.formData.set({ id_categoria: product.id_categoria, nombre: product.nombre, precio_unitario: product.precio_unitario, descripcion: product.descripcion, imagen: product.imagen });
     this.showForm.set(true);
   }
 
+  actualizarFormData(campo: string, valor: string | number): void {
+    this.formData.update(d => ({ ...d, [campo]: valor }));
+  }
+
   saveProduct(): void {
-    if (this.formData.precio_unitario < 0) {
-      this.formData.precio_unitario = 0;
+    const fd = this.formData();
+    if (fd.precio_unitario < 0) {
+      this.formData.update(d => ({ ...d, precio_unitario: 0 }));
     }
-    if (!this.formData.nombre.trim()) return;
+    if (!fd.nombre.trim()) return;
     const edit = this.editingProduct();
     if (edit) {
-      this.adminProductosService.updateProducto(edit.id_producto, this.formData).subscribe(() => {
+      this.adminProductosService.updateProducto(edit.id_producto, this.formData()).pipe(takeUntil(this.destroy$)).subscribe(() => {
         this.showForm.set(false);
         this.loadProductos();
       });
     } else {
-      this.adminProductosService.createProducto(this.formData).subscribe(() => {
+      this.adminProductosService.createProducto(this.formData()).pipe(takeUntil(this.destroy$)).subscribe(() => {
         this.showForm.set(false);
         this.loadProductos();
       });
@@ -84,13 +101,30 @@ export class GestionProductosComponent implements OnInit {
   }
 
   deleteProduct(id: string): void {
-    if (confirm('¿Eliminar este producto?')) {
-      this.adminProductosService.deleteProducto(id).subscribe(() => this.loadProductos());
-    }
+    this.pendingDeleteId.set(id);
+    this.showConfirmDialog.set(true);
+  }
+
+  onConfirmarEliminar(): void {
+    const id = this.pendingDeleteId();
+    if (!id) return;
+    this.showConfirmDialog.set(false);
+    this.pendingDeleteId.set('');
+    this.adminProductosService.deleteProducto(id).pipe(takeUntil(this.destroy$)).subscribe(() => this.loadProductos());
+  }
+
+  onCancelarEliminar(): void {
+    this.showConfirmDialog.set(false);
+    this.pendingDeleteId.set('');
   }
 
   cancelForm(): void {
     this.showForm.set(false);
     this.editingProduct.set(null);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

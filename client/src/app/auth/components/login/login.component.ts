@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, signal, OnDestroy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
+import { Subject, takeUntil } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -9,29 +10,42 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
-export class LoginComponent {
-  email = '';
-  password = '';
-  error = '';
-  loading = false;
+export class LoginComponent implements OnDestroy {
+  private _email = signal('');
+  get email(): string { return this._email(); }
+  set email(v: string) { this._email.set(v); }
+
+  private _password = signal('');
+  get password(): string { return this._password(); }
+  set password(v: string) { this._password.set(v); }
+
+  error = signal('');
+  loading = signal(false);
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private authService: AuthService,
     private router: Router,
   ) {}
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   login(): void {
-    if (!this.email || !this.password) {
-      this.error = 'Ingrese email y contraseña';
+    if (!this._email() || !this._password()) {
+      this.error.set('Ingrese email y contraseña');
       return;
     }
 
-    this.loading = true;
-    this.error = '';
+    this.loading.set(true);
+    this.error.set('');
 
-    this.authService.login(this.email, this.password).subscribe({
+    this.authService.login(this._email(), this._password()).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
-        this.loading = false;
+        this.loading.set(false);
         if (res.usuario.rol === 'admin') {
           this.router.navigate(['/admin/dashboard']);
         } else {
@@ -39,8 +53,8 @@ export class LoginComponent {
         }
       },
       error: (err) => {
-        this.loading = false;
-        this.error = err.message || 'Credenciales incorrectas';
+        this.loading.set(false);
+        this.error.set(err.message || 'Credenciales incorrectas');
       },
     });
   }

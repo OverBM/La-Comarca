@@ -1,10 +1,12 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { delay, map, tap } from 'rxjs/operators';
+import { delay, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { StorageService } from '../../core/services/storage.service';
-import { Token, TokenPayload } from '../models/token.model';
+import { StorageService } from './storage.service';
+import { RETARDO_MOCK } from '../constants/app.constants';
+import { MOCK_USUARIOS } from '../mocks/usuarios.mock';
+import { Token, TokenPayload } from '../../auth/models/token.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -44,14 +46,9 @@ export class AuthService {
   }
 
   private mockLogin(email: string, password: string): Observable<{ token: string; usuario: { id_usuario: string; nombre: string; rol: string } }> {
-    const users: Record<string, { id_usuario: string; nombre: string; password: string; rol: 'admin' | 'cliente' }> = {
-      'admin@comarca.com': { id_usuario: 'usr-001', nombre: 'Admin La Comarca', password: 'admin123', rol: 'admin' },
-      'cliente@comarca.com': { id_usuario: 'usr-002', nombre: 'Cliente Demo', password: 'cliente123', rol: 'cliente' },
-    };
-
-    const user = users[email];
+    const user = MOCK_USUARIOS[email];
     if (!user || user.password !== password) {
-      return throwError(() => new Error('Credenciales incorrectas')).pipe(delay(800));
+      return throwError(() => new Error('Credenciales incorrectas')).pipe(delay(RETARDO_MOCK));
     }
 
     const tokenPayload: TokenPayload = { sub: user.id_usuario, email, rol: user.rol, nombre: user.nombre };
@@ -61,7 +58,7 @@ export class AuthService {
       token: fakeToken,
       usuario: { id_usuario: user.id_usuario, nombre: user.nombre, rol: user.rol },
     }).pipe(
-      delay(800),
+      delay(RETARDO_MOCK),
       tap(res => this.handleLoginSuccess(res.token, res.usuario)),
     );
   }

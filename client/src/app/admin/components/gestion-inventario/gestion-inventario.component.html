@@ -13,7 +13,7 @@
         <div class="row g-3">
           <div class="col-md-3">
             <label class="form-label small">Producto</label>
-            <select class="form-select form-select-sm" [(ngModel)]="movForm.id_producto">
+            <select class="form-select form-select-sm" [ngModel]="movForm().id_producto" (ngModelChange)="actualizarMovForm('id_producto', $event)">
               <option value="">Seleccionar...</option>
               @for (p of productos(); track p.id_producto) {
                 <option [value]="p.id_producto">{{ p.nombre }}</option>
@@ -22,7 +22,7 @@
           </div>
           <div class="col-md-2">
             <label class="form-label small">Tipo</label>
-            <select class="form-select form-select-sm" [(ngModel)]="movForm.tipo">
+            <select class="form-select form-select-sm" [ngModel]="movForm().tipo" (ngModelChange)="actualizarMovForm('tipo', $event)">
               <option value="entrada">Entrada</option>
               <option value="salida">Salida</option>
               <option value="ajuste">Ajuste</option>
@@ -30,11 +30,11 @@
           </div>
           <div class="col-md-2">
             <label class="form-label small">Cantidad</label>
-            <input class="form-input form-control form-control-sm" type="number" min="0" [(ngModel)]="movForm.cantidad">
+            <input class="form-input form-control form-control-sm" type="number" min="0" [ngModel]="movForm().cantidad" (ngModelChange)="actualizarMovForm('cantidad', $event)">
           </div>
           <div class="col-md-3">
             <label class="form-label small">Motivo</label>
-            <input class="form-input form-control form-control-sm" [(ngModel)]="movForm.motivo">
+            <input class="form-input form-control form-control-sm" [ngModel]="movForm().motivo" (ngModelChange)="actualizarMovForm('motivo', $event)">
           </div>
           <div class="col-md-2 d-flex align-items-end">
             <button class="btn btn-sm fw-semibold me-2 btn-primary" (click)="registerMovement()">Guardar</button>

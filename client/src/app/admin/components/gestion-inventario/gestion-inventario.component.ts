@@ -1,9 +1,10 @@
-﻿import { Component, OnInit, signal } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Subject, forkJoin, switchMap, takeUntil } from 'rxjs';
 import { InventarioService } from '../../services/inventario.service';
 import { Inventario } from '../../models/inventario.model';
 import { MovimientoInventario } from '../../models/movimiento.model';
-import { Producto } from '../../../catalogo/models/producto.model';
+import { Producto } from '../../../core/models/producto.model';
 import { CatalogoService } from '../../../catalogo/services/catalogo.service';
 @Component({
   selector: 'app-gestion-inventario',
@@ -11,13 +12,15 @@ import { CatalogoService } from '../../../catalogo/services/catalogo.service';
   templateUrl: './gestion-inventario.component.html',
   styleUrl: './gestion-inventario.component.css',
 })
-export class GestionInventarioComponent implements OnInit {
+export class GestionInventarioComponent implements OnInit, OnDestroy {
   stockList = signal<(Inventario & { producto?: Producto })[]>([]);
   movimientos = signal<MovimientoInventario[]>([]);
   productos = signal<Producto[]>([]);
   loading = signal(true);
   showMovForm = signal(false);
-  movForm = { id_producto: '', tipo: 'entrada' as 'entrada' | 'salida' | 'ajuste', cantidad: 0, motivo: '', id_usuario: 'usr-001' };
+  movForm = signal<{ id_producto: string; tipo: 'entrada' | 'salida' | 'ajuste'; cantidad: number; motivo: string; id_usuario: string }>({ id_producto: '', tipo: 'entrada', cantidad: 0, motivo: '', id_usuario: 'usr-001' });
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private inventarioService: InventarioService,
@@ -25,18 +28,34 @@ export class GestionInventarioComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.catalogoService.getProductos().subscribe(p => this.productos.set(p));
-    this.inventarioService.getStock().subscribe(s => this.stockList.set(s));
-    this.inventarioService.getUltimosMovimientos(10).subscribe(m => this.movimientos.set(m));
-    this.loading.set(false);
+    forkJoin({
+      productos: this.catalogoService.getProductos().pipe(takeUntil(this.destroy$)),
+      stock: this.inventarioService.getStock().pipe(takeUntil(this.destroy$)),
+      movimientos: this.inventarioService.getUltimosMovimientos(10).pipe(takeUntil(this.destroy$)),
+    }).pipe(takeUntil(this.destroy$)).subscribe(({ productos, stock, movimientos }) => {
+      this.productos.set(productos);
+      this.stockList.set(stock);
+      this.movimientos.set(movimientos);
+      this.loading.set(false);
+    });
+  }
+
+  actualizarMovForm(campo: string, valor: string | number): void {
+    this.movForm.update(d => ({ ...d, [campo]: valor }));
   }
 
   registerMovement(): void {
-    this.inventarioService.registerMovement(this.movForm).subscribe(() => {
+    this.inventarioService.registerMovement(this.movForm()).pipe(
+      takeUntil(this.destroy$),
+      switchMap(() => forkJoin({
+        stock: this.inventarioService.getStock(),
+        movimientos: this.inventarioService.getUltimosMovimientos(10),
+      })),
+    ).subscribe(({ stock, movimientos }) => {
       this.showMovForm.set(false);
-      this.movForm = { id_producto: '', tipo: 'entrada', cantidad: 0, motivo: '', id_usuario: 'usr-001' };
-      this.inventarioService.getStock().subscribe(s => this.stockList.set(s));
-      this.inventarioService.getUltimosMovimientos(10).subscribe(m => this.movimientos.set(m));
+      this.movForm.set({ id_producto: '', tipo: 'entrada', cantidad: 0, motivo: '', id_usuario: 'usr-001' });
+      this.stockList.set(stock);
+      this.movimientos.set(movimientos);
     });
   }
 
@@ -46,5 +65,10 @@ export class GestionInventarioComponent implements OnInit {
 
   isLowStock(item: Inventario): boolean {
     return item.stock_actual < item.stock_minimo;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

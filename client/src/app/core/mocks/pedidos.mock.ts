@@ -1,5 +1,3 @@
-import { MOCK_PRODUCTOS } from './productos.mock';
-
 export const MOCK_PEDIDOS = [
   {
     id_pedido: 'ped-001',

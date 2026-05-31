@@ -21,7 +21,7 @@
   font-size: 1.5rem;
   font-style: italic;
   font-weight: 700;
-  color: #4b2c20;
+  color: var(--color-primary-container);
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;

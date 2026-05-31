@@ -49,7 +49,7 @@
 }
 
 .bg-low-stock {
-  background-color: #fff5f5;
+  background-color: var(--color-surface-container-low);
 }
 
 .stock-badge-low {

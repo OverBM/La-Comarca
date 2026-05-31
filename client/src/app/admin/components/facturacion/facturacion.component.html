@@ -36,7 +36,7 @@
                 </span>
               </td>
               <td class="small">{{ comp.cliente }}</td>
-              <td class="total-cell small text-end fw-semibold">S/ {{ comp.total.toFixed(2) }}</td>
+              <td class="total-cell small text-end fw-semibold">{{ comp.total | formatoPrecio }}</td>
               <td class="date-cell small">{{ comp.fecha | date:'dd/MM/yyyy' }}</td>
             </tr>
           }

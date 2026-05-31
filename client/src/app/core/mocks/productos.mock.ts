@@ -1,6 +1,6 @@
-import { MOCK_CATEGORIAS } from './categorias.mock';
+import { Producto } from '../models/producto.model';
 
-export const MOCK_PRODUCTOS = [
+export const MOCK_PRODUCTOS: Producto[] = [
   {
     id_producto: 'prod-001',
     id_categoria: 'cat-001',

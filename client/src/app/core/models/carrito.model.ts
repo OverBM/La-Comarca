@@ -3,5 +3,6 @@ export interface CarritoItem {
   nombre: string;
   precio_unitario: number;
   cantidad: number;
-  imagen: string;
+  subtotal: number;
+  imagen: string | null;
 }

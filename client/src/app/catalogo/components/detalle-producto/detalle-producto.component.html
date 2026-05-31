@@ -34,7 +34,7 @@
       <div class="detalle-info-col">
         <span class="detalle-categoria">{{ categoriaNombre() }}</span>
         <h1 class="detalle-nombre">{{ product.nombre }}</h1>
-        <p class="detalle-precio">S/ {{ product.precio_unitario.toFixed(2) }}</p>
+        <p class="detalle-precio">{{ product.precio_unitario | formatoPrecio }}</p>
         <p class="detalle-descripcion">{{ product.descripcion }}</p>
 
         <div class="detalle-actions">
@@ -84,7 +84,7 @@
           </button>
 
           <p class="detalle-total">
-            Total: <span class="detalle-total-valor">S/ {{ (product.precio_unitario * cantidad()).toFixed(2) }}</span>
+            Total: <span class="detalle-total-valor">{{ total() | formatoPrecio }}</span>
           </p>
         </div>
       </div>
@@ -101,7 +101,7 @@
               </div>
               <div class="relacionados-cuerpo">
                 <h3 class="relacionados-nombre">{{ rel.nombre }}</h3>
-                <p class="relacionados-precio">S/ {{ rel.precio_unitario.toFixed(2) }}</p>
+                <p class="relacionados-precio">{{ rel.precio_unitario | formatoPrecio }}</p>
               </div>
             </a>
           }

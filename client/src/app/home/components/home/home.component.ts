@@ -1,20 +1,23 @@
-import { Component, OnInit, signal, viewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, viewChild, ElementRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CatalogoService } from '../catalogo/services/catalogo.service';
-import { Producto } from '../catalogo/models/producto.model';
-import { Categoria } from '../catalogo/models/categoria.model';
-import { CartService } from '../core/services/cart.service';
-import { LoadingComponent } from '../shared/components/loading/loading.component';
-import { NavbarComponent } from '../shared/components/navbar/navbar.component';
-import { FooterComponent } from '../shared/components/footer/footer.component';
+import { Subject, takeUntil } from 'rxjs';
+import { CatalogoService } from '../../../catalogo/services/catalogo.service';
+import { Producto } from '../../../core/models/producto.model';
+import { Categoria } from '../../../core/models/categoria.model';
+import { CarritoService } from '../../../shared/services/carrito.service';
+import { LoadingComponent } from '../../../shared/components/loading/loading.component';
+import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
+import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
+import { DURACION_FEEDBACK } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, LoadingComponent, NavbarComponent, FooterComponent],
+  imports: [RouterLink, LoadingComponent, NavbarComponent, FooterComponent, FormatoPrecioPipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   featuredProducts = signal<Producto[]>([]);
   categorias = signal<Categoria[]>([]);
   loading = signal(true);
@@ -22,22 +25,29 @@ export class HomeComponent implements OnInit {
   slideTrack = viewChild<ElementRef<HTMLElement>>('slideTrack');
   addedProducts = signal<Set<string>>(new Set());
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private catalogoService: CatalogoService,
-    private cartService: CartService
+    private carritoService: CarritoService
   ) {}
 
   ngOnInit(): void {
-    this.catalogoService.getFeaturedProductos().subscribe({
+    this.catalogoService.getFeaturedProductos().pipe(takeUntil(this.destroy$)).subscribe({
       next: (products) => {
         this.featuredProducts.set(products);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
     });
-    this.catalogoService.getCategorias().subscribe({
+    this.catalogoService.getCategorias().pipe(takeUntil(this.destroy$)).subscribe({
       next: (cats) => this.categorias.set(cats),
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   getCategoriaName(id: string): string {
@@ -47,7 +57,7 @@ export class HomeComponent implements OnInit {
 
   addToCart(product: Producto, event: Event): void {
     event.stopPropagation();
-    this.cartService.addItem(
+    this.carritoService.agregarItem(
       {
         id_producto: product.id_producto,
         nombre: product.nombre,
@@ -63,7 +73,7 @@ export class HomeComponent implements OnInit {
       const cleared = new Set(this.addedProducts());
       cleared.delete(product.id_producto);
       this.addedProducts.set(cleared);
-    }, 1500);
+    }, DURACION_FEEDBACK);
   }
 
   isAdded(id: string): boolean {

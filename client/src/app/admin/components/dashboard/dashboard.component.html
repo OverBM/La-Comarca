@@ -9,7 +9,7 @@
         <div class="kpi-card card border-0 h-100">
           <div class="card-body text-center p-4">
             <h6 class="kpi-label small">Ventas del Día</h6>
-            <h3 class="kpi-value fw-bold mt-2">S/ {{ ventasHoy().toFixed(2) }}</h3>
+            <h3 class="kpi-value fw-bold mt-2">{{ ventasHoy() | formatoPrecio }}</h3>
           </div>
         </div>
       </div>

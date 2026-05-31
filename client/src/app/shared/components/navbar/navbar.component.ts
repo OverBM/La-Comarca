@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { AuthService } from '../../../auth/services/auth.service';
-import { CartService } from '../../../core/services/cart.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { CarritoService } from '../../services/carrito.service';
 
 @Component({
   selector: 'app-navbar',
@@ -11,7 +11,7 @@ import { CartService } from '../../../core/services/cart.service';
 })
 export class NavbarComponent {
   protected authService = inject(AuthService);
-  protected cartService = inject(CartService);
+  protected carritoService = inject(CarritoService);
   protected menuOpen = signal(false);
   private router = inject(Router);
 
@@ -39,8 +39,8 @@ export class NavbarComponent {
       'contacto': '/contacto',
       'perfil': '/auth/login',
       'mi perfil': '/auth/login',
-      'mis pedidos': '/mis-pedidos',
-      'pedidos': '/mis-pedidos',
+      'mis pedidos': '/pedidos',
+      'pedidos': '/pedidos',
       'carrito': '/catalogo',
       'admin': '/admin/dashboard',
       'panel': '/admin/dashboard',

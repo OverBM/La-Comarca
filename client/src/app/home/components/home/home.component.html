@@ -96,7 +96,7 @@
                   <span class="slide-card-categoria">{{ getCategoriaName(product.id_categoria) }}</span>
                   <h3 class="slide-card-nombre">{{ product.nombre }}</h3>
                   <p class="slide-card-desc">{{ product.descripcion }}</p>
-                  <p class="slide-card-precio">S/ {{ product.precio_unitario.toFixed(2) }}</p>
+                  <p class="slide-card-precio">{{ product.precio_unitario | formatoPrecio }}</p>
                 </div>
               </a>
               <button class="slide-card-btn" [class.slide-card-btn--added]="isAdded(product.id_producto)" (click)="addToCart(product, $event)">

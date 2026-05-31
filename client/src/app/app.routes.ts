@@ -5,7 +5,7 @@ import { RolGuard } from './core/guards/rol.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./home/home.component').then(m => m.HomeComponent),
+    loadComponent: () => import('./home/components/home/home.component').then(m => m.HomeComponent),
   },
   {
     path: 'auth/login',
@@ -21,19 +21,19 @@ export const routes: Routes = [
   },
   {
     path: 'historia',
-    loadComponent: () => import('./pages/historia/historia.component').then(m => m.HistoriaComponent),
+    loadComponent: () => import('./historia/components/historia/historia.component').then(m => m.HistoriaComponent),
   },
   {
     path: 'contacto',
-    loadComponent: () => import('./pages/contacto/contacto.component').then(m => m.ContactoComponent),
+    loadComponent: () => import('./contacto/components/contacto/contacto.component').then(m => m.ContactoComponent),
   },
   {
-    path: 'mi-perfil',
-    loadComponent: () => import('./pages/mi-perfil/mi-perfil.component').then(m => m.MiPerfilComponent),
+    path: 'perfil',
+    loadComponent: () => import('./perfil/components/perfil/perfil.component').then(m => m.PerfilComponent),
   },
   {
-    path: 'mis-pedidos',
-    loadComponent: () => import('./pages/mis-pedidos/mis-pedidos.component').then(m => m.MisPedidosComponent),
+    path: 'pedidos',
+    loadComponent: () => import('./pedidos/components/pedidos/pedidos.component').then(m => m.PedidosComponent),
   },
   {
     path: 'admin',

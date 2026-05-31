@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { DURACION_FEEDBACK_NEWSLETTER } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-footer',
@@ -15,6 +16,6 @@ export class FooterComponent {
     if (!email || !email.includes('@')) return;
     this.subscribed.set(true);
     emailInput.value = '';
-    setTimeout(() => this.subscribed.set(false), 4000);
+    setTimeout(() => this.subscribed.set(false), DURACION_FEEDBACK_NEWSLETTER);
   }
 }

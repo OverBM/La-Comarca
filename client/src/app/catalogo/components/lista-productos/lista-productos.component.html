@@ -90,7 +90,7 @@
               <span class="product-category">{{ getCategoryName(product.id_categoria) }}</span>
               <h3 class="product-name">{{ product.nombre }}</h3>
               <p class="product-desc">{{ product.descripcion }}</p>
-              <p class="product-price">S/ {{ product.precio_unitario.toFixed(2) }}</p>
+              <p class="product-price">{{ product.precio_unitario | formatoPrecio }}</p>
             </a>
             <button
               class="btn-add"
