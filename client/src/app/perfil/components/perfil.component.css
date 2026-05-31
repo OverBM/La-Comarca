@@ -1,0 +1,230 @@
+.perfil-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.perfil-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.perfil-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.perfil-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.perfil-nombre {
+  font-family: var(--font-headline);
+  font-size: 1.5rem;
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.perfil-badge {
+  display: inline-block;
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.perfil-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.perfil-stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+  padding: 1rem;
+  text-align: center;
+}
+
+.perfil-stat-valor {
+  font-family: var(--font-headline);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0 0 0.25rem;
+}
+
+.perfil-stat-label {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}
+
+.perfil-seccion {
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.perfil-seccion-titulo {
+  font-family: var(--font-headline);
+  font-size: 1.1rem;
+  color: var(--color-on-surface);
+  margin: 0 0 1rem;
+}
+
+.perfil-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.perfil-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.perfil-label {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--color-on-surface-variant);
+}
+
+.perfil-input {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--color-on-surface);
+  background: var(--color-surface);
+  outline: none;
+}
+
+.perfil-input:focus {
+  border-color: var(--color-secondary);
+}
+
+.perfil-btn {
+  padding: 0.6rem 1.25rem;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: var(--radius-default);
+  font-family: var(--font-headline);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: opacity 0.2s;
+}
+
+.perfil-btn:hover {
+  opacity: 0.85;
+}
+
+.perfil-feedback {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--color-success);
+}
+
+.perfil-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.perfil-timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: var(--color-outline-variant);
+}
+
+.perfil-timeline-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  position: relative;
+}
+
+.perfil-timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  flex-shrink: 0;
+  margin-top: 4px;
+  margin-left: -1.25rem;
+  z-index: 1;
+}
+
+.perfil-timeline-content {
+  flex: 1;
+}
+
+.perfil-timeline-accion {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--color-on-surface);
+  margin: 0 0 0.2rem;
+}
+
+.perfil-timeline-fecha {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--color-on-surface-variant);
+}
+
+.perfil-proximamente {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.perfil-proximamente-texto {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--color-on-surface-variant);
+  margin: 0;
+  max-width: 320px;
+}
+
+@media (max-width: 600px) {
+  .perfil-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

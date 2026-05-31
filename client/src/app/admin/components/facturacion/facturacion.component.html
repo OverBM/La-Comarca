@@ -1,47 +1,165 @@
-﻿<div class="container-fluid">
-  <h2 class="page-title">Facturación</h2>
+﻿@if (toastMsg()) {
+  <div class="fact-toast">{{ toastMsg() }}</div>
+}
 
-  <div class="mb-3 mt-3">
-    <select class="form-select form-select-sm w-auto" [ngModel]="tipoFilter()" (ngModelChange)="filterByTipo($event)">
-      <option value="">Todos los tipos</option>
-      <option value="Boleta">Boleta</option>
-      <option value="Factura">Factura</option>
-      <option value="Nota de Venta">Nota de Venta</option>
-    </select>
+<div class="fact-header">
+  <div class="fact-header-texto">
+    <h2 class="fact-titulo">Facturaci&oacute;n Electr&oacute;nica</h2>
+    <p class="fact-desc">Gesti&oacute;n de comprobantes electr&oacute;nicos y env&iacute;o a SUNAT.</p>
+  </div>
+  <div class="fact-header-acciones">
+    <button class="fact-btn fact-btn--outline" (click)="mostrarToast('Reporte mensual generado')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+      </svg>
+      Reporte Mensual
+    </button>
+    <button class="fact-btn fact-btn--primary" (click)="mostrarToast('Nuevo comprobante — pr&oacute;ximamente')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      </svg>
+      Emitir Nuevo Comprobante
+    </button>
+  </div>
+</div>
+
+@if (loading()) {
+  <app-loading></app-loading>
+} @else {
+
+  <div class="fact-stats">
+    <div class="fact-stat-card">
+      <span class="fact-stat-icono fact-stat-icono--dia">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </svg>
+      </span>
+      <div>
+        <p class="fact-stat-valor">{{ totalDia() | formatoPrecio }}</p>
+        <p class="fact-stat-label">Total del d&iacute;a</p>
+        <span class="fact-stat-trend fact-stat-trend--up">+12% vs ayer</span>
+      </div>
+    </div>
+    <div class="fact-stat-card">
+      <span class="fact-stat-icono fact-stat-icono--ok">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+        </svg>
+      </span>
+      <div>
+        <p class="fact-stat-valor">{{ aceptados() }}</p>
+        <p class="fact-stat-label">Aceptados</p>
+      </div>
+    </div>
+    <div class="fact-stat-card">
+      <span class="fact-stat-icono fact-stat-icono--pending">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+      </span>
+      <div>
+        <p class="fact-stat-valor">{{ pendientes() }}</p>
+        <p class="fact-stat-label">Pendientes</p>
+      </div>
+    </div>
+    <div class="fact-stat-card">
+      <span class="fact-stat-icono fact-stat-icono--error">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/>
+        </svg>
+      </span>
+      <div>
+        <p class="fact-stat-valor">{{ rechazados() }}</p>
+        <p class="fact-stat-label">Rechazados</p>
+      </div>
+    </div>
   </div>
 
-  @if (loading()) {
-    <app-loading></app-loading>
-  } @else {
-    <div class="table-responsive">
-      <table class="data-table table table-hover align-middle">
-        <thead>
-          <tr class="table-header-row">
-            <th class="table-header small fw-semibold">Serie</th>
-            <th class="table-header small fw-semibold">Correlativo</th>
-            <th class="table-header small fw-semibold">Tipo</th>
-            <th class="table-header small fw-semibold">Cliente</th>
-            <th class="table-header small fw-semibold text-end">Total</th>
-            <th class="table-header small fw-semibold">Fecha</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (comp of comprobantes(); track comp.id_comprobante) {
-            <tr>
-              <td class="small fw-semibold">{{ comp.serie }}</td>
-              <td class="small">{{ comp.correlativo }}</td>
-              <td>
-                <span class="type-badge badge">
-                  {{ comp.tipo }}
-                </span>
-              </td>
-              <td class="small">{{ comp.cliente }}</td>
-              <td class="total-cell small text-end fw-semibold">{{ comp.total | formatoPrecio }}</td>
-              <td class="date-cell small">{{ comp.fecha | date:'dd/MM/yyyy' }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+  <div class="fact-cert-card">
+    <div class="fact-cert-info">
+      <p class="fact-cert-titulo">Certificado Digital</p>
+      <p class="fact-cert-venc">Vence en 45 d&iacute;as</p>
     </div>
-  }
-</div>
+    <button class="fact-btn fact-btn--small" (click)="mostrarToast('Renovaci&oacute;n de certificado — pr&oacute;ximamente')">RENOVAR AHORA</button>
+  </div>
+
+  <div class="fact-tabla-wrapper">
+    <table class="fact-tabla">
+      <thead>
+        <tr>
+          <th>FECHA EMISI&Oacute;N</th>
+          <th>COMPROBANTE</th>
+          <th>MONTO TOTAL</th>
+          <th>ESTADO SUNAT</th>
+          <th>ACCIONES</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (c of paginados(); track c.id_comprobante) {
+          <tr>
+            <td class="fact-fecha">{{ c.fecha | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <span class="fact-tipo">{{ c.tipo }}</span>
+              <span class="fact-serie">{{ c.serie }}-{{ c.correlativo }}</span>
+              <span class="fact-cliente">{{ c.cliente }}</span>
+              @if (c.ruc) {
+                <span class="fact-ruc">RUC: {{ c.ruc }}</span>
+              }
+            </td>
+            <td class="fact-monto">{{ c.total | formatoPrecio }}</td>
+            <td>
+              <span class="fact-badge {{ badgeClass(c.estado_sunat) }}">{{ c.estado_sunat }}</span>
+            </td>
+            <td>
+              <div class="fact-acciones">
+                <button class="fact-accion-btn" (click)="mostrarToast('PDF — pr&oacute;ximamente')" aria-label="Descargar PDF">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/>
+                  </svg>
+                </button>
+                <button class="fact-accion-btn" (click)="mostrarToast('XML — pr&oacute;ximamente')" aria-label="Descargar XML">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-3.06 16L7.4 14.46l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41L10.94 18zM13 9V3.5L18.5 9H13z"/>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="fact-paginacion">
+    <button class="fact-page-btn" [disabled]="page() <= 1" (click)="irPagina(page() - 1)">Anterior</button>
+    <span class="fact-page-info">P&aacute;gina {{ page() }} de {{ totalPages() }}</span>
+    <button class="fact-page-btn" [disabled]="page() >= totalPages()" (click)="irPagina(page() + 1)">Siguiente</button>
+  </div>
+
+  <div class="fact-soporte">
+    <div class="fact-soporte-card">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="var(--color-primary)" viewBox="0 0 24 24">
+        <path d="M21 6h-2v2h-2V6h-2V4h2V2h2v2h2v2zm-10 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm-6 8.2c0-2.33 4.67-3.5 6-3.5s6 1.17 6 3.5V19H5v-2.8z"/>
+      </svg>
+      <p class="fact-soporte-titulo">Soporte SUNAT</p>
+      <p class="fact-soporte-desc">Comunicate con nuestro equipo para resolver dudas sobre facturaci&oacute;n electr&oacute;nica.</p>
+      <button class="fact-btn fact-btn--small" (click)="mostrarToast('Soporte — pr&oacute;ximamente')">Contactar</button>
+    </div>
+    <div class="fact-soporte-card">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="var(--color-primary)" viewBox="0 0 24 24">
+        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+      </svg>
+      <p class="fact-soporte-titulo">Carga Masiva</p>
+      <p class="fact-soporte-desc">Sube tus comprobantes en lote mediante archivo CSV o Excel.</p>
+      <button class="fact-btn fact-btn--small" (click)="mostrarToast('Carga masiva — pr&oacute;ximamente')">Subir Archivo</button>
+    </div>
+    <div class="fact-soporte-card">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="var(--color-primary)" viewBox="0 0 24 24">
+        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+      </svg>
+      <p class="fact-soporte-titulo">B&oacute;veda XML</p>
+      <p class="fact-soporte-desc">Almacena y consulta tus archivos XML de comprobantes electr&oacute;nicos.</p>
+      <button class="fact-btn fact-btn--small" (click)="mostrarToast('B&oacute;veda XML — pr&oacute;ximamente')">Ir a B&oacute;veda</button>
+    </div>
+  </div>
+}

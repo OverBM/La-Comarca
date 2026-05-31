@@ -5,10 +5,10 @@
   <aside class="admin-sidebar d-flex flex-column flex-shrink-0">
     <!-- Logo y título del panel -->
     <div class="p-3">
-      <a routerLink="/" class="text-decoration-none">
-        <h5 class="sidebar-brand mb-0 fw-bold">La Comarca</h5>
+      <a routerLink="/" class="text-decoration-none d-block mb-1">
+        <span class="sidebar-brand">La Comarca</span>
       </a>
-      <small class="sidebar-subtitle">Panel Admin</small>
+      <small class="sidebar-subtitle d-block">Panel Admin</small>
     </div>
 
     <!-- Navegación del sidebar con enlaces a cada sección del panel -->
@@ -61,6 +61,24 @@
             Facturación
           </a>
         </li>
+        <!-- Enlace: Gestión de Roles -->
+        <li class="nav-item">
+          <a class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 mb-1 rounded" routerLink="/admin/roles" routerLinkActive="sidebar-link-active">
+            <svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            </svg>
+            Roles
+          </a>
+        </li>
+        <!-- Enlace: Perfil -->
+        <li class="nav-item">
+          <a class="sidebar-link d-flex align-items-center gap-2 px-3 py-2 mb-1 rounded" routerLink="/perfil" routerLinkActive="sidebar-link-active">
+            <svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            Perfil
+          </a>
+        </li>
       </ul>
     </nav>
 
@@ -80,6 +98,7 @@
     <div class="p-4 flex-grow-1">
       <router-outlet></router-outlet>
     </div>
+    <app-footer></app-footer>
   </main>
 
 </div>

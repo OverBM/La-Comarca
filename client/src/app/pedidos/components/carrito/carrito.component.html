@@ -1,0 +1,169 @@
+<div class="carrito-page">
+  <app-navbar></app-navbar>
+
+  <div class="carrito-body">
+
+    @if (checkoutMsg()) {
+      <div class="carrito-toast">{{ checkoutMsg() }}</div>
+    }
+
+    @if (carritoService.items().length === 0 && !checkoutMsg()) {
+
+      <div class="carrito-vacio">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="var(--color-on-surface-variant)" viewBox="0 0 24 24">
+          <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25z"/>
+        </svg>
+        <h2 class="carrito-vacio-titulo">Tu carrito está vacío</h2>
+        <p class="carrito-vacio-desc">Explora nuestro catálogo y encuentra los panes artesanales que más te gusten.</p>
+        <a routerLink="/catalogo" class="carrito-vacio-cta">Ir al Catálogo</a>
+      </div>
+
+    } @else if (carritoService.items().length > 0) {
+
+      <div class="carrito-contenido">
+        <div class="carrito-grid">
+
+          <div class="carrito-principal">
+
+            <div class="carrito-lista">
+              @for (item of carritoService.items(); track item.id_producto) {
+                <div class="carrito-item">
+                  <img class="carrito-item-img" [src]="item.imagen || ''" [alt]="item.nombre">
+                  <div class="carrito-item-info">
+                    <h3 class="carrito-item-nombre">{{ item.nombre }}</h3>
+                    <p class="carrito-item-precio">{{ item.precio_unitario | formatoPrecio }} c/u</p>
+                  </div>
+                  <div class="carrito-item-cantidad">
+                    <button class="cantidad-btn" (click)="decrementar(item.id_producto)" aria-label="Reducir">−</button>
+                    <span class="cantidad-valor">{{ item.cantidad }}</span>
+                    <button class="cantidad-btn" (click)="incrementar(item.id_producto)" aria-label="Aumentar">+</button>
+                  </div>
+                  <p class="carrito-item-subtotal">{{ item.subtotal | formatoPrecio }}</p>
+                  <button class="carrito-item-eliminar" (click)="solicitarEliminar(item.id_producto)" aria-label="Eliminar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                  </button>
+                </div>
+              }
+            </div>
+
+            <div class="carrito-direccion">
+              <h3 class="carrito-seccion-titulo">Dirección de Entrega</h3>
+
+              <label class="carrito-radio">
+                <input type="radio" name="tipo-entrega" [checked]="!recogerEnTienda()" (change)="recogerEnTienda.set(false)">
+                Delivery
+              </label>
+              <label class="carrito-radio">
+                <input type="radio" name="tipo-entrega" [checked]="recogerEnTienda()" (change)="recogerEnTienda.set(true)">
+                Recoger en tienda
+              </label>
+
+              @if (!recogerEnTienda()) {
+                @if (authService.authState().isAuthenticated) {
+                  <div class="carrito-direcciones-lista">
+                    @for (dir of direccionService.direcciones(); track dir.id) {
+                      <label class="carrito-direccion-item">
+                        <input type="radio" name="direccion" [value]="dir.id" [checked]="selectedAddressId() === dir.id" (change)="selectedAddressId.set(dir.id)">
+                        <span>{{ dir.calle }}, {{ dir.ciudad }}@if (dir.referencia) { — {{ dir.referencia }} }</span>
+                      </label>
+                    }
+                    <button class="carrito-direccion-agregar" (click)="toggleDireccionForm()">
+                      {{ agregandoDireccion() ? 'Cancelar' : '+ Agregar nueva dirección' }}
+                    </button>
+                    @if (agregandoDireccion()) {
+                      <div class="carrito-direccion-form">
+                        <input class="carrito-input" [(ngModel)]="nuevaCalle" placeholder="Calle">
+                        <input class="carrito-input" [(ngModel)]="nuevaCiudad" placeholder="Ciudad">
+                        <input class="carrito-input" [(ngModel)]="nuevaReferencia" placeholder="Referencia (opcional)">
+                        <button class="carrito-btn-secundario" (click)="guardarNuevaDireccion()">Guardar</button>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="carrito-direccion-form">
+                    <input class="carrito-input" [(ngModel)]="nuevaCalle" placeholder="Calle">
+                    <input class="carrito-input" [(ngModel)]="nuevaCiudad" placeholder="Ciudad">
+                    <input class="carrito-input" [(ngModel)]="nuevaReferencia" placeholder="Referencia (opcional)">
+                    <button class="carrito-btn-secundario" (click)="guardarNuevaDireccion()">Guardar</button>
+                  </div>
+                }
+              } @else {
+                <p class="carrito-recoger-msg">Recogerás tu pedido en nuestra tienda: Av. Los Panaderos 456, Miraflores</p>
+              }
+            </div>
+
+          </div>
+
+          <div class="carrito-resumen">
+            <h3 class="carrito-seccion-titulo">Resumen del Pedido</h3>
+            <div class="carrito-resumen-linea">
+              <span>Subtotal</span>
+              <span>{{ carritoService.total() | formatoPrecio }}</span>
+            </div>
+            <div class="carrito-resumen-linea">
+              <span>Envío</span>
+              <span>{{ envio() | formatoPrecio }}</span>
+            </div>
+            @if (descuento() > 0) {
+              <div class="carrito-resumen-linea carrito-resumen-descuento">
+                <span>Descuento (5%)</span>
+                <span>−{{ descuento() | formatoPrecio }}</span>
+              </div>
+            }
+            <div class="carrito-resumen-total">
+              <span>Total</span>
+              <span>{{ totalFinal() | formatoPrecio }}</span>
+            </div>
+            <button class="carrito-btn-pedido" (click)="finalizarPedido()">Finalizar Pedido</button>
+          </div>
+
+        </div>
+
+        @if (productosRelacionados().length > 0) {
+          <section class="carrito-relacionados">
+            <h3 class="carrito-seccion-titulo">No olvides añadir...</h3>
+            <div class="carrito-relacionados-grid">
+              @for (p of productosRelacionados(); track p.id_producto) {
+                <div class="carrito-relacionado-card">
+                  <a [routerLink]="['/catalogo', p.id_producto]">
+                    <img class="carrito-relacionado-img" [src]="p.imagen || ''" [alt]="p.nombre">
+                  </a>
+                  <a class="carrito-relacionado-nombre" [routerLink]="['/catalogo', p.id_producto]">{{ p.nombre }}</a>
+                  <p class="carrito-relacionado-precio">{{ p.precio_unitario | formatoPrecio }}</p>
+                  <button class="carrito-relacionado-btn" (click)="agregarAlCarrito(p)">
+                    @if (addedProducts().has(p.id_producto)) {
+                      <span class="carrito-agregado-feedback">✓ Agregado</span>
+                    } @else {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25z"/>
+                      </svg>
+                    }
+                  </button>
+                </div>
+              }
+            </div>
+          </section>
+        }
+      </div>
+    }
+
+    @if (loading() && carritoService.items().length === 0) {
+      <app-loading></app-loading>
+    }
+
+  </div>
+
+  <app-footer></app-footer>
+</div>
+
+@if (pendingAction()) {
+  <app-dialogo-confirmacion
+    titulo="Confirmar"
+    [mensaje]="mensajeDialogo()"
+    textoBoton="Eliminar"
+    (confirmar)="confirmarAccion()"
+    (cancelar)="cancelarAccion()"
+  ></app-dialogo-confirmacion>
+}

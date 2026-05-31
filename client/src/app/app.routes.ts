@@ -5,7 +5,7 @@ import { RolGuard } from './core/guards/rol.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./home/components/home/home.component').then(m => m.HomeComponent),
+    loadComponent: () => import('./home/components/home.component').then(m => m.HomeComponent),
   },
   {
     path: 'auth/login',
@@ -16,20 +16,25 @@ export const routes: Routes = [
     loadComponent: () => import('./catalogo/components/lista-productos/lista-productos.component').then(m => m.ListaProductosComponent),
   },
   {
+    path: 'carrito',
+    loadComponent: () => import('./pedidos/components/carrito/carrito.component').then(m => m.CarritoComponent),
+  },
+  {
     path: 'catalogo/:id',
     loadComponent: () => import('./catalogo/components/detalle-producto/detalle-producto.component').then(m => m.DetalleProductoComponent),
   },
   {
     path: 'historia',
-    loadComponent: () => import('./historia/components/historia/historia.component').then(m => m.HistoriaComponent),
+    loadComponent: () => import('./historia/components/historia.component').then(m => m.HistoriaComponent),
   },
   {
     path: 'contacto',
-    loadComponent: () => import('./contacto/components/contacto/contacto.component').then(m => m.ContactoComponent),
+    loadComponent: () => import('./contacto/components/contacto.component').then(m => m.ContactoComponent),
   },
   {
     path: 'perfil',
-    loadComponent: () => import('./perfil/components/perfil/perfil.component').then(m => m.PerfilComponent),
+    loadComponent: () => import('./perfil/components/perfil.component').then(m => m.PerfilComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'pedidos',
@@ -59,6 +64,10 @@ export const routes: Routes = [
       {
         path: 'facturacion',
         loadComponent: () => import('./admin/components/facturacion/facturacion.component').then(m => m.FacturacionComponent),
+      },
+      {
+        path: 'roles',
+        loadComponent: () => import('./admin/components/gestion-roles/gestion-roles.component').then(m => m.GestionRolesComponent),
       },
       {
         path: '',

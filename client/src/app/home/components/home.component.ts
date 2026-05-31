@@ -1,15 +1,15 @@
 import { Component, OnInit, OnDestroy, signal, viewChild, ElementRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { CatalogoService } from '../../../catalogo/services/catalogo.service';
-import { Producto } from '../../../core/models/producto.model';
-import { Categoria } from '../../../core/models/categoria.model';
-import { CarritoService } from '../../../shared/services/carrito.service';
-import { LoadingComponent } from '../../../shared/components/loading/loading.component';
-import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
-import { FooterComponent } from '../../../shared/components/footer/footer.component';
-import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
-import { DURACION_FEEDBACK } from '../../../core/constants/app.constants';
+import { CatalogoService } from '../../catalogo/services/catalogo.service';
+import { Producto } from '../../core/models/producto.model';
+import { Categoria } from '../../core/models/categoria.model';
+import { CarritoService } from '../../shared/services/carrito.service';
+import { LoadingComponent } from '../../shared/components/loading/loading.component';
+import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { FormatoPrecioPipe } from '../../shared/pipes/formato-precio.pipe';
+import { DURACION_FEEDBACK } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-home',

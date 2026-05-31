@@ -8,6 +8,8 @@ export interface TokenPayload {
   email: string;
   rol: 'admin' | 'cliente' | 'vendedor';
   nombre: string;
+  apellido: string;
+  telefono: string;
   iat?: number;
   exp?: number;
 }

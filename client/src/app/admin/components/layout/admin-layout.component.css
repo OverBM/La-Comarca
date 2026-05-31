@@ -41,7 +41,7 @@
 
 .sidebar-logout-section {
   border-color: var(--color-on-primary-container) !important;
-  opacity: 0.3;
+  opacity: 0.75;
 }
 
 .sidebar-logout-link {

@@ -9,6 +9,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export class DialogoConfirmacionComponent {
   @Input({ required: true }) mensaje = '';
   @Input() titulo = 'Confirmar acci\u00f3n';
+  @Input() textoBoton = 'Eliminar';
 
   @Output() confirmar = new EventEmitter<void>();
   @Output() cancelar = new EventEmitter<void>();

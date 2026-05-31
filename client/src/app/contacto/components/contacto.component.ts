@@ -2,10 +2,10 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
-import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
-import { FooterComponent } from '../../../shared/components/footer/footer.component';
-import { TelefonoPipe } from '../../../shared/pipes/telefono.pipe';
-import { RETARDO_MOCK } from '../../../core/constants/app.constants';
+import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { TelefonoPipe } from '../../shared/pipes/telefono.pipe';
+import { RETARDO_MOCK } from '../../core/constants/app.constants';
 
 @Component({
   selector: 'app-contacto',

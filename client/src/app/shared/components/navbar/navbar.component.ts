@@ -17,6 +17,7 @@ export class NavbarComponent {
 
   logout(): void {
     this.authService.logout();
+    this.router.navigate(['/auth/login'], { replaceUrl: true });
   }
 
   toggleMenu(): void {

@@ -4,14 +4,15 @@ import { DURACION_FEEDBACK_CARRITO } from '../../core/constants/app.constants';
 
 @Injectable({ providedIn: 'root' })
 export class CarritoService {
-  private items = signal<CarritoItem[]>([]);
+  private itemsSignal = signal<CarritoItem[]>([]);
+  readonly items = this.itemsSignal.asReadonly();
 
   readonly totalItems = computed(() =>
-    this.items().reduce((sum, item) => sum + item.cantidad, 0)
+    this.itemsSignal().reduce((sum, item) => sum + item.cantidad, 0)
   );
 
   readonly total = computed(() =>
-    this.items().reduce((sum, item) => sum + item.precio_unitario * item.cantidad, 0)
+    this.itemsSignal().reduce((sum, item) => sum + item.precio_unitario * item.cantidad, 0)
   );
 
   readonly notificacion = signal<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -19,7 +20,7 @@ export class CarritoService {
   private notificationTimer: ReturnType<typeof setTimeout> | null = null;
 
   agregarItem(producto: { id_producto: string; nombre: string; precio_unitario: number; imagen: string | null }, cantidad: number): void {
-    this.items.update(current => {
+    this.itemsSignal.update(current => {
       const existing = current.find(item => item.id_producto === producto.id_producto);
       if (existing) {
         return current.map(item =>
@@ -35,7 +36,7 @@ export class CarritoService {
   }
 
   eliminarItem(id_producto: string): void {
-    this.items.update(current => current.filter(item => item.id_producto !== id_producto));
+    this.itemsSignal.update(current => current.filter(item => item.id_producto !== id_producto));
   }
 
   actualizarCantidad(id_producto: string, cantidad: number): void {
@@ -43,7 +44,7 @@ export class CarritoService {
       this.eliminarItem(id_producto);
       return;
     }
-    this.items.update(current =>
+    this.itemsSignal.update(current =>
       current.map(item =>
         item.id_producto === id_producto ? { ...item, cantidad, subtotal: cantidad * item.precio_unitario } : item
       )
@@ -51,7 +52,7 @@ export class CarritoService {
   }
 
   limpiar(): void {
-    this.items.set([]);
+    this.itemsSignal.set([]);
   }
 
   private mostrarNotificacion(message: string, type: 'success' | 'error'): void {
