@@ -41,7 +41,7 @@ export class FacturacionComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(private pedidosService: AdminPedidosService) {}
+  constructor(private readonly pedidosService: AdminPedidosService) {}
 
   ngOnInit(): void {
     this.pedidosService.getComprobantes().pipe(takeUntil(this.destroy$)).subscribe(c => {

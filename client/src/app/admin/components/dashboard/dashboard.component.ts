@@ -24,8 +24,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
-    private pedidosService: AdminPedidosService,
-    private inventarioService: InventarioService,
+    private readonly pedidosService: AdminPedidosService,
+    private readonly inventarioService: InventarioService,
   ) {}
 
   ngOnInit(): void {

@@ -11,10 +11,10 @@ import { CarritoService } from '../../services/carrito.service';
   styleUrl: './navbar.component.css',
 })
 export class NavbarComponent {
-  protected authService = inject(AuthService);
-  protected carritoService = inject(CarritoService);
+  protected readonly authService = inject(AuthService);
+  protected readonly carritoService = inject(CarritoService);
   protected menuOpen = signal(false);
-  private router = inject(Router);
+  private readonly router = inject(Router);
 
   private readonly paginas: Record<string, string> = {
     'inicio': '/',

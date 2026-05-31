@@ -6,8 +6,8 @@ import { StorageService } from '../services/storage.service';
 export class AuthGuard implements CanActivate {
 
   constructor(
-    private storage: StorageService,
-    private router: Router,
+    private readonly storage: StorageService,
+    private readonly router: Router,
   ) {}
 
   canActivate(): boolean {

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
@@ -12,8 +12,8 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
 })
 export class AdminLayoutComponent {
   constructor(
-    protected authService: AuthService,
-    private router: Router,
+    protected readonly authService: AuthService,
+    private readonly router: Router,
   ) {}
 
   logout(): void {

@@ -12,7 +12,7 @@ import { RETARDO_MOCK, LIMITE_MOVIMIENTOS_DEFAULT } from '../../core/constants/a
 export class InventarioService {
   private readonly apiUrl = `${environment.apiUrl}/admin/inventario`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   getStock(): Observable<Inventario[]> {
     if (environment.useMock) return of([...MOCK_INVENTARIO]).pipe(delay(RETARDO_MOCK));

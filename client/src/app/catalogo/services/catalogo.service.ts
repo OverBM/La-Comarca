@@ -13,7 +13,7 @@ import { RETARDO_MOCK, LIMITE_PRODUCTOS_RELACIONADOS } from '../../core/constant
 export class CatalogoService {
   private readonly apiUrl = `${environment.apiUrl}/productos`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   getProductos(): Observable<Producto[]> {
     if (environment.useMock) return of(MOCK_PRODUCTOS).pipe(delay(RETARDO_MOCK));

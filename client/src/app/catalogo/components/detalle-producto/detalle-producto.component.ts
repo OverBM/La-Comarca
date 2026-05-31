@@ -27,10 +27,10 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
   categoriaNombre = signal('');
   relacionados = signal<Producto[]>([]);
 
-  private route = inject(ActivatedRoute);
-  private catalogoService = inject(CatalogoService);
-  private carritoService = inject(CarritoService);
-  private location = inject(Location);
+  private readonly route = inject(ActivatedRoute);
+  private readonly catalogoService = inject(CatalogoService);
+  private readonly carritoService = inject(CarritoService);
+  private readonly location = inject(Location);
   private destroy$ = new Subject<void>();
 
   volver(): void {

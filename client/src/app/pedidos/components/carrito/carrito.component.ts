@@ -21,10 +21,10 @@ import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo
   styleUrl: './carrito.component.css',
 })
 export class CarritoComponent implements OnInit, OnDestroy {
-  protected carritoService = inject(CarritoService);
-  protected direccionService = inject(DireccionService);
-  protected authService = inject(AuthService);
-  protected catalogoService = inject(CatalogoService);
+  protected readonly carritoService = inject(CarritoService);
+  protected readonly direccionService = inject(DireccionService);
+  protected readonly authService = inject(AuthService);
+  protected readonly catalogoService = inject(CatalogoService);
 
   protected productosRelacionados = signal<Producto[]>([]);
   protected selectedAddressId = signal<string | null>(null);

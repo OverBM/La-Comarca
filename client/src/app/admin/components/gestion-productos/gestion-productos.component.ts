@@ -29,8 +29,8 @@ export class GestionProductosComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
-    private adminProductosService: AdminProductosService,
-    private catalogoService: CatalogoService,
+    private readonly adminProductosService: AdminProductosService,
+    private readonly catalogoService: CatalogoService,
   ) {}
 
   ngOnInit(): void {

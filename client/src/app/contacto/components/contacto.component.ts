@@ -16,7 +16,8 @@ import { DOCUMENT } from '@angular/common';
   styleUrl: './contacto.component.css',
 })
 export class ContactoComponent implements OnDestroy {
-  private document = inject(DOCUMENT);
+  private readonly MAPS_URL = 'https://maps.google.com/?q=Av+La+Mar+1234+Miraflores+Lima';
+  private readonly document = inject(DOCUMENT);
   private destroy$ = new Subject<void>();
   private _nombre = signal('');
   get nombre(): string { return this._nombre(); }
@@ -62,7 +63,7 @@ export class ContactoComponent implements OnDestroy {
   }
 
   abrirMapa(): void {
-    this.document.defaultView?.open('https://maps.google.com/?q=Av+La+Mar+1234+Miraflores+Lima', '_blank');
+    this.document.defaultView?.open(this.MAPS_URL, '_blank');
   }
 
   ngOnDestroy(): void {

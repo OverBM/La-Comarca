@@ -11,7 +11,7 @@ import { RETARDO_MOCK } from '../../core/constants/app.constants';
 export class AdminProductosService {
   private readonly apiUrl = `${environment.apiUrl}/admin/productos`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   getProductos(): Observable<Producto[]> {
     if (environment.useMock) return of([...MOCK_PRODUCTOS]).pipe(delay(RETARDO_MOCK));

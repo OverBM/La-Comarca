@@ -30,8 +30,8 @@ export class AuthService {
   });
 
   constructor(
-    private http: HttpClient,
-    private storage: StorageService,
+    private readonly http: HttpClient,
+    private readonly storage: StorageService,
   ) {
     this.restoreSession();
   }

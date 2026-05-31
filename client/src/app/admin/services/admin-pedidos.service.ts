@@ -14,7 +14,7 @@ import { Comprobante } from '../models/comprobante.model';
 export class AdminPedidosService {
   private readonly apiUrl = `${environment.apiUrl}/admin`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   getPedidos(): Observable<PedidoResumen[]> {
     if (environment.useMock) {

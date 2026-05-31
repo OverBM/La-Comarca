@@ -29,8 +29,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
-    private catalogoService: CatalogoService,
-    private carritoService: CarritoService
+    private readonly catalogoService: CatalogoService,
+    private readonly carritoService: CarritoService
   ) {}
 
   ngOnInit(): void {

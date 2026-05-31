@@ -9,8 +9,8 @@ import { StorageService } from '../services/storage.service';
 export class AuthInterceptor implements HttpInterceptor {
 
   constructor(
-    private storage: StorageService,
-    private router: Router,
+    private readonly storage: StorageService,
+    private readonly router: Router,
   ) {}
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {

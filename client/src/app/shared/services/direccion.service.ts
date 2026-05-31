@@ -1,11 +1,11 @@
-import { Injectable, signal, computed, effect } from '@angular/core';
+import { Injectable, signal, effect } from '@angular/core';
 import { Direccion } from '../../core/models/direccion.model';
 
 const STORAGE_KEY = 'la-comarca-direcciones';
 
 @Injectable({ providedIn: 'root' })
 export class DireccionService {
-  private direccionesSignal = signal<Direccion[]>(this.cargarDesdeStorage());
+  private readonly direccionesSignal = signal<Direccion[]>(this.cargarDesdeStorage());
   readonly direcciones = this.direccionesSignal.asReadonly();
 
   constructor() {

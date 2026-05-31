@@ -26,8 +26,8 @@ export class LoginComponent implements OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
-    private authService: AuthService,
-    private router: Router,
+    private readonly authService: AuthService,
+    private readonly router: Router,
   ) {}
 
   ngOnDestroy(): void {

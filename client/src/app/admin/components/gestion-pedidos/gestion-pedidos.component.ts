@@ -21,7 +21,7 @@ export class GestionPedidosComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(private pedidosService: AdminPedidosService) {}
+  constructor(private readonly pedidosService: AdminPedidosService) {}
 
   ngOnInit(): void {
     this.pedidosService.getPedidos().pipe(takeUntil(this.destroy$)).subscribe(p => {

@@ -15,7 +15,7 @@ import { FormatoPrecioPipe } from '../../shared/pipes/formato-precio.pipe';
   styleUrl: './perfil.component.css',
 })
 export class PerfilComponent {
-  protected authService = inject(AuthService);
+  protected readonly authService = inject(AuthService);
   protected mock = PERFIL_ADMIN_MOCK;
   protected esAdmin = computed(() => this.authService.authState().rol === 'admin');
 
