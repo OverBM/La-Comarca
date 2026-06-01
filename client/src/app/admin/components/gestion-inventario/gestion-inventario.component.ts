@@ -21,7 +21,7 @@ export class GestionInventarioComponent implements OnInit, OnDestroy {
   showMovForm = signal(false);
   movForm = signal<{ id_producto: string; tipo: 'entrada' | 'salida' | 'ajuste'; cantidad: number; motivo: string; id_usuario: string }>({ id_producto: '', tipo: 'entrada', cantidad: 0, motivo: '', id_usuario: 'usr-001' });
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly inventarioService: InventarioService,

@@ -31,7 +31,7 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
   private readonly catalogoService = inject(CatalogoService);
   private readonly carritoService = inject(CarritoService);
   private readonly location = inject(Location);
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   volver(): void {
     this.location.back();

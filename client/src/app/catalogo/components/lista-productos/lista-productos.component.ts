@@ -27,11 +27,11 @@ export class ListaProductosComponent implements OnInit, OnDestroy {
   selectedCategory = signal('');
   sortBy = signal('');
 
-  private allProducts = signal<Producto[]>([]);
+  private readonly allProducts = signal<Producto[]>([]);
   private readonly catalogoService = inject(CatalogoService);
   private readonly carritoService = inject(CarritoService);
   private readonly route = inject(ActivatedRoute);
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   addedProductIds = signal<Set<string>>(new Set());
 

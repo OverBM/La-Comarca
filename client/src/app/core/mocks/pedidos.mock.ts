@@ -2,7 +2,7 @@ export const MOCK_PEDIDOS = [
   {
     id_pedido: 'ped-001',
     id_cliente: 'cli-001',
-    fecha_pedido: new Date('2026-05-29T10:30:00'),
+    fecha_pedido: new Date('2026-05-31T10:30:00'),
     cliente_nombre: 'María García',
     detalle: [
       { id_detalle: 'det-001', id_pedido: 'ped-001', id_producto: 'prod-001', cantidad: 2, precio_unitario: 8.50, subtotal: 17.00 },
@@ -12,7 +12,7 @@ export const MOCK_PEDIDOS = [
   {
     id_pedido: 'ped-002',
     id_cliente: 'cli-002',
-    fecha_pedido: new Date('2026-05-29T11:15:00'),
+    fecha_pedido: new Date('2026-05-31T11:15:00'),
     cliente_nombre: 'Carlos Mendoza',
     detalle: [
       { id_detalle: 'det-003', id_pedido: 'ped-002', id_producto: 'prod-002', cantidad: 5, precio_unitario: 3.20, subtotal: 16.00 },

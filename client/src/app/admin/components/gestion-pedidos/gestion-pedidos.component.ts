@@ -19,7 +19,7 @@ export class GestionPedidosComponent implements OnInit, OnDestroy {
   selectedPedido = signal<PedidoDetalle | null>(null);
   loading = signal(true);
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(private readonly pedidosService: AdminPedidosService) {}
 

@@ -12,18 +12,18 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnDestroy {
-  private _email = signal('');
+  private readonly _email = signal('');
   get email(): string { return this._email(); }
   set email(v: string) { this._email.set(v); }
 
-  private _password = signal('');
+  private readonly _password = signal('');
   get password(): string { return this._password(); }
   set password(v: string) { this._password.set(v); }
 
   error = signal('');
   loading = signal(false);
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly authService: AuthService,

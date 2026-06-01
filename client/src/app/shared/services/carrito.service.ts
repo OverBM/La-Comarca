@@ -4,7 +4,7 @@ import { DURACION_FEEDBACK_CARRITO } from '../../core/constants/app.constants';
 
 @Injectable({ providedIn: 'root' })
 export class CarritoService {
-  private itemsSignal = signal<CarritoItem[]>([]);
+  private readonly itemsSignal = signal<CarritoItem[]>([]);
   readonly items = this.itemsSignal.asReadonly();
 
   readonly totalItems = computed(() =>

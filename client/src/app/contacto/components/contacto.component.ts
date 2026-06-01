@@ -18,20 +18,20 @@ import { DOCUMENT } from '@angular/common';
 export class ContactoComponent implements OnDestroy {
   private readonly MAPS_URL = 'https://maps.google.com/?q=Av+La+Mar+1234+Miraflores+Lima';
   private readonly document = inject(DOCUMENT);
-  private destroy$ = new Subject<void>();
-  private _nombre = signal('');
+  private readonly destroy$ = new Subject<void>();
+  private readonly _nombre = signal('');
   get nombre(): string { return this._nombre(); }
   set nombre(v: string) { this._nombre.set(v); }
 
-  private _email = signal('');
+  private readonly _email = signal('');
   get email(): string { return this._email(); }
   set email(v: string) { this._email.set(v); }
 
-  private _telefono = signal('');
+  private readonly _telefono = signal('');
   get telefono(): string { return this._telefono(); }
   set telefono(v: string) { this._telefono.set(v); }
 
-  private _mensaje = signal('');
+  private readonly _mensaje = signal('');
   get mensaje(): string { return this._mensaje(); }
   set mensaje(v: string) { this._mensaje.set(v); }
 

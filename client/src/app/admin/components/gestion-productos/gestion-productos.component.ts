@@ -26,7 +26,7 @@ export class GestionProductosComponent implements OnInit, OnDestroy {
   showConfirmDialog = signal(false);
   pendingDeleteId = signal('');
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly adminProductosService: AdminProductosService,

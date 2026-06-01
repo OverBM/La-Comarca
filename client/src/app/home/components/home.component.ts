@@ -26,7 +26,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   slideTrack = viewChild<ElementRef<HTMLElement>>('slideTrack');
   addedProducts = signal<Set<string>>(new Set());
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
     private readonly catalogoService: CatalogoService,

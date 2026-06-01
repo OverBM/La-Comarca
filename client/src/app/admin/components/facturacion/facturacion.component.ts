@@ -39,7 +39,7 @@ export class FacturacionComponent implements OnInit, OnDestroy {
     return this.allComprobantes().slice(start, start + this.pageSize);
   });
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(private readonly pedidosService: AdminPedidosService) {}
 

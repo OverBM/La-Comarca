@@ -52,7 +52,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
 
   protected readonly addedSet = this.addedProducts.asReadonly();
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.catalogoService.getFeaturedProductos().pipe(takeUntil(this.destroy$)).subscribe(p => {
