@@ -1,0 +1,100 @@
+:root {
+  --color-primary: #32170d;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #4b2c20;
+  --color-on-primary-container: #bf9282;
+  --color-secondary: #904d00;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #fe932c;
+  --color-on-secondary-container: #663500;
+  --color-tertiary: #341700;
+  --color-tertiary-container: #4e2b0d;
+  --color-surface: #fef9f2;
+  --color-surface-container: #f2ede6;
+  --color-surface-container-low: #f8f3ec;
+  --color-surface-container-high: #ece7e1;
+  --color-on-surface: #1d1c18;
+  --color-on-surface-variant: #504440;
+  --color-outline: #83746f;
+  --color-outline-variant: #d5c3bd;
+  --color-error: #ba1a1a;
+  --color-success: #6B705C;
+  --color-warning: #904d00;
+  --color-warning-container: #ffdcc3;
+  --color-on-warning: #ffffff;
+  --color-on-warning-container: #2f1500;
+  --font-headline: 'Newsreader', Georgia, serif;
+  --font-body: 'Be Vietnam Pro', system-ui, sans-serif;
+  --radius-sm: 0.25rem;
+  --radius-default: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --bs-primary: #32170d;
+  --bs-primary-rgb: 50, 23, 13;
+  --bs-secondary: #904d00;
+  --bs-secondary-rgb: 144, 77, 0;
+  --bs-link-color: #32170d;
+  --bs-link-color-rgb: 50, 23, 13;
+  --bs-link-hover-color: #904d00;
+  --bs-link-hover-color-rgb: 144, 77, 0;
+  --bs-body-bg: #fef9f2;
+  --bs-body-color: #1d1c18;
+  --bs-body-font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  --bs-form-valid-border-color: var(--color-success);
+  --bs-form-invalid-border-color: var(--color-error);
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-headline);
+  color: var(--color-primary);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--color-primary-container);
+  --bs-btn-border-color: var(--color-primary-container);
+  --bs-btn-hover-bg: var(--color-primary);
+  --bs-btn-hover-border-color: var(--color-primary);
+  --bs-btn-active-bg: var(--color-primary);
+  --bs-btn-active-border-color: var(--color-primary);
+  --bs-btn-color: #fff;
+  --bs-btn-disabled-bg: var(--color-primary-container);
+  --bs-btn-disabled-border-color: var(--color-primary-container);
+  --bs-btn-disabled-color: rgba(255,255,255,0.5);
+  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
+  background-color: var(--color-primary-container);
+  border-color: var(--color-primary-container);
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--color-primary);
+  --bs-btn-border-color: var(--color-primary);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--color-primary);
+  --bs-btn-hover-border-color: var(--color-primary);
+  --bs-btn-active-bg: var(--color-primary);
+  --bs-btn-active-border-color: var(--color-primary);
+}
+.btn-secondary {
+  --bs-btn-bg: var(--color-primary-container);
+  --bs-btn-border-color: var(--color-primary-container);
+  --bs-btn-hover-bg: var(--color-primary);
+  --bs-btn-hover-border-color: var(--color-primary);
+  --bs-btn-active-bg: var(--color-primary);
+  --bs-btn-active-border-color: var(--color-primary);
+  --bs-btn-color: #fff;
+  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
+}
+.form-control:focus {
+  border-color: var(--color-primary-container);
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}
+.form-select:focus {
+  border-color: var(--color-primary-container);
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}

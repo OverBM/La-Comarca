@@ -1,0 +1,58 @@
+/* Estilos del layout admin */
+
+.admin-wrapper {
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  width: 250px;
+  background-color: var(--color-primary);
+}
+
+.sidebar-brand {
+  color: var(--color-on-primary);
+  font-family: var(--font-headline);
+}
+
+.sidebar-subtitle {
+  color: var(--color-on-primary-container);
+}
+
+.sidebar-link {
+  color: var(--color-on-primary);
+  text-decoration: none;
+  transition: all 150ms;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-link-active {
+  background-color: var(--color-secondary-container) !important;
+  color: var(--color-on-secondary-container) !important;
+  font-weight: 600;
+  text-decoration: none !important;
+}
+
+.sidebar-icon {
+  flex-shrink: 0;
+}
+
+.sidebar-logout-section {
+  border-color: var(--color-on-primary-container) !important;
+  opacity: 0.75;
+}
+
+.sidebar-logout-link {
+  color: var(--color-on-primary-container);
+}
+
+.sidebar-logout-icon {
+  margin-right: 6px;
+  vertical-align: text-top;
+}
+
+.main-content {
+  background-color: var(--color-surface);
+}

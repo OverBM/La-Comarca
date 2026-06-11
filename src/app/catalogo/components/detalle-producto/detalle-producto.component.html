@@ -1,0 +1,96 @@
+<app-navbar></app-navbar>
+
+<div class="container py-4">
+  <nav class="d-flex align-items-center gap-2 small mb-3" aria-label="Breadcrumb">
+    <a routerLink="/" class="text-secondary text-decoration-none">Inicio</a>
+    <span class="text-secondary opacity-50">/</span>
+    <a routerLink="/catalogo" class="text-secondary text-decoration-none">Catálogo</a>
+    @if (producto(); as product) {
+      <span class="text-secondary opacity-50">/</span>
+      <span class="fw-semibold text-primary">{{ product.nombre }}</span>
+    }
+  </nav>
+
+  @if (loading()) {
+    <app-loading></app-loading>
+  } @else if (producto(); as product) {
+    <button (click)="volver()" class="btn btn-outline-secondary btn-sm mb-3 d-inline-flex align-items-center gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+      </svg>
+      Volver
+    </button>
+
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <img [src]="product.imagen" [alt]="product.nombre" class="w-100 rounded-3 object-fit-cover dp-img" (error)="onImgError($event)">
+      </div>
+      <div class="col-lg-6 d-flex flex-column">
+        <span class="small fw-semibold text-uppercase text-secondary mb-1 dp-cat">{{ categoriaNombre() }}</span>
+        <h1 class="display-6 fw-semibold mb-2 dp-title">{{ product.nombre }}</h1>
+        <p class="h3 fw-bold mb-2 dp-price">{{ product.precio_unitario | formatoPrecio }}</p>
+        <p class="text-secondary lh-lg mb-3">{{ product.descripcion }}</p>
+
+        <div class="mt-auto pt-3">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="small fw-semibold text-secondary">Cantidad:</span>
+            <div class="d-flex align-items-center border rounded-1 dp-qty-border">
+              <button (click)="decrementar()" class="btn border-0 px-2 py-1" [disabled]="cantidad() <= 1" aria-label="Disminuir cantidad">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 13H5v-2h14v2z"/>
+                </svg>
+              </button>
+              <span class="fw-bold px-3 text-center dp-qty-val">{{ cantidad() }}</span>
+              <button (click)="incrementar()" class="btn border-0 px-2 py-1" [disabled]="cantidad() >= 99" aria-label="Aumentar cantidad">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary w-100 py-2 d-inline-flex align-items-center justify-content-center gap-2 fw-semibold" [class.btn-success]="added()" (click)="agregarAlCarrito()">
+            @if (added()) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+              Agregado al Carrito
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25z"/>
+              </svg>
+              Agregar al Carrito
+            }
+          </button>
+
+          <p class="text-center mt-2 small text-secondary">
+            Total: <span class="fw-bold dp-total">{{ total() | formatoPrecio }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    @if (relacionados().length > 0) {
+      <section class="mt-5 pt-4 border-top">
+        <h2 class="h4 fw-semibold mb-3 dp-section-title">También te puede interesar</h2>
+        <div class="row row-cols-2 row-cols-md-4 g-3">
+          @for (rel of relacionados(); track rel.id_producto) {
+            <div class="col">
+              <a [routerLink]="['/catalogo', rel.id_producto]" class="card border-0 text-decoration-none text-body h-100 dp-rel-card">
+                <div class="dp-rel-img-wrap">
+                  <img [src]="rel.imagen" [alt]="rel.nombre" class="w-100 h-100 object-fit-cover" loading="lazy" (error)="onImgError($event)">
+                </div>
+                <div class="card-body">
+                  <h3 class="h6 fw-semibold mb-1 dp-rel-name">{{ rel.nombre }}</h3>
+                  <p class="fw-bold mb-0 dp-rel-price">{{ rel.precio_unitario | formatoPrecio }}</p>
+                </div>
+              </a>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>
+
+<app-footer></app-footer>

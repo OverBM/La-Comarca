@@ -1,0 +1,15 @@
+<div class="dialogo-overlay" (click)="onCancelar()">
+  <div class="dialogo-modal" (click)="$event.stopPropagation()">
+    <div class="dialogo-header">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="var(--color-warning, #e6a817)">
+        <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+      </svg>
+      <h3 class="dialogo-titulo">{{ titulo }}</h3>
+    </div>
+    <p class="dialogo-mensaje">{{ mensaje }}</p>
+    <div class="dialogo-acciones">
+      <button class="dialogo-btn dialogo-btn--cancelar" (click)="onCancelar()" type="button">Cancelar</button>
+      <button class="dialogo-btn dialogo-btn--confirmar" (click)="onConfirmar()" type="button">{{ textoBoton }}</button>
+    </div>
+  </div>
+</div>

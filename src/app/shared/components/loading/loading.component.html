@@ -1,0 +1,14 @@
+<!-- Esqueleto de carga con animación shimmer para indicar que el contenido se está obteniendo -->
+<div class="skeleton-loader" aria-label="Cargando contenido">
+  <!-- Generamos 3 bloques de esqueleto para simular una cuadrícula de productos -->
+  @for (_ of [1,2,3]; track $index) {
+    <div class="skeleton-item">
+      <!-- Bloque de imagen del esqueleto -->
+      <div class="skeleton-line skeleton-image"></div>
+      <!-- Línea de texto ancho 75% -->
+      <div class="skeleton-line w-75"></div>
+      <!-- Línea de texto ancho 50% -->
+      <div class="skeleton-line w-50"></div>
+    </div>
+  }
+</div>

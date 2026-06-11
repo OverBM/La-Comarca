@@ -1,0 +1,13 @@
+/** Componente que muestra el historial de pedidos del usuario */
+import { Component } from '@angular/core';
+import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
+
+@Component({
+  selector: 'app-pedidos',
+  standalone: true,
+  imports: [NavbarComponent, FooterComponent],
+  templateUrl: './pedidos.component.html',
+  styleUrl: './pedidos.component.css',
+})
+export class PedidosComponent {}

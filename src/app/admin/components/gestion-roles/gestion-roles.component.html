@@ -1,0 +1,50 @@
+<div class="roles-header">
+  <h2 class="roles-titulo">Gesti&#243;n de Roles</h2>
+  <p class="roles-desc">Administra los permisos de los usuarios del sistema.</p>
+</div>
+
+@if (toastMsg()) {
+  <div class="roles-toast">{{ toastMsg() }}</div>
+}
+
+<div class="roles-tabla-wrapper">
+  <table class="roles-tabla">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Rol Actual</th>
+        <th>Cambiar Rol</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (u of usuarios(); track u.email) {
+        <tr>
+          <td class="roles-nombre">{{ u.nombre }} {{ u.apellido }}</td>
+          <td class="roles-email">{{ u.email }}</td>
+          <td>
+            <span class="roles-badge" [class.roles-badge--admin]="u.rol === 'admin'" [class.roles-badge--cliente]="u.rol === 'cliente'">
+              {{ u.rol === 'admin' ? 'Administrador' : 'Cliente' }}
+            </span>
+          </td>
+          <td>
+            <select class="roles-select" [value]="u.rol" (change)="solicitarCambio(u.email, ($any($event.target)).value, $event)">
+              <option value="admin">Administrador</option>
+              <option value="cliente">Cliente</option>
+            </select>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (dialogVisible()) {
+  <app-dialogo-confirmacion
+    titulo="Cambiar Rol"
+    mensaje="¿Estás seguro de cambiar el rol de {{ pendingChange?.email }}?"
+    textoBoton="Cambiar"
+    (confirmar)="confirmarCambio()"
+    (cancelar)="cancelarCambio()"
+  ></app-dialogo-confirmacion>
+}

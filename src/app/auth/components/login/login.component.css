@@ -1,0 +1,9 @@
+.login-hero {
+  background: linear-gradient(135deg, rgba(50,23,13,0.88) 0%, rgba(75,44,32,0.7) 100%), url('https://images.unsplash.com/photo-1509365465985-25d11c17e812?w=1400&q=80') center/cover;
+}
+.login-brand {
+  font-family: var(--font-headline);
+}
+.login-form-wrap {
+  max-width: 400px;
+}

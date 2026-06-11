@@ -1,0 +1,86 @@
+﻿<div class="container-fluid">
+  <h2 class="page-title">Gestión de Pedidos</h2>
+
+  @if (selectedPedido(); as pedido) {
+    <button class="btn btn-sm mb-4 btn-secondary" (click)="backToList()">
+      ← Volver
+    </button>
+
+    <div class="detail-card card border-0 mb-4">
+      <div class="card-body p-4">
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <small class="detail-label d-block">Pedido</small>
+            <span class="fw-semibold">{{ pedido.id_pedido }}</span>
+          </div>
+          <div class="col-md-4">
+            <small class="detail-label d-block">Cliente</small>
+            <span>{{ pedido.cliente_nombre }}</span>
+          </div>
+          <div class="col-md-4">
+            <small class="detail-label d-block">Fecha</small>
+            <span>{{ pedido.fecha_pedido | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+
+        <table class="data-table table table-sm">
+          <thead>
+            <tr class="table-header-row">
+              <th class="small fw-semibold">Producto</th>
+              <th class="small fw-semibold text-end">Cantidad</th>
+              <th class="small fw-semibold text-end">Precio Unit.</th>
+              <th class="small fw-semibold text-end">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (det of pedido.detalle; track det.id_detalle) {
+              <tr>
+                <td class="small">{{ det.id_producto }}</td>
+                <td class="small text-end">{{ det.cantidad }}</td>
+                <td class="small text-end">{{ det.precio_unitario | formatoPrecio }}</td>
+                <td class="small text-end fw-semibold">{{ det.subtotal | formatoPrecio }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-end fw-bold small">Total</td>
+              <td class="total-cell text-end fw-bold">{{ pedido.total | formatoPrecio }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  } @else {
+    @if (loading()) {
+      <app-loading></app-loading>
+    } @else {
+      <div class="table-responsive mt-3">
+        <table class="data-table table table-hover align-middle">
+          <thead>
+            <tr class="table-header-row">
+              <th class="table-header small fw-semibold">Pedido</th>
+              <th class="table-header small fw-semibold">Cliente</th>
+              <th class="table-header small fw-semibold">Fecha</th>
+              <th class="table-header small fw-semibold text-end">Total</th>
+              <th class="table-header small fw-semibold"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ped of pedidos(); track ped.id_pedido) {
+              <tr>
+                <td class="small fw-semibold">{{ ped.id_pedido }}</td>
+                <td class="small">{{ ped.cliente }}</td>
+                <td class="small">{{ ped.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td class="total-cell small text-end fw-semibold">{{ ped.total | formatoPrecio }}</td>
+                <td>
+                  <button class="btn btn-sm btn-view" (click)="viewDetail(ped.id_pedido)">Ver</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>
