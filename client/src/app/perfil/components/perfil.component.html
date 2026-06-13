@@ -14,19 +14,19 @@
     @if (esAdmin()) {
       <div class="perfil-stats">
         <div class="perfil-stat-card">
-          <p class="perfil-stat-valor">{{ mock.stats.pedidosGestionados }}</p>
+          <p class="perfil-stat-valor">—</p>
           <p class="perfil-stat-label">Pedidos Gestionados</p>
         </div>
         <div class="perfil-stat-card">
-          <p class="perfil-stat-valor">{{ mock.stats.ingresosGenerados | formatoPrecio }}</p>
+          <p class="perfil-stat-valor">—</p>
           <p class="perfil-stat-label">Ingresos Generados</p>
         </div>
         <div class="perfil-stat-card">
-          <p class="perfil-stat-valor">{{ mock.stats.productosActivos }}</p>
+          <p class="perfil-stat-valor">—</p>
           <p class="perfil-stat-label">Productos Activos</p>
         </div>
         <div class="perfil-stat-card">
-          <p class="perfil-stat-valor">{{ mock.stats.valoracion }}</p>
+          <p class="perfil-stat-valor">—</p>
           <p class="perfil-stat-label">Valoración</p>
         </div>
       </div>
@@ -148,22 +148,7 @@
       </form>
     </div>
 
-    @if (esAdmin()) {
-      <div class="perfil-seccion">
-        <h2 class="perfil-seccion-titulo">Actividad Reciente</h2>
-        <div class="perfil-timeline">
-          @for (act of mock.actividadReciente; track act.id) {
-            <div class="perfil-timeline-item">
-              <div class="perfil-timeline-dot"></div>
-              <div class="perfil-timeline-content">
-                <p class="perfil-timeline-accion">{{ act.accion }}</p>
-                <span class="perfil-timeline-fecha">{{ act.timestamp | date:'dd/MM/yyyy HH:mm' }}</span>
-              </div>
-            </div>
-          }
-        </div>
-      </div>
-    }
+
 
     @if (!esAdmin()) {
       <div class="perfil-seccion">

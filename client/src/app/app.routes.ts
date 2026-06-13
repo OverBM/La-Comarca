@@ -32,6 +32,11 @@ export const routes: Routes = [
     loadComponent: () => import('./contacto/components/contacto.component').then(m => m.ContactoComponent),
   },
   {
+    path: 'mis-pedidos',
+    loadComponent: () => import('./pedidos/components/mis-pedidos/mis-pedidos.component').then(m => m.MisPedidosComponent),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'perfil',
     loadComponent: () => import('./perfil/components/perfil.component').then(m => m.PerfilComponent),
     canActivate: [AuthGuard],

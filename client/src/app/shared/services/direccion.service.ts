@@ -1,35 +1,28 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { Direccion } from '../../core/models/direccion.model';
-
-const STORAGE_KEY = 'la-comarca-direcciones';
 
 @Injectable({ providedIn: 'root' })
 export class DireccionService {
-  private readonly direccionesSignal = signal<Direccion[]>(this.cargarDesdeStorage());
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = environment.apiUrl;
+
+  private readonly direccionesSignal = signal<Direccion[]>([]);
   readonly direcciones = this.direccionesSignal.asReadonly();
 
-  constructor() {
-    effect(() => {
-      const data = this.direccionesSignal();
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  cargarDirecciones(idCliente: string): void {
+    this.http.get<Direccion[]>(`${this.apiUrl}/clientes/${idCliente}/direcciones`).subscribe(dirs => {
+      this.direccionesSignal.set(dirs);
     });
   }
 
-  private cargarDesdeStorage(): Direccion[] {
-    try {
-      const stored = sessionStorage.getItem(STORAGE_KEY);
-      if (stored) return JSON.parse(stored) as Direccion[];
-    } catch {
-    }
-    return [];
-  }
-
-  agregarDireccion(d: Omit<Direccion, 'id'>): void {
-    const nueva: Direccion = { ...d, id: crypto.randomUUID?.() ?? `dir-${Date.now()}` };
-    this.direccionesSignal.update(list => [...list, nueva]);
+  agregarDireccion(idCliente: string, data: Omit<Direccion, 'id_direccion' | 'id_cliente'>): Observable<Direccion> {
+    return this.http.post<Direccion>(`${this.apiUrl}/clientes/${idCliente}/direcciones`, data);
   }
 
   eliminarDireccion(id: string): void {
-    this.direccionesSignal.update(list => list.filter(d => d.id !== id));
+    this.direccionesSignal.update(list => list.filter(d => d.id_direccion !== id));
   }
 }

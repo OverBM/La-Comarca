@@ -5,4 +5,5 @@ export interface Producto {
   precio_unitario: number;
   descripcion: string | null;
   imagen: string | null;
+  stock_actual?: number;
 }

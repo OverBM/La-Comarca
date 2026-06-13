@@ -1,12 +1,13 @@
 /** Componente del carrito de compras con lista de productos, dirección y totales */
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { form, required, FormField } from '@angular/forms/signals';
 import { Subject, takeUntil } from 'rxjs';
 import { CarritoService } from '../../../shared/services/carrito.service';
 import { CatalogoService } from '../../../catalogo/services/catalogo.service';
 import { DireccionService } from '../../../shared/services/direccion.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { PedidosService } from '../../services/pedidos.service';
 import { Producto } from '../../../core/models/producto.model';
 import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
@@ -26,6 +27,8 @@ export class CarritoComponent implements OnInit {
   protected readonly direccionService = inject(DireccionService);
   protected readonly authService = inject(AuthService);
   protected readonly catalogoService = inject(CatalogoService);
+  protected readonly pedidosService = inject(PedidosService);
+  private readonly router = inject(Router);
 
   protected productosRelacionados = signal<Producto[]>([]);
   protected selectedAddressId = signal<string | null>(null);
@@ -73,9 +76,25 @@ export class CarritoComponent implements OnInit {
   }
 
   finalizarPedido(): void {
-    this.carritoService.limpiar();
-    this.checkoutMsg.set('Pedido simulado — pronto disponible');
-    setTimeout(() => this.checkoutMsg.set(null), 3000);
+    if (!this.authService.authState().isAuthenticated) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+    const items = this.carritoService.items().map(i => ({
+      id_producto: i.id_producto,
+      cantidad: i.cantidad,
+    }));
+    if (items.length === 0) return;
+    this.pedidosService.crearPedido('', items).subscribe({
+      next: () => {
+        this.carritoService.limpiar();
+        this.router.navigate(['/mis-pedidos']);
+      },
+      error: () => {
+        this.checkoutMsg.set('Error al crear el pedido. Intenta de nuevo.');
+        setTimeout(() => this.checkoutMsg.set(null), 3000);
+      },
+    });
   }
 
   incrementar(id: string): void {
@@ -114,13 +133,15 @@ export class CarritoComponent implements OnInit {
   guardarNuevaDireccion(): void {
     if (this.direccionForm().invalid()) return;
     const { calle, ciudad, referencia } = this.direccionModel();
-    this.direccionService.agregarDireccion({
+    const idCliente = this.authService.authState().email ?? '';
+    this.direccionService.agregarDireccion(idCliente, {
       calle,
       ciudad,
       referencia: referencia || undefined,
       esPrincipal: false,
+    }).subscribe(() => {
+      this.direccionModel.set({ calle: '', ciudad: '', referencia: '' });
+      this.agregandoDireccion.set(false);
     });
-    this.direccionModel.set({ calle: '', ciudad: '', referencia: '' });
-    this.agregandoDireccion.set(false);
   }
 }

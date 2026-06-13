@@ -35,7 +35,7 @@
           <tbody>
             @for (det of pedido.detalle; track det.id_detalle) {
               <tr>
-                <td class="small">{{ det.id_producto }}</td>
+                <td class="small">{{ det.nombre_producto || det.id_producto }}</td>
                 <td class="small text-end">{{ det.cantidad }}</td>
                 <td class="small text-end">{{ det.precio_unitario | formatoPrecio }}</td>
                 <td class="small text-end fw-semibold">{{ det.subtotal | formatoPrecio }}</td>

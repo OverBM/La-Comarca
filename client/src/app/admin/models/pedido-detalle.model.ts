@@ -6,6 +6,7 @@ export interface PedidoDetalle {
   detalle: {
     id_detalle: string;
     id_producto: string;
+    nombre_producto?: string;
     cantidad: number;
     precio_unitario: number;
     subtotal: number;

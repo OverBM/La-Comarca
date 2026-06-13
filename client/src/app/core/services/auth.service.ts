@@ -1,11 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { delay, tap } from 'rxjs/operators';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { StorageService } from './storage.service';
-import { RETARDO_MOCK } from '../constants/app.constants';
-import { MOCK_USUARIOS } from '../mocks/usuarios.mock';
 import { TokenPayload } from '../../auth/models/token.model';
 
 export interface AuthState {
@@ -15,6 +12,17 @@ export interface AuthState {
   apellido: string | null;
   email: string | null;
   telefono: string | null;
+}
+
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  id_usuario: string;
+  email: string;
+  rol: string;
+  nombre: string;
+  apellido: string;
+  telefono: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -53,45 +61,29 @@ export class AuthService {
     }
   }
 
-  login(email: string, password: string): Observable<{ token: string; usuario: { id_usuario: string; nombre: string; apellido: string; email: string; telefono: string; rol: string } }> {
-    if (environment.useMock) {
-      return this.mockLogin(email, password);
-    }
-    return this.http.post<{ token: string; usuario: { id_usuario: string; nombre: string; apellido: string; email: string; telefono: string; rol: string } }>(
-      `${this.apiUrl}/login`, { email, password }
-    ).pipe(
-      tap(res => this.handleLoginSuccess(res.token, res.usuario)),
+  login(email: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password }).pipe(
+      tap(res => this.handleLoginSuccess(res)),
     );
   }
 
-  private mockLogin(email: string, password: string): Observable<{ token: string; usuario: { id_usuario: string; nombre: string; apellido: string; email: string; telefono: string; rol: string } }> {
-    const user = MOCK_USUARIOS[email];
-    if (!user || user.password !== password) {
-      return throwError(() => new Error('Credenciales incorrectas')).pipe(delay(RETARDO_MOCK));
-    }
-
-    const tokenPayload: TokenPayload = { sub: user.id_usuario, email, rol: user.rol, nombre: user.nombre, apellido: user.apellido, telefono: user.telefono };
-    const fakeToken = btoa(JSON.stringify(tokenPayload));
-
-    return of({
-      token: fakeToken,
-      usuario: { id_usuario: user.id_usuario, nombre: user.nombre, apellido: user.apellido, email: user.email, telefono: user.telefono, rol: user.rol },
-    }).pipe(
-      delay(RETARDO_MOCK),
-      tap(res => this.handleLoginSuccess(res.token, res.usuario)),
-    );
-  }
-
-  private handleLoginSuccess(token: string, usuario: { id_usuario: string; nombre: string; apellido: string; email: string; telefono: string; rol: string }): void {
-    this.storage.setToken(token);
-    this.storage.setUser(JSON.stringify(usuario));
+  private handleLoginSuccess(res: LoginResponse): void {
+    this.storage.setToken(res.access_token);
+    this.storage.setUser(JSON.stringify({
+      id_usuario: res.id_usuario,
+      nombre: res.nombre,
+      apellido: res.apellido,
+      email: res.email,
+      telefono: res.telefono,
+      rol: res.rol,
+    }));
     this.authState.set({
       isAuthenticated: true,
-      rol: usuario.rol,
-      nombre: usuario.nombre,
-      apellido: usuario.apellido,
-      email: usuario.email,
-      telefono: usuario.telefono,
+      rol: res.rol,
+      nombre: res.nombre,
+      apellido: res.apellido,
+      email: res.email,
+      telefono: res.telefono,
     });
   }
 
@@ -113,7 +105,7 @@ export class AuthService {
 
   decodeToken(token: string): TokenPayload | null {
     try {
-      return JSON.parse(atob(token));
+      return JSON.parse(atob(token.split('.')[1]));
     } catch {
       return null;
     }

@@ -63,9 +63,9 @@
               @if (!recogerEnTienda()) {
                 @if (authService.authState().isAuthenticated) {
                   <div class="carrito-direcciones-lista">
-                    @for (dir of direccionService.direcciones(); track dir.id) {
+                    @for (dir of direccionService.direcciones(); track dir.id_direccion) {
                       <label class="carrito-direccion-item">
-                        <input type="radio" name="direccion" [value]="dir.id" [checked]="selectedAddressId() === dir.id" (change)="selectedAddressId.set(dir.id)">
+                        <input type="radio" name="direccion" [value]="dir.id_direccion" [checked]="selectedAddressId() === dir.id_direccion" (change)="selectedAddressId.set(dir.id_direccion)">
                         <span>{{ dir.calle }}, {{ dir.ciudad }}@if (dir.referencia) { — {{ dir.referencia }} }</span>
                       </label>
                     }

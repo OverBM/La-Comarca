@@ -1,5 +1,6 @@
 export interface Direccion {
-  id: string;
+  id_direccion: string;
+  id_cliente?: string;
   calle: string;
   ciudad: string;
   referencia?: string;

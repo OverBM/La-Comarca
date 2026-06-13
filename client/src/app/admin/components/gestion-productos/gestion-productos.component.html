@@ -89,7 +89,7 @@
               <td class="table-cell small">{{ prod.nombre }}</td>
               <td class="table-cell small text-on-surface-variant">{{ prod.id_categoria }}</td>
               <td class="table-cell small fw-semibold text-primary-container">S/ {{ prod.precio_unitario.toFixed(2) }}</td>
-              <td><span class="table-badge badge">—</span></td>
+              <td><span class="table-badge badge">{{ prod.stock_actual ?? '—' }}</span></td>
               <td>
                 <button class="btn btn-sm me-1 btn-edit" (click)="openEditForm(prod)">Editar</button>
                 <button class="btn btn-sm btn-delete" (click)="deleteProduct(prod.id_producto)">Eliminar</button>

@@ -37,40 +37,6 @@
       <div>
         <p class="fact-stat-valor">{{ totalDia() | formatoPrecio }}</p>
         <p class="fact-stat-label">Total del d&iacute;a</p>
-        <span class="fact-stat-trend fact-stat-trend--up">+12% vs ayer</span>
-      </div>
-    </div>
-    <div class="fact-stat-card">
-      <span class="fact-stat-icono fact-stat-icono--ok">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-        </svg>
-      </span>
-      <div>
-        <p class="fact-stat-valor">{{ aceptados() }}</p>
-        <p class="fact-stat-label">Aceptados</p>
-      </div>
-    </div>
-    <div class="fact-stat-card">
-      <span class="fact-stat-icono fact-stat-icono--pending">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-        </svg>
-      </span>
-      <div>
-        <p class="fact-stat-valor">{{ pendientes() }}</p>
-        <p class="fact-stat-label">Pendientes</p>
-      </div>
-    </div>
-    <div class="fact-stat-card">
-      <span class="fact-stat-icono fact-stat-icono--error">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/>
-        </svg>
-      </span>
-      <div>
-        <p class="fact-stat-valor">{{ rechazados() }}</p>
-        <p class="fact-stat-label">Rechazados</p>
       </div>
     </div>
   </div>
@@ -90,7 +56,6 @@
           <th>FECHA EMISI&Oacute;N</th>
           <th>COMPROBANTE</th>
           <th>MONTO TOTAL</th>
-          <th>ESTADO SUNAT</th>
           <th>ACCIONES</th>
         </tr>
       </thead>
@@ -107,9 +72,6 @@
               }
             </td>
             <td class="fact-monto">{{ c.total | formatoPrecio }}</td>
-            <td>
-              <span class="fact-badge {{ badgeClass(c.estado_sunat) }}">{{ c.estado_sunat }}</span>
-            </td>
             <td>
               <div class="fact-acciones">
                 <button class="fact-accion-btn" (click)="mostrarToast('PDF — pr&oacute;ximamente')" aria-label="Descargar PDF">

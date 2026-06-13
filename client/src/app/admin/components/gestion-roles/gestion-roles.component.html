@@ -28,7 +28,7 @@
             </span>
           </td>
           <td>
-            <select class="roles-select" [value]="u.rol" (change)="solicitarCambio(u.email, ($any($event.target)).value, $event)">
+            <select class="roles-select" [value]="u.rol" (change)="solicitarCambio(u.id_usuario, u.email, ($any($event.target)).value, $event)">
               <option value="admin">Administrador</option>
               <option value="cliente">Cliente</option>
             </select>

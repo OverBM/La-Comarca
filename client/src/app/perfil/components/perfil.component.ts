@@ -1,23 +1,18 @@
-/** Componente de perfil de usuario con datos personales, negocio y cambio de contraseña */
 import { Component, inject, signal, computed } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { form, required, email, minLength, FormField } from '@angular/forms/signals';
 import { AuthService } from '../../core/services/auth.service';
-import { PERFIL_ADMIN_MOCK } from '../../core/mocks/perfil-admin.mock';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
-import { FormatoPrecioPipe } from '../../shared/pipes/formato-precio.pipe';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [FormField, NavbarComponent, FooterComponent, FormatoPrecioPipe, DatePipe],
+  imports: [FormField, NavbarComponent, FooterComponent],
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.css',
 })
 export class PerfilComponent {
   protected readonly authService = inject(AuthService);
-  protected mock = PERFIL_ADMIN_MOCK;
   protected esAdmin = computed(() => this.authService.authState().rol === 'admin');
 
   protected guardado = signal(false);
@@ -53,12 +48,6 @@ export class PerfilComponent {
       apellido: state.apellido ?? '',
       email: state.email ?? '',
       telefono: state.telefono ?? '',
-    });
-    this.negocioModel.set({
-      negocioNombre: this.mock.negocio.nombre,
-      negocioRuc: this.mock.negocio.ruc,
-      negocioDireccion: this.mock.negocio.direccion,
-      negocioTelefono: this.mock.negocio.telefono,
     });
   }
 

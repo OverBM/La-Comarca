@@ -1,0 +1,9 @@
+.mis-pedidos-body {
+  text-align: center;
+  padding: 4rem 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.mis-pedidos-body h1 {
+  margin-bottom: 1rem;
+}

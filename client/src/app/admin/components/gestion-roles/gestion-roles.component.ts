@@ -1,7 +1,17 @@
-/** Componente para la gestión de roles y permisos de usuarios desde el panel admin */
-import { Component, signal } from '@angular/core';
-import { MOCK_USUARIOS, MockUsuario } from '../../../core/mocks/usuarios.mock';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo-confirmacion/dialogo-confirmacion.component';
+
+interface Usuario {
+  id_usuario: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string | null;
+  rol: string;
+  activo: boolean;
+}
 
 @Component({
   selector: 'app-gestion-roles',
@@ -10,35 +20,40 @@ import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo
   templateUrl: './gestion-roles.component.html',
   styleUrl: './gestion-roles.component.css',
 })
-export class GestionRolesComponent {
-  usuarios = signal<MockUsuario[]>(Object.values(MOCK_USUARIOS));
+export class GestionRolesComponent implements OnInit {
+  private readonly http = inject(HttpClient);
+  usuarios = signal<Usuario[]>([]);
   dialogVisible = signal(false);
-  pendingChange: { email: string; nuevoRol: 'admin' | 'cliente' } | null = null;
+  pendingChange: { id: string; email: string; nuevoRol: string } | null = null;
   toastMsg = signal<string | null>(null);
   private pendingSelectEl: HTMLSelectElement | null = null;
 
-  solicitarCambio(email: string, nuevoRol: 'admin' | 'cliente', event: Event): void {
+  ngOnInit(): void {
+    this.http.get<Usuario[]>(`${environment.apiUrl}/usuarios`).subscribe(users => {
+      this.usuarios.set(users);
+    });
+  }
+
+  solicitarCambio(id: string, email: string, nuevoRol: string, event: Event): void {
     this.pendingSelectEl = event.target as HTMLSelectElement;
-    this.pendingChange = { email, nuevoRol };
+    this.pendingChange = { id, email, nuevoRol };
     this.dialogVisible.set(true);
   }
 
   confirmarCambio(): void {
     if (!this.pendingChange) return;
-    const { email, nuevoRol } = this.pendingChange;
-    MOCK_USUARIOS[email].rol = nuevoRol;
-    this.usuarios.set(Object.values(MOCK_USUARIOS));
-    this.dialogVisible.set(false);
-    this.pendingChange = null;
-    this.pendingSelectEl = null;
-    this.toastMsg.set(`Rol actualizado para ${email}`);
-    setTimeout(() => this.toastMsg.set(null), 2500);
+    const { id, nuevoRol } = this.pendingChange;
+    this.http.put<Usuario>(`${environment.apiUrl}/usuarios/${id}/rol`, { rol: nuevoRol }).subscribe(user => {
+      this.usuarios.update(list => list.map(u => u.id_usuario === id ? user : u));
+      this.dialogVisible.set(false);
+      this.pendingChange = null;
+      this.pendingSelectEl = null;
+      this.toastMsg.set(`Rol actualizado para ${user.email}`);
+      setTimeout(() => this.toastMsg.set(null), 2500);
+    });
   }
 
   cancelarCambio(): void {
-    if (this.pendingChange && this.pendingSelectEl) {
-      this.pendingSelectEl.value = MOCK_USUARIOS[this.pendingChange.email].rol;
-    }
     this.dialogVisible.set(false);
     this.pendingChange = null;
     this.pendingSelectEl = null;

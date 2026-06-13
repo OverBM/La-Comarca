@@ -25,13 +25,9 @@ export class FacturacionComponent implements OnInit, OnDestroy {
   readonly totalDia = computed(() => {
     const hoy = new Date();
     return this.allComprobantes()
-      .filter(c => c.fecha.toDateString() === hoy.toDateString())
+      .filter(c => new Date(c.fecha).toDateString() === hoy.toDateString())
       .reduce((s, c) => s + c.total, 0);
   });
-
-  readonly aceptados = computed(() => this.allComprobantes().filter(c => c.estado_sunat === 'Aceptado').length);
-  readonly pendientes = computed(() => this.allComprobantes().filter(c => c.estado_sunat === 'Pendiente').length);
-  readonly rechazados = computed(() => this.allComprobantes().filter(c => c.estado_sunat === 'Rechazado').length);
 
   readonly totalPages = computed(() => Math.ceil(this.allComprobantes().length / this.pageSize));
 
@@ -65,13 +61,4 @@ export class FacturacionComponent implements OnInit, OnDestroy {
     setTimeout(() => this.toastMsg.set(null), 2500);
   }
 
-  badgeClass(estado: string): string {
-    const map: Record<string, string> = {
-      Aceptado: 'fact-badge--aceptado',
-      Enviando: 'fact-badge--enviando',
-      Pendiente: 'fact-badge--pendiente',
-      Rechazado: 'fact-badge--rechazado',
-    };
-    return map[estado] ?? '';
-  }
 }
