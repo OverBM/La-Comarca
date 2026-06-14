@@ -1,7 +1,8 @@
 /** Componente que lista productos con filtros por categoría y búsqueda para el catálogo público */
-import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
-import { Subject, forkJoin, switchMap, takeUntil } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { forkJoin } from 'rxjs';
 import { CatalogoService } from '../../services/catalogo.service';
 import { Producto } from '../../../core/models/producto.model';
 import { Categoria } from '../../../core/models/categoria.model';
@@ -19,73 +20,30 @@ import { DURACION_FEEDBACK } from '../../../core/constants/app.constants';
   templateUrl: './lista-productos.component.html',
   styleUrl: './lista-productos.component.css',
 })
-export class ListaProductosComponent implements OnInit, OnDestroy {
-  productos = signal<Producto[]>([]);
-  categorias = signal<Categoria[]>([]);
-  loading = signal(true);
-  searchQuery = signal('');
-  selectedCategory = signal('');
-  sortBy = signal('');
-
-  private readonly allProducts = signal<Producto[]>([]);
+export class ListaProductosComponent {
   private readonly catalogoService = inject(CatalogoService);
   private readonly carritoService = inject(CarritoService);
   private readonly route = inject(ActivatedRoute);
-  private readonly destroy$ = new Subject<void>();
 
-  addedProductIds = signal<Set<string>>(new Set());
-
-  ngOnInit(): void {
+  private readonly cargaInicial = toSignal(
     forkJoin({
-      categorias: this.catalogoService.getCategorias().pipe(takeUntil(this.destroy$)),
-      productos: this.catalogoService.getProductos().pipe(takeUntil(this.destroy$)),
-    }).pipe(
-      takeUntil(this.destroy$),
-      switchMap(({ categorias, productos }) => {
-        this.categorias.set(categorias);
-        this.allProducts.set(productos);
-        this.loading.set(false);
-        return this.route.queryParams.pipe(takeUntil(this.destroy$));
-      }),
-    ).subscribe(params => {
-      const q = params['q'];
-      if (q) {
-        this.searchQuery.set(q);
-      }
-      this.applyFilters();
-    });
-  }
+      categorias: this.catalogoService.getCategorias(),
+      productos: this.catalogoService.getProductos(),
+    }),
+    { initialValue: { categorias: [] as Categoria[], productos: [] as Producto[] } },
+  );
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  readonly categorias = computed(() => this.cargaInicial().categorias);
+  readonly allProducts = computed(() => this.cargaInicial().productos);
+  readonly loading = signal(true);
 
-  filterByCategory(categoriaId: string): void {
-    this.selectedCategory.set(categoriaId);
-    this.applyFilters();
-  }
+  readonly searchQuery = signal('');
+  readonly selectedCategory = signal('');
+  readonly sortBy = signal('');
 
-  onSearchInput(event: Event): void {
-    this.onSearch((event.target as HTMLInputElement).value);
-  }
-
-  onSortChange(event: Event): void {
-    this.onSort((event.target as HTMLSelectElement).value);
-  }
-
-  onSearch(query: string): void {
-    this.searchQuery.set(query);
-    this.applyFilters();
-  }
-
-  onSort(value: string): void {
-    this.sortBy.set(value);
-    this.applyFilters();
-  }
-
-  private applyFilters(): void {
-    let filtered = [...this.allProducts()];
+  readonly productos = computed(() => {
+    const all = this.allProducts();
+    let filtered = [...all];
     const cat = this.selectedCategory();
     if (cat) {
       filtered = filtered.filter(p => p.id_categoria === cat);
@@ -100,17 +58,47 @@ export class ListaProductosComponent implements OnInit, OnDestroy {
     } else if (sort === 'precio') {
       filtered.sort((a, b) => a.precio_unitario - b.precio_unitario);
     }
-    this.productos.set(filtered);
+    return filtered;
+  });
+
+  addedProductIds = signal<Set<string>>(new Set());
+
+  constructor() {
+    const params = this.route.snapshot.queryParams;
+    const q = params['q'];
+    if (q) {
+      this.searchQuery.set(q);
+    }
+    this.loading.set(false);
+  }
+
+  filterByCategory(categoriaId: string): void {
+    this.selectedCategory.set(categoriaId);
+  }
+
+  onSearchInput(event: Event): void {
+    this.searchQuery.set((event.target as HTMLInputElement).value);
+  }
+
+  onSortChange(event: Event): void {
+    this.sortBy.set((event.target as HTMLSelectElement).value);
+  }
+
+  onSearch(query: string): void {
+    this.searchQuery.set(query);
+  }
+
+  onSort(value: string): void {
+    this.sortBy.set(value);
   }
 
   getCategoryName(categoriaId: string): string {
-    return this.categorias().find(c => c.id_categoria === categoriaId)?.nombre ?? categoriaId;
+    return this.categorias().find((c: Categoria) => c.id_categoria === categoriaId)?.nombre ?? categoriaId;
   }
 
   clearFilters(): void {
     this.selectedCategory.set('');
     this.searchQuery.set('');
-    this.productos.set([...this.allProducts()]);
   }
 
   agregarAlCarrito(event: Event, product: Producto): void {

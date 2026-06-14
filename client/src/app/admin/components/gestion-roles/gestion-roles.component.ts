@@ -1,17 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { Usuario } from '../../../core/models/usuario.model';
 import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo-confirmacion/dialogo-confirmacion.component';
-
-interface Usuario {
-  id_usuario: string;
-  nombre: string;
-  apellido: string;
-  email: string;
-  telefono: string | null;
-  rol: string;
-  activo: boolean;
-}
 
 @Component({
   selector: 'app-gestion-roles',
@@ -20,19 +13,19 @@ interface Usuario {
   templateUrl: './gestion-roles.component.html',
   styleUrl: './gestion-roles.component.css',
 })
-export class GestionRolesComponent implements OnInit {
+export class GestionRolesComponent {
   private readonly http = inject(HttpClient);
-  usuarios = signal<Usuario[]>([]);
-  dialogVisible = signal(false);
-  pendingChange: { id: string; email: string; nuevoRol: string } | null = null;
-  toastMsg = signal<string | null>(null);
-  private pendingSelectEl: HTMLSelectElement | null = null;
+  private readonly destroyRef = inject(DestroyRef);
 
-  ngOnInit(): void {
-    this.http.get<Usuario[]>(`${environment.apiUrl}/usuarios`).subscribe(users => {
-      this.usuarios.set(users);
-    });
-  }
+  readonly usuarios = toSignal(
+    this.http.get<Usuario[]>(`${environment.apiUrl}/usuarios`),
+    { initialValue: [] as Usuario[] },
+  );
+
+  readonly dialogVisible = signal(false);
+  pendingChange: { id: string; email: string; nuevoRol: string } | null = null;
+  readonly toastMsg = signal<string | null>(null);
+  private pendingSelectEl: HTMLSelectElement | null = null;
 
   solicitarCambio(id: string, email: string, nuevoRol: string, event: Event): void {
     this.pendingSelectEl = event.target as HTMLSelectElement;
@@ -43,14 +36,15 @@ export class GestionRolesComponent implements OnInit {
   confirmarCambio(): void {
     if (!this.pendingChange) return;
     const { id, nuevoRol } = this.pendingChange;
-    this.http.put<Usuario>(`${environment.apiUrl}/usuarios/${id}/rol`, { rol: nuevoRol }).subscribe(user => {
-      this.usuarios.update(list => list.map(u => u.id_usuario === id ? user : u));
-      this.dialogVisible.set(false);
-      this.pendingChange = null;
-      this.pendingSelectEl = null;
-      this.toastMsg.set(`Rol actualizado para ${user.email}`);
-      setTimeout(() => this.toastMsg.set(null), 2500);
-    });
+    this.http.put<Usuario>(`${environment.apiUrl}/usuarios/${id}/rol`, { rol: nuevoRol })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.dialogVisible.set(false);
+        this.pendingChange = null;
+        this.pendingSelectEl = null;
+        this.toastMsg.set('Rol actualizado correctamente');
+        setTimeout(() => this.toastMsg.set(null), 2500);
+      });
   }
 
   cancelarCambio(): void {

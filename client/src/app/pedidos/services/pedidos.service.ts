@@ -31,15 +31,11 @@ export class PedidosService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
 
-  crearPedido(id_cliente: string, items: { id_producto: string; cantidad: number }[]): Observable<PedidoDetalle> {
-    return this.http.post<PedidoDetalle>(`${this.apiUrl}/pedidos`, { id_cliente, items });
+  obtenerMisPedidos(): Observable<PedidoResumen[]> {
+    return this.http.get<PedidoResumen[]>(`${this.apiUrl}/pedidos/mis-pedidos`);
   }
 
-  getMisPedidos(): Observable<PedidoResumen[]> {
-    return this.http.get<PedidoResumen[]>(`${this.apiUrl}/mis-pedidos`);
-  }
-
-  getPedidoPorId(id: string): Observable<PedidoDetalle> {
+  obtenerPedidoPorId(id: string): Observable<PedidoDetalle> {
     return this.http.get<PedidoDetalle>(`${this.apiUrl}/pedidos/${id}`);
   }
 }

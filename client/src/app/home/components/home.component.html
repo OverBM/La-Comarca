@@ -114,14 +114,14 @@
                   <img [src]="product.imagen" [alt]="product.nombre" class="w-100 h-100 object-fit-cover" loading="lazy" />
                 </div>
                 <div class="card-body">
-                  <span class="badge bg-primary bg-opacity-10 text-primary mb-2">{{ getCategoriaName(product.id_categoria) }}</span>
+                  <span class="badge bg-primary bg-opacity-10 text-primary mb-2">{{ obtenerNombreCategoria(product.id_categoria) }}</span>
                   <h3 class="h6 fw-semibold mb-1">{{ product.nombre }}</h3>
                   <p class="small text-secondary mb-2 text-truncate">{{ product.descripcion }}</p>
                   <p class="fw-bold text-primary mb-0">{{ product.precio_unitario | formatoPrecio }}</p>
                 </div>
               </a>
               <div class="card-footer bg-transparent border-0 pt-0">
-                <button class="btn btn-sm w-100" [class.btn-primary]="!isAdded(product.id_producto)" [class.btn-added]="isAdded(product.id_producto)" [disabled]="product.stock_actual === 0" (click)="addToCart(product, $event)">
+                <button class="btn btn-sm w-100" [class.btn-primary]="!isAdded(product.id_producto)" [class.btn-added]="isAdded(product.id_producto)" [disabled]="product.stock_actual === 0" (click)="agregarAlCarrito(product, $event)">
                   @if (product.stock_actual === 0) {
                     Sin stock
                   } @else if (isAdded(product.id_producto)) {

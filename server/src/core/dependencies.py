@@ -19,12 +19,3 @@ def require_admin(user: dict = Depends(get_current_user)) -> dict:
     if user.get("rol") != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Se requiere rol admin")
     return user
-
-
-async def get_optional_user(credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme)) -> dict | None:
-    if credentials is None:
-        return None
-    try:
-        return verify_token(credentials.credentials)
-    except Exception:
-        return None

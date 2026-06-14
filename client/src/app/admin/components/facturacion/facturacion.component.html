@@ -61,7 +61,7 @@
         @if (pedidosLoading()) {
           <app-loading></app-loading>
         } @else {
-          <div class="list-group" style="max-height: 240px; overflow-y: auto;">
+          <div class="list-group lista-comprobantes">
             @for (p of pedidosSinComprobante(); track p.id_pedido) {
               <label class="list-group-item d-flex align-items-center gap-2 py-2">
                 <input type="checkbox" class="form-check-input fact-checkbox m-0"

@@ -1,3 +1,8 @@
+.lista-comprobantes {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
 .fact-toast {
   position: fixed;
   top: 1rem;
@@ -252,8 +257,8 @@
 }
 
 .fact-badge--aceptado {
-  background: #e6f2e6;
-  color: #2e7d32;
+  background: var(--color-success-container);
+  color: var(--color-success);
 }
 
 .fact-badge--enviando {
@@ -267,8 +272,8 @@
 }
 
 .fact-badge--rechazado {
-  background: #fdecea;
-  color: #c62828;
+  background: var(--color-error-container);
+  color: var(--color-error);
 }
 
 .fact-acciones {
@@ -376,7 +381,7 @@
 
 .fact-checkbox:focus {
   border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 0.2rem rgba(50, 23, 13, 0.25) !important;
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25) !important;
 }
 
 @media (max-width: 768px) {

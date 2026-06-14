@@ -1,5 +1,5 @@
 /** Layout principal del panel admin con sidebar de navegación y header superior */
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
@@ -12,10 +12,8 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
   styleUrl: './admin-layout.component.css',
 })
 export class AdminLayoutComponent {
-  constructor(
-    protected readonly authService: AuthService,
-    private readonly router: Router,
-  ) {}
+  protected readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   logout(): void {
     this.authService.logout();

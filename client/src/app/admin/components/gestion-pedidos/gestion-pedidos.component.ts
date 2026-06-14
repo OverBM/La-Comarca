@@ -1,6 +1,7 @@
-﻿import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+﻿import { Component, signal, computed, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
-import { Subject, takeUntil } from 'rxjs';
 import { AdminPedidosService } from '../../services/admin-pedidos.service';
 import { PedidoResumen } from '../../models/pedido-resumen.model';
 import { PedidoDetalle } from '../../models/pedido-detalle.model';
@@ -14,32 +15,20 @@ import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
   templateUrl: './gestion-pedidos.component.html',
   styleUrl: './gestion-pedidos.component.css',
 })
-export class GestionPedidosComponent implements OnInit, OnDestroy {
-  pedidos = signal<PedidoResumen[]>([]);
-  selectedPedido = signal<PedidoDetalle | null>(null);
-  loading = signal(true);
+export class GestionPedidosComponent {
+  private readonly pedidosService = inject(AdminPedidosService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  private readonly destroy$ = new Subject<void>();
-
-  constructor(private readonly pedidosService: AdminPedidosService) {}
-
-  ngOnInit(): void {
-    this.pedidosService.getPedidos().pipe(takeUntil(this.destroy$)).subscribe(p => {
-      this.pedidos.set(p);
-      this.loading.set(false);
-    });
-  }
+  private readonly pedidosResource = toSignal(this.pedidosService.getPedidos(), { initialValue: [] as PedidoResumen[] });
+  readonly pedidos = computed(() => this.pedidosResource());
+  readonly selectedPedido = signal<PedidoDetalle | null>(null);
+  readonly loading = signal(false);
 
   viewDetail(id: string): void {
-    this.pedidosService.getPedidoDetalle(id).pipe(takeUntil(this.destroy$)).subscribe(d => this.selectedPedido.set(d ?? null));
+    this.pedidosService.getPedidoDetalle(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(d => this.selectedPedido.set(d ?? null));
   }
 
   backToList(): void {
     this.selectedPedido.set(null);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

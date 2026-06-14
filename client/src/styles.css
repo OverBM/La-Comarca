@@ -20,7 +20,13 @@
   --color-error: #ba1a1a;
   --color-success: #6B705C;
   --color-warning: #904d00;
+  --color-primary-fixed: #ffdbce;
+  --color-surface-container-lowest: #ffffff;
+  --color-secondary-fixed-dim: #ffb77d;
+  --color-surface-bright: #fef9f2;
+  --color-success-container: #e6f2e6;
   --color-warning-container: #ffdcc3;
+  --color-error-container: #fdecea;
   --color-on-warning: #ffffff;
   --color-on-warning-container: #2f1500;
   --font-headline: 'Newsreader', Georgia, serif;

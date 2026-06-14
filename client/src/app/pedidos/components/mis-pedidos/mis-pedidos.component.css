@@ -13,3 +13,11 @@
 .detalle-row td {
   border-top: none !important;
 }
+
+.icono-expandible {
+  transition: transform 0.2s;
+}
+
+.icono-expandible.rotated {
+  transform: rotate(180deg);
+}

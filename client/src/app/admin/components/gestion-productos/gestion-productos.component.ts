@@ -1,7 +1,8 @@
 ﻿/** Componente para la gestión CRUD de productos desde el panel admin */
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, signal, computed, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { form, required, minLength, min, FormField } from '@angular/forms/signals';
-import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { AdminProductosService } from '../../services/admin-productos.service';
 import { Producto } from '../../../core/models/producto.model';
 import { Categoria } from '../../../core/models/categoria.model';
@@ -16,17 +17,25 @@ import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo
   templateUrl: './gestion-productos.component.html',
   styleUrl: './gestion-productos.component.css',
 })
-export class GestionProductosComponent implements OnInit {
-  productos = signal<Producto[]>([]);
-  categorias = signal<Categoria[]>([]);
-  loading = signal(true);
-  selectedCategory = signal('');
-  editingProduct = signal<Producto | null>(null);
-  showForm = signal(false);
-  showConfirmDialog = signal(false);
-  pendingDeleteId = signal('');
+export class GestionProductosComponent {
+  readonly editingProduct = signal<Producto | null>(null);
+  readonly showForm = signal(false);
+  readonly showConfirmDialog = signal(false);
+  readonly pendingDeleteId = signal('');
 
-  private readonly destroy$ = new Subject<void>();
+  private readonly adminProductosService = inject(AdminProductosService);
+  private readonly catalogoService = inject(CatalogoService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly categoriasSignal = toSignal(
+    this.catalogoService.getCategorias(),
+    { initialValue: [] as Categoria[] },
+  );
+
+  readonly categorias = computed(() => this.categoriasSignal());
+  readonly productos = signal<Producto[]>([]);
+  readonly loading = signal(true);
+  readonly selectedCategory = signal('');
 
   private prodModel = signal({ id_categoria: '', nombre: '', precio_unitario: 0, descripcion: '', imagen: '', stock_minimo: 0 });
   protected prodForm = form(this.prodModel, (f) => {
@@ -38,25 +47,13 @@ export class GestionProductosComponent implements OnInit {
     min(f.stock_minimo, 0, { message: 'No puede ser negativo' });
   });
 
-  constructor(
-    private readonly adminProductosService: AdminProductosService,
-    private readonly catalogoService: CatalogoService,
-  ) {}
-
-  ngOnInit(): void {
-    forkJoin({
-      categorias: this.catalogoService.getCategorias().pipe(takeUntil(this.destroy$)),
-      productos: this.adminProductosService.getProductos().pipe(takeUntil(this.destroy$)),
-    }).pipe(takeUntil(this.destroy$)).subscribe(({ categorias, productos }) => {
-      this.categorias.set(categorias);
-      this.productos.set(productos);
-      this.loading.set(false);
-    });
+  constructor() {
+    this.loadProductos();
   }
 
   loadProductos(): void {
     this.loading.set(true);
-    this.adminProductosService.getProductos().pipe(takeUntil(this.destroy$)).subscribe(p => {
+    this.adminProductosService.getProductos().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(p => {
       this.productos.set(p);
       this.loading.set(false);
     });
@@ -67,7 +64,7 @@ export class GestionProductosComponent implements OnInit {
     this.selectedCategory.set(catId);
     this.loading.set(true);
     if (catId) {
-      this.adminProductosService.getProductosByCategoria(catId).pipe(takeUntil(this.destroy$)).subscribe(p => {
+      this.adminProductosService.getProductosByCategoria(catId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(p => {
         this.productos.set(p);
         this.loading.set(false);
       });
@@ -84,7 +81,7 @@ export class GestionProductosComponent implements OnInit {
 
   openEditForm(product: Producto): void {
     this.editingProduct.set(product);
-    this.prodModel.set({ id_categoria: product.id_categoria, nombre: product.nombre, precio_unitario: product.precio_unitario, descripcion: product.descripcion ?? '', imagen: product.imagen ?? '', stock_minimo: (product as any).stock_minimo ?? 0 });
+    this.prodModel.set({ id_categoria: product.id_categoria, nombre: product.nombre, precio_unitario: product.precio_unitario, descripcion: product.descripcion ?? '', imagen: product.imagen ?? '', stock_minimo: (product as Producto & { stock_minimo?: number }).stock_minimo ?? 0 });
     this.showForm.set(true);
   }
 
@@ -93,12 +90,12 @@ export class GestionProductosComponent implements OnInit {
     const fd = this.prodModel();
     const edit = this.editingProduct();
     if (edit) {
-      this.adminProductosService.updateProducto(edit.id_producto, fd).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.adminProductosService.updateProducto(edit.id_producto, fd).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
         this.showForm.set(false);
         this.loadProductos();
       });
     } else {
-      this.adminProductosService.createProducto(fd).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.adminProductosService.createProducto(fd).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
         this.showForm.set(false);
         this.loadProductos();
       });
@@ -115,7 +112,7 @@ export class GestionProductosComponent implements OnInit {
     if (!id) return;
     this.showConfirmDialog.set(false);
     this.pendingDeleteId.set('');
-    this.adminProductosService.deleteProducto(id).pipe(takeUntil(this.destroy$)).subscribe(() => this.loadProductos());
+    this.adminProductosService.deleteProducto(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.loadProductos());
   }
 
   onCancelarEliminar(): void {

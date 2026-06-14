@@ -1,7 +1,7 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { form, required, email, minLength, FormField } from '@angular/forms/signals';
-import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -12,7 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './login.component.css',
 })
 export class LoginComponent {
-  private readonly destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly route = inject(ActivatedRoute);
 
   private model = signal({ email: '', password: '' });
@@ -26,10 +26,8 @@ export class LoginComponent {
   error = signal('');
   loading = signal(false);
 
-  constructor(
-    private readonly authService: AuthService,
-    private readonly router: Router,
-  ) {}
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   login(): void {
     if (this.loginForm().invalid()) return;
@@ -38,7 +36,7 @@ export class LoginComponent {
     this.error.set('');
 
     const { email, password } = this.model();
-    this.authService.login(email, password).pipe(takeUntil(this.destroy$)).subscribe({
+    this.authService.login(email, password).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.loading.set(false);
         const returnUrl = this.route.snapshot.queryParams['returnUrl'];

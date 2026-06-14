@@ -3,26 +3,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { httpResource } from '@angular/common/http';
 import { form, required, email, minLength, FormField } from '@angular/forms/signals';
 import { AuthService } from '../../core/services/auth.service';
+import { Cliente } from '../../core/models/cliente.model';
+import { Inventario } from '../../admin/models/inventario.model';
 import { DireccionService } from '../../shared/services/direccion.service';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { CurrencyPipe } from '@angular/common';
 import { environment } from '../../../environments/environment';
-
-interface ClientePerfil {
-  id_cliente: string;
-  nombre: string;
-  apellido: string;
-  email: string | null;
-  telefono: string | null;
-}
-
-interface InventarioItem {
-  id_inventario: string;
-  id_producto: string;
-  stock_actual: number;
-  stock_minimo: number;
-}
 
 @Component({
   selector: 'app-perfil',
@@ -48,7 +35,7 @@ export class PerfilComponent {
 
   private readonly meVersion = signal(0);
 
-  private readonly meResource = httpResource<ClientePerfil>(() => {
+  private readonly meResource = httpResource<Cliente>(() => {
     if (this.esAdmin()) return undefined;
     this.meVersion();
     return `${this.apiUrl}/clientes/me`;
@@ -73,7 +60,7 @@ export class PerfilComponent {
   });
   protected ingresosGenerados = computed(() => this.ingresosGeneradosResource.value() ?? 0);
 
-  private readonly stockBajoResource = httpResource<InventarioItem[]>(() => {
+  private readonly stockBajoResource = httpResource<Inventario[]>(() => {
     if (!this.esAdmin()) return undefined;
     return `${this.apiUrl}/inventario?bajo=true`;
   });
@@ -144,7 +131,7 @@ export class PerfilComponent {
     this.authService.updateProfile({ nombre, apellido, email, telefono }).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe({
-      next: (res: any) => {
+      next: () => {
         this.authService.authState.update(s => ({ ...s, nombre, apellido, email, telefono }));
         this.authService.updateStoredUser({ nombre, apellido, email, telefono });
         this.meVersion.update(v => v + 1);

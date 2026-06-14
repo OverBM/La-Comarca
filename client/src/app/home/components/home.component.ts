@@ -1,7 +1,7 @@
 /** Componente de la página principal con productos destacados, categorías y carrusel */
-import { Component, OnInit, OnDestroy, signal, viewChild, ElementRef } from '@angular/core';
+import { Component, signal, viewChild, ElementRef, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CatalogoService } from '../../catalogo/services/catalogo.service';
 import { Producto } from '../../core/models/producto.model';
 import { Categoria } from '../../core/models/categoria.model';
@@ -19,45 +19,24 @@ import { DURACION_FEEDBACK } from '../../core/constants/app.constants';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent implements OnInit, OnDestroy {
-  featuredProducts = signal<Producto[]>([]);
-  categorias = signal<Categoria[]>([]);
-  loading = signal(true);
-  slideIndex = signal(0);
-  slideTrack = viewChild<ElementRef<HTMLElement>>('slideTrack');
-  addedProducts = signal<Set<string>>(new Set());
+export class HomeComponent {
+  private readonly catalogoService = inject(CatalogoService);
+  private readonly carritoService = inject(CarritoService);
 
-  private readonly destroy$ = new Subject<void>();
+  readonly featuredProducts = toSignal(this.catalogoService.getFeaturedProductos(), { initialValue: [] as Producto[] });
+  readonly categorias = toSignal(this.catalogoService.getCategorias(), { initialValue: [] as Categoria[] });
+  readonly loading = signal(false);
 
-  constructor(
-    private readonly catalogoService: CatalogoService,
-    private readonly carritoService: CarritoService
-  ) {}
+  readonly slideIndex = signal(0);
+  readonly slideTrack = viewChild<ElementRef<HTMLElement>>('slideTrack');
+  readonly addedProducts = signal<Set<string>>(new Set());
 
-  ngOnInit(): void {
-    this.catalogoService.getFeaturedProductos().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (products) => {
-        this.featuredProducts.set(products);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
-    this.catalogoService.getCategorias().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (cats) => this.categorias.set(cats),
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  getCategoriaName(id: string): string {
+  obtenerNombreCategoria(id: string): string {
     const cat = this.categorias().find((c) => c.id_categoria === id);
     return cat ? cat.nombre : id;
   }
 
-  addToCart(product: Producto, event: Event): void {
+  agregarAlCarrito(product: Producto, event: Event): void {
     event.stopPropagation();
     this.carritoService.agregarItem(
       {

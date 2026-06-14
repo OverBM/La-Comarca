@@ -76,7 +76,7 @@ class AuthService:
             telefono=usuario["telefono"] or "",
         )
 
-    async def refresh_token(self, token: str) -> str:
+    async def refrescar_token(self, token: str) -> str:
         payload = verify_token(token)
         if not payload:
             raise ValueError("Token inválido")
@@ -89,7 +89,7 @@ class AuthService:
             telefono=payload.get("telefono", ""),
         )
 
-    async def request_recovery(self, email: str):
+    async def solicitar_recuperacion(self, email: str):
         usuario = await self.usuario_repo.get_by_email(email)
         if not usuario:
             return
@@ -105,7 +105,7 @@ class AuthService:
         exp = datetime.now(timezone.utc) + timedelta(hours=1)
         await self.token_repo.create(usuario["id_usuario"], reset_token, "password_reset", exp)
 
-    async def reset_password(self, token: str, nueva_password: str):
+    async def restablecer_password(self, token: str, nueva_password: str):
         token_row = await self.token_repo.get_valid_token(token)
         if not token_row:
             raise ValueError("Token inválido o expirado")

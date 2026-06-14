@@ -1,8 +1,9 @@
 /** Componente que muestra el detalle completo de un producto con opción de agregar al carrito */
-import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Location } from '@angular/common';
-import { Subject, takeUntil } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 import { CatalogoService } from '../../services/catalogo.service';
 import { Producto } from '../../../core/models/producto.model';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
@@ -19,20 +20,40 @@ import { DURACION_FEEDBACK, URL_IMAGEN_PLACEHOLDER } from '../../../core/constan
   templateUrl: './detalle-producto.component.html',
   styleUrl: './detalle-producto.component.css',
 })
-export class DetalleProductoComponent implements OnInit, OnDestroy {
-  producto = signal<Producto | null>(null);
-  loading = signal(true);
-  cantidad = signal(1);
-  total = computed(() => (this.producto()?.precio_unitario ?? 0) * this.cantidad());
-  added = signal(false);
-  categoriaNombre = signal('');
-  relacionados = signal<Producto[]>([]);
-
+export class DetalleProductoComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly catalogoService = inject(CatalogoService);
   private readonly carritoService = inject(CarritoService);
   private readonly location = inject(Location);
-  private readonly destroy$ = new Subject<void>();
+
+  private readonly productoId = toSignal<Producto | null>(
+    this.route.paramMap.pipe(switchMap(params => {
+      const id = params.get('id');
+      return id ? this.catalogoService.getProductoById(id) : [];
+    })),
+    { initialValue: null },
+  );
+
+  readonly producto = computed(() => this.productoId());
+  readonly loading = signal(false);
+  readonly cantidad = signal(1);
+  readonly total = computed(() => (this.producto()?.precio_unitario ?? 0) * this.cantidad());
+  readonly added = signal(false);
+
+  private readonly categorias = toSignal(this.catalogoService.getCategorias(), { initialValue: [] });
+  readonly categoriaNombre = computed(() => {
+    const p = this.producto();
+    if (!p) return '';
+    const cat = this.categorias().find(c => c.id_categoria === p.id_categoria);
+    return cat?.nombre ?? p.id_categoria;
+  });
+
+  private readonly todosProductos = toSignal(this.catalogoService.getProductos(), { initialValue: [] });
+  readonly relacionados = computed(() => {
+    const p = this.producto();
+    if (!p) return [];
+    return this.todosProductos().filter(prod => prod.id_categoria === p.id_categoria && prod.id_producto !== p.id_producto);
+  });
 
   volver(): void {
     this.location.back();
@@ -57,41 +78,5 @@ export class DetalleProductoComponent implements OnInit, OnDestroy {
   onImgError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.src = URL_IMAGEN_PLACEHOLDER;
-  }
-
-  private cargarProducto(id: string): void {
-    this.loading.set(true);
-    this.catalogoService.getProductoById(id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (product) => {
-        this.producto.set(product ?? null);
-        if (product) {
-          this.catalogoService.getCategorias().pipe(takeUntil(this.destroy$)).subscribe(cats => {
-            const cat = cats.find(c => c.id_categoria === product.id_categoria);
-            this.categoriaNombre.set(cat?.nombre ?? product.id_categoria);
-          });
-          this.catalogoService.getProductosByCategoria(product.id_categoria).pipe(takeUntil(this.destroy$)).subscribe(prods => {
-            this.relacionados.set(prods.filter(p => p.id_producto !== product.id_producto));
-          });
-        }
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
-  }
-
-  ngOnInit(): void {
-    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.cargarProducto(id);
-        this.cantidad.set(1);
-        this.added.set(false);
-      }
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

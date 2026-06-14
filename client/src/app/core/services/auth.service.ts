@@ -1,29 +1,10 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { StorageService } from './storage.service';
 import { TokenPayload } from '../../auth/models/token.model';
-
-export interface AuthState {
-  isAuthenticated: boolean;
-  rol: string | null;
-  nombre: string | null;
-  apellido: string | null;
-  email: string | null;
-  telefono: string | null;
-}
-
-export interface LoginResponse {
-  access_token: string;
-  token_type: string;
-  id_usuario: string;
-  email: string;
-  rol: string;
-  nombre: string;
-  apellido: string;
-  telefono: string;
-}
+import { AuthState, LoginResponse } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -37,10 +18,10 @@ export class AuthService {
     telefono: null,
   });
 
-  constructor(
-    private readonly http: HttpClient,
-    private readonly storage: StorageService,
-  ) {
+  private readonly http = inject(HttpClient);
+  private readonly storage = inject(StorageService);
+
+  constructor() {
     this.restoreSession();
   }
 
@@ -118,8 +99,14 @@ export class AuthService {
     });
   }
 
-  updateProfile(data: { nombre?: string; apellido?: string; email?: string; telefono?: string }): Observable<any> {
-    return this.http.put(`${environment.apiUrl}/clientes/me`, data);
+  register(data: { nombre: string; apellido: string; email: string; telefono: string; password: string }): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/register`, data).pipe(
+      tap(res => this.handleLoginSuccess(res)),
+    );
+  }
+
+  updateProfile(data: { nombre?: string; apellido?: string; email?: string; telefono?: string }): Observable<{ mensaje: string }> {
+    return this.http.put<{ mensaje: string }>(`${environment.apiUrl}/clientes/me`, data);
   }
 
   updateStoredUser(data: { nombre: string; apellido: string; email: string; telefono: string }): void {

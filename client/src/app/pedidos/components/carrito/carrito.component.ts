@@ -63,7 +63,7 @@ export class CarritoComponent {
 
   protected readonly addedSet = this.addedProducts.asReadonly();
 
-  private direccionModel = signal({ calle: '', ciudad: '', referencia: '' });
+  private readonly direccionModel = signal({ calle: '', ciudad: '', referencia: '' });
   protected direccionForm = form(this.direccionModel, (f) => {
     required(f.calle, { message: 'La calle es obligatoria' });
     required(f.ciudad, { message: 'La ciudad es obligatoria' });

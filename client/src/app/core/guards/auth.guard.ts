@@ -1,14 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { StorageService } from '../services/storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
-
-  constructor(
-    private readonly storage: StorageService,
-    private readonly router: Router,
-  ) {}
+  private readonly storage = inject(StorageService);
+  private readonly router = inject(Router);
 
   canActivate(): boolean {
     const token = this.storage.getToken();

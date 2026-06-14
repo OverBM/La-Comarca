@@ -36,7 +36,7 @@
               <td>{{ p.fecha | date:'short' }}</td>
               <td>{{ p.total | formatoPrecio }}</td>
               <td class="text-end">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24" [class.rotated]="expandedId() === p.id_pedido" style="transition: transform 0.2s">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24" [class.rotated]="expandedId() === p.id_pedido" class="icono-expandible">
                   <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
                 </svg>
               </td>

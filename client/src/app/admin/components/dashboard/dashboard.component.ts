@@ -1,6 +1,7 @@
 ﻿/** Componente del panel de administración que muestra resumen de ventas, pedidos y stock bajo */
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
-import { Subject, forkJoin, takeUntil } from 'rxjs';
+import { Component, signal, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { forkJoin } from 'rxjs';
 import { AdminPedidosService } from '../../services/admin-pedidos.service';
 import { InventarioService } from '../../services/inventario.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
@@ -15,37 +16,23 @@ import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
-export class DashboardComponent implements OnInit, OnDestroy {
-  ventasHoy = signal(0);
-  pedidosHoy = signal(0);
-  stockBajo = signal<Inventario[]>([]);
-  movimientos = signal<MovimientoInventario[]>([]);
-  loading = signal(true);
+export class DashboardComponent {
+  private readonly pedidosService = inject(AdminPedidosService);
+  private readonly inventarioService = inject(InventarioService);
 
-  private readonly destroy$ = new Subject<void>();
-
-  constructor(
-    private readonly pedidosService: AdminPedidosService,
-    private readonly inventarioService: InventarioService,
-  ) {}
-
-  ngOnInit(): void {
+  private readonly data = toSignal(
     forkJoin({
-      ventasHoy: this.pedidosService.getVentasDelDia().pipe(takeUntil(this.destroy$)),
-      pedidosHoy: this.pedidosService.getPedidosDelDia().pipe(takeUntil(this.destroy$)),
-      stockBajo: this.inventarioService.getLowStock().pipe(takeUntil(this.destroy$)),
-      movimientos: this.inventarioService.getUltimosMovimientos().pipe(takeUntil(this.destroy$)),
-    }).pipe(takeUntil(this.destroy$)).subscribe(({ ventasHoy, pedidosHoy, stockBajo, movimientos }) => {
-      this.ventasHoy.set(ventasHoy);
-      this.pedidosHoy.set(pedidosHoy);
-      this.stockBajo.set(stockBajo);
-      this.movimientos.set(movimientos);
-      this.loading.set(false);
-    });
-  }
+      ventasHoy: this.pedidosService.getVentasDelDia(),
+      pedidosHoy: this.pedidosService.getPedidosDelDia(),
+      stockBajo: this.inventarioService.getLowStock(),
+      movimientos: this.inventarioService.getUltimosMovimientos(),
+    }),
+    { initialValue: { ventasHoy: 0, pedidosHoy: 0, stockBajo: [] as Inventario[], movimientos: [] as MovimientoInventario[] } },
+  );
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  readonly ventasHoy = computed(() => this.data().ventasHoy);
+  readonly pedidosHoy = computed(() => this.data().pedidosHoy);
+  readonly stockBajo = computed(() => this.data().stockBajo);
+  readonly movimientos = computed(() => this.data().movimientos);
+  readonly loading = signal(false);
 }

@@ -29,7 +29,7 @@ async def register(body: RegisterRequest):
 async def refresh(body: TokenRefreshRequest):
     service = AuthService()
     try:
-        token = await service.refresh_token(body.token)
+        token = await service.refrescar_token(body.token)
         return TokenRefreshResponse(access_token=token)
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))
@@ -38,7 +38,7 @@ async def refresh(body: TokenRefreshRequest):
 @router.post("/recuperar")
 async def recuperar(body: PasswordRecoveryRequest):
     service = AuthService()
-    await service.request_recovery(body.email)
+    await service.solicitar_recuperacion(body.email)
     return {"mensaje": "Si el email existe, recibirás instrucciones"}
 
 
@@ -46,7 +46,7 @@ async def recuperar(body: PasswordRecoveryRequest):
 async def reset_password(body: PasswordResetRequest):
     service = AuthService()
     try:
-        await service.reset_password(body.token, body.nueva_password)
+        await service.restablecer_password(body.token, body.nueva_password)
         return {"mensaje": "Contraseña actualizada correctamente"}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

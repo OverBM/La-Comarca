@@ -1,7 +1,9 @@
 ﻿/** Componente para gestionar inventario, stock y movimientos desde el panel admin */
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, signal, computed, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { form, required, minLength, min, FormField } from '@angular/forms/signals';
-import { Subject, forkJoin, switchMap, takeUntil } from 'rxjs';
+import { forkJoin, switchMap } from 'rxjs';
 import { InventarioService } from '../../services/inventario.service';
 import { Inventario } from '../../models/inventario.model';
 import { MovimientoInventario } from '../../models/movimiento.model';
@@ -15,14 +17,21 @@ import { CatalogoService } from '../../../catalogo/services/catalogo.service';
   templateUrl: './gestion-inventario.component.html',
   styleUrl: './gestion-inventario.component.css',
 })
-export class GestionInventarioComponent implements OnInit {
-  stockList = signal<(Inventario & { producto?: Producto })[]>([]);
-  movimientos = signal<MovimientoInventario[]>([]);
-  productos = signal<Producto[]>([]);
-  loading = signal(true);
-  showMovForm = signal(false);
+export class GestionInventarioComponent {
+  private readonly inventarioService = inject(InventarioService);
+  private readonly catalogoService = inject(CatalogoService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  private readonly destroy$ = new Subject<void>();
+  private readonly productosSignal = toSignal(
+    this.catalogoService.getProductos(),
+    { initialValue: [] as Producto[] },
+  );
+
+  readonly productos = computed(() => this.productosSignal());
+  readonly stockList = signal<(Inventario & { producto?: Producto })[]>([]);
+  readonly movimientos = signal<MovimientoInventario[]>([]);
+  readonly loading = signal(true);
+  readonly showMovForm = signal(false);
 
   private movModel = signal({ id_producto: '', tipo: 'entrada' as 'entrada' | 'salida' | 'ajuste', cantidad: 0, motivo: '', id_usuario: 'usr-001' });
   protected movForm = form(this.movModel, (f) => {
@@ -34,18 +43,11 @@ export class GestionInventarioComponent implements OnInit {
     minLength(f.motivo, 3, { message: 'Mínimo 3 caracteres' });
   });
 
-  constructor(
-    private readonly inventarioService: InventarioService,
-    private readonly catalogoService: CatalogoService,
-  ) {}
-
-  ngOnInit(): void {
+  constructor() {
     forkJoin({
-      productos: this.catalogoService.getProductos().pipe(takeUntil(this.destroy$)),
-      stock: this.inventarioService.getStock().pipe(takeUntil(this.destroy$)),
-      movimientos: this.inventarioService.getUltimosMovimientos(10).pipe(takeUntil(this.destroy$)),
-    }).pipe(takeUntil(this.destroy$)).subscribe(({ productos, stock, movimientos }) => {
-      this.productos.set(productos);
+      stock: this.inventarioService.getStock(),
+      movimientos: this.inventarioService.getUltimosMovimientos(10),
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ stock, movimientos }) => {
       this.stockList.set(stock);
       this.movimientos.set(movimientos);
       this.loading.set(false);
@@ -55,7 +57,7 @@ export class GestionInventarioComponent implements OnInit {
   registerMovement(): void {
     if (this.movForm().invalid()) return;
     this.inventarioService.registerMovement(this.movModel()).pipe(
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
       switchMap(() => forkJoin({
         stock: this.inventarioService.getStock(),
         movimientos: this.inventarioService.getUltimosMovimientos(10),
@@ -69,7 +71,7 @@ export class GestionInventarioComponent implements OnInit {
   }
 
   getProductoName(id: string): string {
-    return this.productos().find(p => p.id_producto === id)?.nombre ?? id;
+    return this.productos().find((p: Producto) => p.id_producto === id)?.nombre ?? id;
   }
 
   isLowStock(item: Inventario): boolean {
