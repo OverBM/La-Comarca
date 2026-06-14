@@ -18,14 +18,6 @@ export class CatalogoService {
     return this.http.get<Producto>(`${this.apiUrl}/${id}`);
   }
 
-  searchProductos(query: string): Observable<Producto[]> {
-    return this.http.get<Producto[]>(`${this.apiUrl}?q=${query}`);
-  }
-
-  getProductosByCategoria(categoriaId: string): Observable<Producto[]> {
-    return this.http.get<Producto[]>(`${this.apiUrl}?id_categoria=${categoriaId}`);
-  }
-
   getCategorias(): Observable<Categoria[]> {
     return this.http.get<Categoria[]>(`${environment.apiUrl}/categorias`);
   }

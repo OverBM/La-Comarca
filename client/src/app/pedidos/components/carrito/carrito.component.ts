@@ -61,8 +61,6 @@ export class CarritoComponent {
       : '¿Estás seguro de eliminar este producto? Al disminuir la cantidad quedará en 0.';
   });
 
-  protected readonly addedSet = this.addedProducts.asReadonly();
-
   private readonly direccionModel = signal({ calle: '', ciudad: '', referencia: '' });
   protected direccionForm = form(this.direccionModel, (f) => {
     required(f.calle, { message: 'La calle es obligatoria' });

@@ -93,7 +93,6 @@ class AuthService:
         usuario = await self.usuario_repo.get_by_email(email)
         if not usuario:
             return
-        from src.core.security import JWT_SECRET
         reset_token = create_token(
             sub=usuario["id_usuario"],
             email=usuario["email"],

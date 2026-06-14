@@ -80,10 +80,6 @@ export class AuthService {
     });
   }
 
-  getToken(): string | null {
-    return this.storage.getToken();
-  }
-
   decodeToken(token: string): TokenPayload | null {
     try {
       return JSON.parse(atob(token.split('.')[1]));

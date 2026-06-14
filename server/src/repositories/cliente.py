@@ -16,18 +16,13 @@ class ClienteRepository:
             result = await conn.execute(text("SELECT * FROM clientes WHERE id_usuario = :id"), {"id": id_usuario})
             return result.mappings().one_or_none()
 
-    async def get_by_telefono(self, telefono: str):
-        async with get_connection() as conn:
-            result = await conn.execute(text("SELECT * FROM clientes WHERE telefono = :tel"), {"tel": telefono})
-            return result.mappings().one_or_none()
-
     async def get_all(self):
         async with get_connection() as conn:
             result = await conn.execute(text("SELECT * FROM clientes ORDER BY nombre"))
             return result.mappings().all()
 
     async def create(self, data: dict):
-        for intento in range(3):
+        for _ in range(3):
             async with get_connection() as conn:
                 id_cliente = await generate_id(conn, "clientes", "id_cliente", "CLI")
                 try:

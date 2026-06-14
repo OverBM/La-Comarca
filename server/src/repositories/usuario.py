@@ -17,7 +17,7 @@ class UsuarioRepository:
             return result.mappings().one_or_none()
 
     async def create(self, data: dict):
-        for intento in range(3):
+        for _ in range(3):
             async with get_connection() as conn:
                 id_usuario = await generate_id(conn, "usuarios", "id_usuario", "USU")
                 try:

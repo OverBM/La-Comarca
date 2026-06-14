@@ -26,9 +26,4 @@ export class StorageService {
   setUser(user: string): void {
     localStorage.setItem(USER_KEY, user);
   }
-
-  clear(): void {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-  }
 }

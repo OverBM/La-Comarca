@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncConnection, AsyncEngine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 from src.core.config import DATABASE_URL
 
