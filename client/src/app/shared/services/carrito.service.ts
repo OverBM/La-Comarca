@@ -1,6 +1,8 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, effect } from '@angular/core';
 import { CarritoItem } from '../../core/models/carrito.model';
 import { DURACION_FEEDBACK_CARRITO } from '../../core/constants/app.constants';
+
+const STORAGE_KEY = 'la-comarca-carrito';
 
 @Injectable({ providedIn: 'root' })
 export class CarritoService {
@@ -18,6 +20,19 @@ export class CarritoService {
   readonly notificacion = signal<{ message: string; type: 'success' | 'error' } | null>(null);
 
   private notificationTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        this.itemsSignal.set(JSON.parse(saved));
+      } catch { }
+    }
+    effect(() => {
+      const items = this.itemsSignal();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    });
+  }
 
   agregarItem(producto: { id_producto: string; nombre: string; precio_unitario: number; imagen: string | null }, cantidad: number): void {
     this.itemsSignal.update(current => {

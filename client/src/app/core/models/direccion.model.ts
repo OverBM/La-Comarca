@@ -4,5 +4,4 @@ export interface Direccion {
   calle: string;
   ciudad: string;
   referencia?: string;
-  esPrincipal: boolean;
 }

@@ -41,6 +41,24 @@
 .product-img-wrap {
   height: 180px;
   overflow: hidden;
+  position: relative;
+}
+
+.img-agotado {
+  opacity: 0.35;
+}
+
+.badge-agotado {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--color-error, #b3261e);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  z-index: 2;
 }
 .btn-hero-secundario {
   border: 2px solid var(--color-secondary-container);
@@ -91,4 +109,11 @@
 .btn-add--done {
   background-color: var(--color-secondary) !important;
   color: var(--color-on-secondary) !important;
+}
+
+.btn-add:disabled {
+  opacity: 0.5;
+  cursor: default;
+  background-color: var(--color-on-surface-variant);
+  color: var(--color-surface);
 }

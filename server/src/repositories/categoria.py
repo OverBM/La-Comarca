@@ -1,6 +1,7 @@
 from sqlalchemy import text
 
 from src.core.database import get_connection
+from src.core.id_generator import generate_id
 
 
 class CategoriaRepository:
@@ -16,7 +17,8 @@ class CategoriaRepository:
 
     async def create(self, nombre: str):
         async with get_connection() as conn:
-            result = await conn.execute(text("INSERT INTO categorias (nombre) VALUES (:nombre) RETURNING *"), {"nombre": nombre})
+            id_categoria = await generate_id(conn, "categorias", "id_categoria", "CAT")
+            result = await conn.execute(text("INSERT INTO categorias (id_categoria, nombre) VALUES (:id, :nombre) RETURNING *"), {"id": id_categoria, "nombre": nombre})
             await conn.commit()
             return result.mappings().one()
 

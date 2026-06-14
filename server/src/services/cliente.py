@@ -27,3 +27,6 @@ class ClienteService:
 
     async def crear_direccion(self, data: dict):
         return await self.direccion_repo.create(data)
+
+    async def eliminar_direccion(self, id_direccion: str):
+        await self.direccion_repo.delete(id_direccion)

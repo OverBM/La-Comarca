@@ -1,24 +1,28 @@
 from sqlalchemy import text
 
 from src.core.database import get_connection
+from src.core.id_generator import generate_id
 
 
 class PedidoRepository:
     async def create(self, id_cliente: str, items: list[dict]):
         async with get_connection() as conn:
+            id_pedido = await generate_id(conn, "pedidos", "id_pedido", "PED")
             result = await conn.execute(
-                text("INSERT INTO pedidos (id_cliente) VALUES (:cliente) RETURNING *"),
-                {"cliente": id_cliente},
+                text("INSERT INTO pedidos (id_pedido, id_cliente) VALUES (:id, :cliente) RETURNING *"),
+                {"id": id_pedido, "cliente": id_cliente},
             )
             pedido = result.mappings().one()
-            id_pedido = pedido["id_pedido"]
+            detalle = []
             for item in items:
+                id_detalle = await generate_id(conn, "detalle_pedido", "id_detalle", "DET")
                 await conn.execute(
-                    text("INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario, subtotal) VALUES (:pedido, :producto, :cantidad, :precio, :subtotal)"),
-                    {"pedido": id_pedido, "producto": item["id_producto"], "cantidad": item["cantidad"], "precio": item["precio_unitario"], "subtotal": item["subtotal"]},
+                    text("INSERT INTO detalle_pedido (id_detalle, id_pedido, id_producto, cantidad, precio_unitario, subtotal) VALUES (:id, :pedido, :producto, :cantidad, :precio, :subtotal)"),
+                    {"id": id_detalle, "pedido": id_pedido, "producto": item["id_producto"], "cantidad": item["cantidad"], "precio": item["precio_unitario"], "subtotal": item["subtotal"]},
                 )
+                detalle.append({**item, "id_detalle": id_detalle})
             await conn.commit()
-            return pedido
+            return pedido, detalle
 
     async def get_by_id(self, id_pedido: str):
         async with get_connection() as conn:

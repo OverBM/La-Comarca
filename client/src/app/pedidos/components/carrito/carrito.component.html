@@ -3,11 +3,7 @@
 
   <div class="carrito-body">
 
-    @if (checkoutMsg()) {
-      <div class="carrito-toast">{{ checkoutMsg() }}</div>
-    }
-
-    @if (carritoService.items().length === 0 && !checkoutMsg()) {
+    @if (carritoService.items().length === 0) {
 
       <div class="carrito-vacio">
         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="var(--color-on-surface-variant)" viewBox="0 0 24 24">
@@ -52,22 +48,35 @@
               <h3 class="carrito-seccion-titulo">Dirección de Entrega</h3>
 
               <label class="carrito-radio">
-                <input type="radio" name="tipo-entrega" [checked]="!recogerEnTienda()" (change)="recogerEnTienda.set(false)">
+                <input type="radio" name="tipo-entrega" [checked]="!recogerEnTienda()" (change)="seleccionarDelivery()">
                 Delivery
               </label>
               <label class="carrito-radio">
-                <input type="radio" name="tipo-entrega" [checked]="recogerEnTienda()" (change)="recogerEnTienda.set(true)">
+                <input type="radio" name="tipo-entrega" [checked]="recogerEnTienda()" (change)="seleccionarRecoger()">
                 Recoger en tienda
               </label>
 
               @if (!recogerEnTienda()) {
                 @if (authService.authState().isAuthenticated) {
                   <div class="carrito-direcciones-lista">
-                    @for (dir of direccionService.direcciones(); track dir.id_direccion) {
-                      <label class="carrito-direccion-item">
-                        <input type="radio" name="direccion" [value]="dir.id_direccion" [checked]="selectedAddressId() === dir.id_direccion" (change)="selectedAddressId.set(dir.id_direccion)">
-                        <span>{{ dir.calle }}, {{ dir.ciudad }}@if (dir.referencia) { — {{ dir.referencia }} }</span>
-                      </label>
+                    @if (direccionService.loading()) {
+                      <p class="carrito-cargando">Cargando direcciones...</p>
+                    } @else {
+                      @for (dir of direccionService.direcciones(); track dir.id_direccion) {
+                        <div class="carrito-direccion-item-wrapper">
+                          <label class="carrito-direccion-item">
+                            <input type="radio" name="direccion" [value]="dir.id_direccion" [checked]="selectedAddressId() === dir.id_direccion" (change)="selectedAddressId.set(dir.id_direccion)">
+                            <span>{{ dir.calle }}, {{ dir.ciudad }}@if (dir.referencia) { — {{ dir.referencia }} }</span>
+                          </label>
+                          <button class="carrito-direccion-eliminar" (click)="eliminarDireccion(dir.id_direccion)" aria-label="Eliminar dirección" title="Eliminar">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                            </svg>
+                          </button>
+                        </div>
+                      } @empty {
+                        <p class="carrito-vacio-msg">Aún no tienes direcciones registradas.</p>
+                      }
                     }
                     <button class="carrito-direccion-agregar" (click)="toggleDireccionForm()">
                       {{ agregandoDireccion() ? 'Cancelar' : '+ Agregar nueva dirección' }}
@@ -92,21 +101,9 @@
                     }
                   </div>
                 } @else {
-                  <div class="carrito-direccion-form">
-                    <input class="carrito-input" [formField]="direccionForm.calle" id="dir-calle-g" placeholder="Calle">
-                    @if (direccionForm.calle().invalid() && direccionForm.calle().touched()) {
-                      @for (err of direccionForm.calle().errors(); track err.kind) {
-                        <div class="carrito-error">{{ err.message }}</div>
-                      }
-                    }
-                    <input class="carrito-input" [formField]="direccionForm.ciudad" id="dir-ciudad-g" placeholder="Ciudad">
-                    @if (direccionForm.ciudad().invalid() && direccionForm.ciudad().touched()) {
-                      @for (err of direccionForm.ciudad().errors(); track err.kind) {
-                        <div class="carrito-error">{{ err.message }}</div>
-                      }
-                    }
-                    <input class="carrito-input" [formField]="direccionForm.referencia" id="dir-ref-g" placeholder="Referencia (opcional)">
-                    <button class="carrito-btn-secundario" (click)="guardarNuevaDireccion()" [disabled]="direccionForm().invalid()">Guardar</button>
+                  <div class="text-center py-4">
+                    <p class="mb-3">Inicia sesión para continuar con tu pedido.</p>
+                    <a routerLink="/auth/login" [queryParams]="{returnUrl: '/carrito'}" class="btn btn-primary">Iniciar Sesión</a>
                   </div>
                 }
               } @else {
@@ -135,19 +132,21 @@
 
         </div>
 
-        @if (productosRelacionados().length > 0) {
+        @if (relacionados().length > 0) {
           <section class="carrito-relacionados">
             <h3 class="carrito-seccion-titulo">No olvides añadir...</h3>
             <div class="carrito-relacionados-grid">
-              @for (p of productosRelacionados(); track p.id_producto) {
+              @for (p of relacionados(); track p.id_producto) {
                 <div class="carrito-relacionado-card">
                   <a [routerLink]="['/catalogo', p.id_producto]">
                     <img class="carrito-relacionado-img" [src]="p.imagen || ''" [alt]="p.nombre">
                   </a>
                   <a class="carrito-relacionado-nombre" [routerLink]="['/catalogo', p.id_producto]">{{ p.nombre }}</a>
                   <p class="carrito-relacionado-precio">{{ p.precio_unitario | formatoPrecio }}</p>
-                  <button class="carrito-relacionado-btn" (click)="agregarAlCarrito(p)">
-                    @if (addedProducts().has(p.id_producto)) {
+                  <button class="carrito-relacionado-btn" [disabled]="p.stock_actual === 0" (click)="agregarAlCarrito(p)">
+                    @if (p.stock_actual === 0) {
+                      Sin stock
+                    } @else if (addedProducts().has(p.id_producto)) {
                       <span class="carrito-agregado-feedback"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Agregado</span>
                     } @else {
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">

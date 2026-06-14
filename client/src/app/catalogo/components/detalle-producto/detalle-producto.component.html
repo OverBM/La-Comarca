@@ -22,8 +22,11 @@
     </button>
 
     <div class="row g-4">
-      <div class="col-lg-6">
-        <img [src]="product.imagen" [alt]="product.nombre" class="w-100 rounded-3 object-fit-cover dp-img" (error)="onImgError($event)">
+      <div class="col-lg-6 position-relative">
+        <img [src]="product.imagen" [alt]="product.nombre" class="w-100 rounded-3 object-fit-cover dp-img" [class.img-agotado]="product.stock_actual === 0" (error)="onImgError($event)">
+        @if (product.stock_actual === 0) {
+          <span class="badge-agotado">Agotado</span>
+        }
       </div>
       <div class="col-lg-6 d-flex flex-column">
         <span class="small fw-semibold text-uppercase text-secondary mb-1 dp-cat">{{ categoriaNombre() }}</span>
@@ -41,7 +44,7 @@
                 </svg>
               </button>
               <span class="fw-bold px-3 text-center dp-qty-val">{{ cantidad() }}</span>
-              <button (click)="incrementar()" class="btn border-0 px-2 py-1" [disabled]="cantidad() >= 99" aria-label="Aumentar cantidad">
+              <button (click)="incrementar()" class="btn border-0 px-2 py-1" [disabled]="cantidad() >= 99 || (producto()?.stock_actual === 0)" aria-label="Aumentar cantidad">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                 </svg>
@@ -49,8 +52,10 @@
             </div>
           </div>
 
-          <button class="btn btn-primary w-100 py-2 d-inline-flex align-items-center justify-content-center gap-2 fw-semibold" [class.btn-success]="added()" (click)="agregarAlCarrito()">
-            @if (added()) {
+          <button class="btn btn-primary w-100 py-2 d-inline-flex align-items-center justify-content-center gap-2 fw-semibold" [class.btn-success]="added()" [disabled]="producto()?.stock_actual === 0" (click)="agregarAlCarrito()">
+            @if (producto()?.stock_actual === 0) {
+              Sin stock
+            } @else if (added()) {
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
               </svg>

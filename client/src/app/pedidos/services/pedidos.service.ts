@@ -36,7 +36,7 @@ export class PedidosService {
   }
 
   getMisPedidos(): Observable<PedidoResumen[]> {
-    return this.http.get<PedidoResumen[]>(`${this.apiUrl}/pedidos/mis-pedidos`);
+    return this.http.get<PedidoResumen[]>(`${this.apiUrl}/mis-pedidos`);
   }
 
   getPedidoPorId(id: string): Observable<PedidoDetalle> {

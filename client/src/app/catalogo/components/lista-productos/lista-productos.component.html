@@ -67,7 +67,10 @@
             <article class="card border-0 h-100 product-card">
               <a [routerLink]="['/catalogo', product.id_producto]" class="text-decoration-none text-body d-flex flex-column flex-grow-1">
                 <div class="product-img-wrap">
-                  <img [src]="product.imagen" [alt]="product.nombre" class="w-100 h-100 object-fit-cover" loading="lazy">
+                  <img [src]="product.imagen" [alt]="product.nombre" class="w-100 h-100 object-fit-cover" loading="lazy" [class.img-agotado]="product.stock_actual === 0">
+                  @if (product.stock_actual === 0) {
+                    <span class="badge-agotado">Agotado</span>
+                  }
                 </div>
                 <span class="badge align-self-start mt-2 ms-2 cat-badge">{{ getCategoryName(product.id_categoria) }}</span>
                 <h3 class="h6 fw-semibold mt-1 mb-1 px-2 product-name">{{ product.nombre }}</h3>
@@ -75,8 +78,10 @@
                 <p class="fw-bold px-2 mb-2 mt-auto product-price">{{ product.precio_unitario | formatoPrecio }}</p>
               </a>
               <div class="px-2 pb-2">
-                <button class="btn btn-sm w-100 btn-add" [class.btn-add--done]="addedProductIds().has(product.id_producto)" (click)="agregarAlCarrito($event, product)">
-                  @if (addedProductIds().has(product.id_producto)) {
+                <button class="btn btn-sm w-100 btn-add" [class.btn-add--done]="addedProductIds().has(product.id_producto)" [disabled]="product.stock_actual === 0" (click)="agregarAlCarrito($event, product)">
+                  @if (product.stock_actual === 0) {
+                    Sin stock
+                  } @else if (addedProductIds().has(product.id_producto)) {
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" class="me-1" aria-hidden="true">
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                     </svg>

@@ -14,20 +14,20 @@
     @if (esAdmin()) {
       <div class="perfil-stats">
         <div class="perfil-stat-card">
-          <p class="perfil-stat-valor">—</p>
-          <p class="perfil-stat-label">Pedidos Gestionados</p>
+          <p class="perfil-stat-valor">{{ loadingStats() ? '...' : pedidosGestionados() }}</p>
+          <p class="perfil-stat-label">Pedidos Hoy</p>
         </div>
         <div class="perfil-stat-card">
-          <p class="perfil-stat-valor">—</p>
-          <p class="perfil-stat-label">Ingresos Generados</p>
+          <p class="perfil-stat-valor">{{ loadingStats() ? '...' : (ingresosGenerados() | currency:'S/ ') }}</p>
+          <p class="perfil-stat-label">Ventas Hoy</p>
         </div>
         <div class="perfil-stat-card">
-          <p class="perfil-stat-valor">—</p>
+          <p class="perfil-stat-valor">{{ loadingStats() ? '...' : productosActivos() }}</p>
           <p class="perfil-stat-label">Productos Activos</p>
         </div>
         <div class="perfil-stat-card">
-          <p class="perfil-stat-valor">—</p>
-          <p class="perfil-stat-label">Valoración</p>
+          <p class="perfil-stat-valor">{{ loadingStats() ? '...' : stockBajoCount() }}</p>
+          <p class="perfil-stat-label">Stock Bajo</p>
         </div>
       </div>
     }
@@ -145,20 +145,60 @@
         @if (passCambiada()) {
           <span class="perfil-feedback">Contraseña actualizada</span>
         }
+        @if (passError()) {
+          <span class="perfil-feedback perfil-feedback-error">{{ passError() }}</span>
+        }
       </form>
     </div>
 
-
-
     @if (!esAdmin()) {
       <div class="perfil-seccion">
-        <h2 class="perfil-seccion-titulo">Próximamente</h2>
-        <div class="perfil-proximamente">
-          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="var(--color-on-surface-variant)" viewBox="0 0 24 24">
-            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-          </svg>
-          <p class="perfil-proximamente-texto">Historial de pedidos y mis direcciones estarán disponibles próximamente.</p>
-        </div>
+        <h2 class="perfil-seccion-titulo">Mis Direcciones</h2>
+        @if (direccionService.loading()) {
+          <p class="perfil-cargando">Cargando direcciones...</p>
+        } @else if (direccionService.direcciones().length === 0) {
+          <p class="perfil-vacio">No tienes direcciones registradas.</p>
+        } @else {
+          <div class="perfil-direcciones">
+            @for (d of direccionService.direcciones(); track d.id_direccion) {
+              <div class="perfil-direccion-card">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--color-secondary)" viewBox="0 0 24 24">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+                <div class="perfil-direccion-info">
+                  <p class="perfil-direccion-calle">{{ d.calle }}</p>
+                  <p class="perfil-direccion-ciudad">{{ d.ciudad }}@if (d.referencia) { — {{ d.referencia }} }</p>
+                </div>
+                <button class="perfil-direccion-eliminar" (click)="eliminarDireccion(d.id_direccion)" aria-label="Eliminar dirección" title="Eliminar">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                  </svg>
+                </button>
+              </div>
+            }
+          </div>
+        }
+        <button class="perfil-btn-secundario" (click)="direccionFormVisible.set(!direccionFormVisible())">
+          {{ direccionFormVisible() ? 'Cancelar' : '+ Agregar dirección' }}
+        </button>
+        @if (direccionFormVisible()) {
+          <div class="perfil-direccion-form">
+            <input class="perfil-input" [formField]="direccionForm.calle" id="perfil-dir-calle" placeholder="Calle">
+            @if (direccionForm.calle().invalid() && direccionForm.calle().touched()) {
+              @for (err of direccionForm.calle().errors(); track err.kind) {
+                <div class="perfil-error">{{ err.message }}</div>
+              }
+            }
+            <input class="perfil-input" [formField]="direccionForm.ciudad" id="perfil-dir-ciudad" placeholder="Ciudad">
+            @if (direccionForm.ciudad().invalid() && direccionForm.ciudad().touched()) {
+              @for (err of direccionForm.ciudad().errors(); track err.kind) {
+                <div class="perfil-error">{{ err.message }}</div>
+              }
+            }
+            <input class="perfil-input" [formField]="direccionForm.referencia" id="perfil-dir-ref" placeholder="Referencia (opcional)">
+            <button class="perfil-btn" (click)="guardarDireccion()" [disabled]="direccionForm().invalid()">Guardar</button>
+          </div>
+        }
       </div>
     }
 

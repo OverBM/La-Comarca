@@ -33,10 +33,10 @@ class PedidoService:
             if inventario:
                 nuevo_stock = inventario["stock_actual"] - item["cantidad"]
                 await self.inventario_repo.update_stock(inventario["id_inventario"], nuevo_stock)
-        pedido = await self.pedido_repo.create(id_cliente, items_con_precio)
+        pedido, detalle = await self.pedido_repo.create(id_cliente, items_con_precio)
         cliente = await self.cliente_repo.get_by_id(id_cliente)
         cliente_nombre = f"{cliente['nombre']} {cliente['apellido']}" if cliente else ""
-        return {**pedido, "detalle": items_con_precio, "total": total, "cliente_nombre": cliente_nombre}
+        return {**pedido, "detalle": detalle, "total": total, "cliente_nombre": cliente_nombre}
 
     async def obtener(self, id_pedido: str):
         pedido = await self.pedido_repo.get_by_id(id_pedido)

@@ -234,6 +234,114 @@
   max-width: 320px;
 }
 
+.perfil-feedback-error {
+  color: var(--color-error, #b3261e);
+}
+
+.perfil-cargando,
+.perfil-vacio {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--color-on-surface-variant);
+  margin: 0;
+  padding: 1rem 0;
+}
+
+.perfil-tabla-wrapper {
+  overflow-x: auto;
+}
+
+.perfil-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+}
+
+.perfil-tabla th {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 2px solid var(--color-outline-variant);
+  color: var(--color-on-surface-variant);
+  font-weight: 600;
+}
+
+.perfil-tabla td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+  color: var(--color-on-surface);
+}
+
+.perfil-direcciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.perfil-direccion-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+}
+
+.perfil-direccion-info {
+  flex: 1;
+}
+
+.perfil-direccion-eliminar {
+  background: none;
+  border: none;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.perfil-direccion-eliminar:hover {
+  color: var(--color-error);
+}
+
+.perfil-direccion-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.perfil-btn-secundario {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  text-align: left;
+}
+
+.perfil-btn-secundario:hover {
+  text-decoration: underline;
+}
+
+.perfil-direccion-calle {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--color-on-surface);
+  margin: 0 0 0.15rem;
+}
+
+.perfil-direccion-ciudad {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}
+
 @media (max-width: 600px) {
   .perfil-stats {
     grid-template-columns: repeat(2, 1fr);

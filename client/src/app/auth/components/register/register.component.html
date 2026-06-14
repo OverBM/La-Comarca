@@ -1,0 +1,83 @@
+<div class="register-wrapper">
+  <div class="register-container">
+    <div class="register-header">
+      <h1 class="register-titulo">Crear Cuenta</h1>
+      <p class="register-desc">Regístrate para realizar tus pedidos</p>
+    </div>
+
+    @if (error()) {
+      <div class="register-error">{{ error() }}</div>
+    }
+
+    <form class="register-form" (submit)="registrar(); $event.preventDefault()">
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <label class="form-label small fw-semibold" for="reg-nombre">Nombre</label>
+          <input id="reg-nombre" class="form-control" [formField]="registerForm.nombre">
+          @if (registerForm.nombre().invalid() && registerForm.nombre().touched()) {
+            @for (err of registerForm.nombre().errors(); track err.kind) {
+              <div class="text-danger small mt-1">{{ err.message }}</div>
+            }
+          }
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label small fw-semibold" for="reg-apellido">Apellido</label>
+          <input id="reg-apellido" class="form-control" [formField]="registerForm.apellido">
+          @if (registerForm.apellido().invalid() && registerForm.apellido().touched()) {
+            @for (err of registerForm.apellido().errors(); track err.kind) {
+              <div class="text-danger small mt-1">{{ err.message }}</div>
+            }
+          }
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label small fw-semibold" for="reg-email">Email</label>
+        <input id="reg-email" class="form-control" type="email" [formField]="registerForm.email">
+        @if (registerForm.email().invalid() && registerForm.email().touched()) {
+          @for (err of registerForm.email().errors(); track err.kind) {
+            <div class="text-danger small mt-1">{{ err.message }}</div>
+          }
+        }
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label small fw-semibold" for="reg-telefono">Teléfono</label>
+        <input id="reg-telefono" class="form-control" type="tel" [formField]="registerForm.telefono">
+        @if (registerForm.telefono().invalid() && registerForm.telefono().touched()) {
+          @for (err of registerForm.telefono().errors(); track err.kind) {
+            <div class="text-danger small mt-1">{{ err.message }}</div>
+          }
+        }
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label small fw-semibold" for="reg-password">Contraseña</label>
+        <input id="reg-password" class="form-control" type="password" [formField]="registerForm.password">
+        @if (registerForm.password().invalid() && registerForm.password().touched()) {
+          @for (err of registerForm.password().errors(); track err.kind) {
+            <div class="text-danger small mt-1">{{ err.message }}</div>
+          }
+        }
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-semibold" for="reg-confirmar">Confirmar Contraseña</label>
+        <input id="reg-confirmar" class="form-control" type="password" [value]="model().confirmar" (input)="model.update(m => ({...m, confirmar: $any($event.target).value}))">
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 py-2" [disabled]="registerForm().invalid() || loading()">
+        @if (loading()) {
+          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          Registrando...
+        } @else {
+          Crear Cuenta
+        }
+      </button>
+    </form>
+
+    <p class="register-footer">
+      ¿Ya tienes cuenta? <a routerLink="/auth/login" [queryParams]="route.snapshot.queryParams">Inicia sesión</a>
+    </p>
+  </div>
+</div>

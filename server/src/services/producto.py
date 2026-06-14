@@ -25,3 +25,6 @@ class ProductoService:
 
     async def eliminar(self, id_producto: str):
         await self.repo.delete(id_producto)
+
+    async def contar_activos(self) -> int:
+        return await self.repo.count_active()

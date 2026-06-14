@@ -111,6 +111,17 @@ export class AuthService {
     }
   }
 
+  changePassword(passwordActual: string, passwordNueva: string): Observable<{ mensaje: string }> {
+    return this.http.post<{ mensaje: string }>(`${this.apiUrl}/cambiar-password`, {
+      password_actual: passwordActual,
+      password_nueva: passwordNueva,
+    });
+  }
+
+  updateProfile(data: { nombre?: string; apellido?: string; email?: string; telefono?: string }): Observable<any> {
+    return this.http.put(`${environment.apiUrl}/clientes/me`, data);
+  }
+
   getRol(): string | null {
     const token = this.storage.getToken();
     if (!token) return null;

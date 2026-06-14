@@ -4,11 +4,13 @@ from src.core.security import hash_password, verify_password, create_token, veri
 from src.repositories.usuario import UsuarioRepository
 from src.repositories.token import TokenRepository
 from src.schemas.auth import LoginResponse
+from src.repositories.cliente import ClienteRepository
 
 
 class AuthService:
     def __init__(self):
         self.usuario_repo = UsuarioRepository()
+        self.cliente_repo = ClienteRepository()
         self.token_repo = TokenRepository()
 
     async def login(self, email: str, password: str) -> LoginResponse:
@@ -19,6 +21,43 @@ class AuthService:
             raise ValueError("Usuario inactivo")
         if not verify_password(password, usuario["contrasena"]):
             raise ValueError("Credenciales inválidas")
+        token = create_token(
+            sub=usuario["id_usuario"],
+            email=usuario["email"],
+            rol=usuario["rol"],
+            nombre=usuario["nombre"],
+            apellido=usuario["apellido"],
+            telefono=usuario["telefono"] or "",
+        )
+        return LoginResponse(
+            access_token=token,
+            id_usuario=usuario["id_usuario"],
+            email=usuario["email"],
+            rol=usuario["rol"],
+            nombre=usuario["nombre"],
+            apellido=usuario["apellido"],
+            telefono=usuario["telefono"] or "",
+        )
+
+    async def register(self, data: dict) -> LoginResponse:
+        existing = await self.usuario_repo.get_by_email(data["email"])
+        if existing:
+            raise ValueError("El email ya está registrado")
+        hashed = hash_password(data["password"])
+        usuario = await self.usuario_repo.create({
+            "nombre": data["nombre"],
+            "apellido": data["apellido"],
+            "email": data["email"],
+            "telefono": data["telefono"],
+            "password": hashed,
+        })
+        await self.cliente_repo.create({
+            "id_usuario": usuario["id_usuario"],
+            "nombre": data["nombre"],
+            "apellido": data["apellido"],
+            "telefono": data["telefono"],
+            "email": data["email"],
+        })
         token = create_token(
             sub=usuario["id_usuario"],
             email=usuario["email"],
@@ -76,3 +115,12 @@ class AuthService:
             await conn.execute(text("UPDATE usuarios SET contrasena = :pw WHERE id_usuario = :id"), {"pw": hashed, "id": token_row["id_usuario"]})
             await conn.commit()
         await self.token_repo.mark_used(token_row["id_token"])
+
+    async def cambiar_password(self, id_usuario: str, password_actual: str, password_nueva: str):
+        usuario = await self.usuario_repo.get_by_id(id_usuario)
+        if not usuario:
+            raise ValueError("Usuario no encontrado")
+        if not verify_password(password_actual, usuario["contrasena"]):
+            raise ValueError("Contraseña actual incorrecta")
+        hashed = hash_password(password_nueva)
+        await self.usuario_repo.update_password(id_usuario, hashed)

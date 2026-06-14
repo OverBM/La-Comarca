@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, status
 
 from src.schemas.cliente import ClienteCreate, ClienteUpdate, ClienteResponse
 from src.schemas.direccion import DireccionCreate, DireccionResponse
@@ -41,6 +41,12 @@ async def listar_direcciones(id_cliente: str, _=Depends(get_current_user)):
 @router.post("/{id_cliente}/direcciones", response_model=DireccionResponse, status_code=201)
 async def crear_direccion(id_cliente: str, body: DireccionCreate, _=Depends(get_current_user)):
     service = ClienteService()
-    data = body.model_dump()
+    data = body.model_dump(exclude_none=True)
     data["id_cliente"] = id_cliente
     return await service.crear_direccion(data)
+
+
+@router.delete("/{id_cliente}/direcciones/{id_direccion}", status_code=status.HTTP_204_NO_CONTENT)
+async def eliminar_direccion(id_cliente: str, id_direccion: str, _=Depends(get_current_user)):
+    service = ClienteService()
+    await service.eliminar_direccion(id_direccion)

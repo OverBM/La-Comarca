@@ -2,6 +2,23 @@
   max-height: 450px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
+
+.img-agotado {
+  opacity: 0.35;
+}
+
+.badge-agotado {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--color-error, #b3261e);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 4px;
+  z-index: 2;
+}
 .dp-cat {
   letter-spacing: 0.05em;
 }
@@ -42,6 +59,14 @@
 .dp-rel-name {
   font-family: var(--font-headline);
   color: var(--color-primary);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+  background-color: var(--color-on-surface-variant);
+  border-color: var(--color-on-surface-variant);
+  color: var(--color-surface);
 }
 .dp-rel-price {
   color: var(--color-secondary);

@@ -1,9 +1,15 @@
-.mis-pedidos-body {
-  text-align: center;
-  padding: 4rem 1rem;
-  max-width: 600px;
-  margin: 0 auto;
+.pedidos-page {
+  min-height: 60vh;
 }
-.mis-pedidos-body h1 {
-  margin-bottom: 1rem;
+
+.pedido-row {
+  cursor: pointer;
+}
+
+.pedido-row:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.detalle-row td {
+  border-top: none !important;
 }

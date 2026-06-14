@@ -1,6 +1,5 @@
-/** Componente de inicio de sesión con formulario de email y contraseña */
-import { Component, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, signal, inject } from '@angular/core';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { form, required, email, minLength, FormField } from '@angular/forms/signals';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
@@ -14,6 +13,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class LoginComponent {
   private readonly destroy$ = new Subject<void>();
+  protected readonly route = inject(ActivatedRoute);
 
   private model = signal({ email: '', password: '' });
   protected loginForm = form(this.model, (f) => {
@@ -41,7 +41,10 @@ export class LoginComponent {
     this.authService.login(email, password).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.loading.set(false);
-        if (res.rol === 'admin') {
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+          this.router.navigateByUrl(returnUrl);
+        } else if (res.rol === 'admin') {
           this.router.navigate(['/admin/dashboard']);
         } else {
           this.router.navigate(['/']);

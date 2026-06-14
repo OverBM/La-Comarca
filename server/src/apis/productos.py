@@ -13,6 +13,12 @@ async def listar(id_categoria: str | None = Query(default=None)):
     return await service.listar(id_categoria)
 
 
+@router.get("/count")
+async def contar():
+    service = ProductoService()
+    return {"cantidad": await service.contar_activos()}
+
+
 @router.get("/{id_producto}", response_model=ProductoResponse)
 async def obtener(id_producto: str):
     service = ProductoService()

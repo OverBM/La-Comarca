@@ -1,6 +1,7 @@
 from sqlalchemy import text
 
 from src.core.database import get_connection
+from src.core.id_generator import generate_id
 
 
 class InventarioRepository:
@@ -24,9 +25,10 @@ class InventarioRepository:
 
     async def create_movimiento(self, data: dict):
         async with get_connection() as conn:
+            id_movimiento = await generate_id(conn, "movimientos_inventario", "id_movimiento", "MOV")
             result = await conn.execute(
-                text("INSERT INTO movimientos_inventario (id_producto, tipo, cantidad, motivo, id_usuario) VALUES (:id_producto, :tipo, :cantidad, :motivo, :id_usuario) RETURNING *"),
-                data,
+                text("INSERT INTO movimientos_inventario (id_movimiento, id_producto, tipo, cantidad, motivo, id_usuario) VALUES (:id, :id_producto, :tipo, :cantidad, :motivo, :id_usuario) RETURNING *"),
+                {"id": id_movimiento, **data},
             )
             await conn.commit()
             return result.mappings().one()

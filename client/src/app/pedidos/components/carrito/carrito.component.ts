@@ -1,19 +1,17 @@
-/** Componente del carrito de compras con lista de productos, dirección y totales */
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, effect } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
+import { httpResource } from '@angular/common/http';
 import { form, required, FormField } from '@angular/forms/signals';
-import { Subject, takeUntil } from 'rxjs';
 import { CarritoService } from '../../../shared/services/carrito.service';
-import { CatalogoService } from '../../../catalogo/services/catalogo.service';
 import { DireccionService } from '../../../shared/services/direccion.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { PedidosService } from '../../services/pedidos.service';
 import { Producto } from '../../../core/models/producto.model';
 import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo-confirmacion/dialogo-confirmacion.component';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-carrito',
@@ -22,23 +20,35 @@ import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo
   templateUrl: './carrito.component.html',
   styleUrl: './carrito.component.css',
 })
-export class CarritoComponent implements OnInit {
+export class CarritoComponent {
   protected readonly carritoService = inject(CarritoService);
   protected readonly direccionService = inject(DireccionService);
   protected readonly authService = inject(AuthService);
-  protected readonly catalogoService = inject(CatalogoService);
-  protected readonly pedidosService = inject(PedidosService);
   private readonly router = inject(Router);
 
-  protected productosRelacionados = signal<Producto[]>([]);
+  private readonly apiUrl = environment.apiUrl;
+
   protected selectedAddressId = signal<string | null>(null);
   protected recogerEnTienda = signal(false);
-  protected loading = signal(true);
-  protected checkoutMsg = signal<string | null>(null);
+
+  protected seleccionarDelivery(): void {
+    this.recogerEnTienda.set(false);
+    if (this.authService.authState().isAuthenticated) {
+      this.direccionService.recargarDirecciones();
+    }
+  }
+
+  protected seleccionarRecoger(): void {
+    this.recogerEnTienda.set(true);
+  }
   protected agregandoDireccion = signal(false);
   protected addedProducts = signal<Set<string>>(new Set());
 
-  readonly envio = computed(() => this.recogerEnTienda() ? 0 : (this.carritoService.total() > 50 ? 0 : 9.90));
+  protected readonly relacionadosResource = httpResource<Producto[]>(() => `${this.apiUrl}/productos?destacados=true`);
+  protected readonly relacionados = computed(() => this.relacionadosResource.value() ?? []);
+  protected readonly loading = computed(() => this.relacionadosResource.isLoading());
+
+  readonly envio = computed(() => this.recogerEnTienda() ? 0 : (this.carritoService.total() > 50 ? 0 : 5.90));
   readonly totalFinal = computed(() => this.carritoService.total() + this.envio());
 
   protected pendingAction = signal<{ id: string; tipo: 'eliminar' | 'decrementar' } | null>(null);
@@ -53,19 +63,57 @@ export class CarritoComponent implements OnInit {
 
   protected readonly addedSet = this.addedProducts.asReadonly();
 
-  private readonly destroy$ = new Subject<void>();
-
   private direccionModel = signal({ calle: '', ciudad: '', referencia: '' });
   protected direccionForm = form(this.direccionModel, (f) => {
     required(f.calle, { message: 'La calle es obligatoria' });
     required(f.ciudad, { message: 'La ciudad es obligatoria' });
   });
 
-  ngOnInit(): void {
-    this.catalogoService.getFeaturedProductos().pipe(takeUntil(this.destroy$)).subscribe(p => {
-      this.productosRelacionados.set(p);
-      this.loading.set(false);
+  private readonly meResource = httpResource<{ id_cliente: string }>(() => {
+    if (!this.authService.authState().isAuthenticated) return undefined;
+    return `${this.apiUrl}/clientes/me`;
+  });
+
+  private readonly pedidoVersion = signal(0);
+  private readonly pedidoBody = signal<{ id_cliente: string; items: { id_producto: string; cantidad: number }[] } | undefined>(undefined);
+  private readonly pedidoResource = httpResource(() => {
+    this.pedidoVersion();
+    const body = this.pedidoBody();
+    if (!body) return undefined;
+    return { url: `${this.apiUrl}/pedidos`, method: 'POST' as const, body };
+  });
+
+  constructor() {
+    const saved = localStorage.getItem('la-comarca-direccion');
+    if (saved) {
+      try {
+        this.direccionModel.set(JSON.parse(saved));
+      } catch { }
+    }
+
+    effect(() => {
+      const addr = this.direccionModel();
+      localStorage.setItem('la-comarca-direccion', JSON.stringify(addr));
     });
+
+    effect(() => {
+      const cliente = this.meResource.value();
+      if (cliente?.id_cliente) {
+        this.direccionService.cargarDirecciones(cliente.id_cliente);
+      }
+    });
+
+    effect(() => {
+      const value = this.pedidoResource.value() as { id_pedido?: string } | undefined;
+      if (value?.id_pedido) {
+        this.carritoService.limpiar();
+        this.router.navigate(['/pedidos']);
+      }
+    });
+  }
+
+  irALogin(): void {
+    this.router.navigate(['/auth/login'], { queryParams: { returnUrl: '/carrito' } });
   }
 
   agregarAlCarrito(p: Producto): void {
@@ -77,7 +125,7 @@ export class CarritoComponent implements OnInit {
 
   finalizarPedido(): void {
     if (!this.authService.authState().isAuthenticated) {
-      this.router.navigate(['/auth/login']);
+      this.irALogin();
       return;
     }
     const items = this.carritoService.items().map(i => ({
@@ -85,16 +133,11 @@ export class CarritoComponent implements OnInit {
       cantidad: i.cantidad,
     }));
     if (items.length === 0) return;
-    this.pedidosService.crearPedido('', items).subscribe({
-      next: () => {
-        this.carritoService.limpiar();
-        this.router.navigate(['/mis-pedidos']);
-      },
-      error: () => {
-        this.checkoutMsg.set('Error al crear el pedido. Intenta de nuevo.');
-        setTimeout(() => this.checkoutMsg.set(null), 3000);
-      },
-    });
+
+    const cliente = this.meResource.value();
+    if (!cliente?.id_cliente) return;
+    this.pedidoBody.set({ id_cliente: cliente.id_cliente, items });
+    this.pedidoVersion.update(v => v + 1);
   }
 
   incrementar(id: string): void {
@@ -133,15 +176,12 @@ export class CarritoComponent implements OnInit {
   guardarNuevaDireccion(): void {
     if (this.direccionForm().invalid()) return;
     const { calle, ciudad, referencia } = this.direccionModel();
-    const idCliente = this.authService.authState().email ?? '';
-    this.direccionService.agregarDireccion(idCliente, {
-      calle,
-      ciudad,
-      referencia: referencia || undefined,
-      esPrincipal: false,
-    }).subscribe(() => {
-      this.direccionModel.set({ calle: '', ciudad: '', referencia: '' });
-      this.agregandoDireccion.set(false);
-    });
+    this.direccionService.agregarDireccion({ calle, ciudad, referencia: referencia || undefined });
+    this.direccionModel.set({ calle: '', ciudad: '', referencia: '' });
+    this.agregandoDireccion.set(false);
+  }
+
+  eliminarDireccion(id: string): void {
+    this.direccionService.eliminarDireccion(id);
   }
 }

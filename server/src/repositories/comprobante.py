@@ -1,14 +1,16 @@
 from sqlalchemy import text
 
 from src.core.database import get_connection
+from src.core.id_generator import generate_id
 
 
 class ComprobanteRepository:
     async def create(self, data: dict):
         async with get_connection() as conn:
+            id_comprobante = await generate_id(conn, "comprobantes", "id_comprobante", "COM")
             result = await conn.execute(
-                text("INSERT INTO comprobantes (id_pedido, id_empresa, id_tipo, serie, correlativo, total) VALUES (:id_pedido, :id_empresa, :id_tipo, :serie, :correlativo, :total) RETURNING *"),
-                data,
+                text("INSERT INTO comprobantes (id_comprobante, id_pedido, id_empresa, id_tipo, serie, correlativo, total) VALUES (:id, :id_pedido, :id_empresa, :id_tipo, :serie, :correlativo, :total) RETURNING *"),
+                {"id": id_comprobante, **data},
             )
             await conn.commit()
             return result.mappings().one()

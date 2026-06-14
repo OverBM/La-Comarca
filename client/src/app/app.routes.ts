@@ -12,6 +12,10 @@ export const routes: Routes = [
     loadComponent: () => import('./auth/components/login/login.component').then(m => m.LoginComponent),
   },
   {
+    path: 'auth/register',
+    loadComponent: () => import('./auth/components/register/register.component').then(m => m.RegisterComponent),
+  },
+  {
     path: 'catalogo',
     loadComponent: () => import('./catalogo/components/lista-productos/lista-productos.component').then(m => m.ListaProductosComponent),
   },
@@ -32,18 +36,13 @@ export const routes: Routes = [
     loadComponent: () => import('./contacto/components/contacto.component').then(m => m.ContactoComponent),
   },
   {
-    path: 'mis-pedidos',
-    loadComponent: () => import('./pedidos/components/mis-pedidos/mis-pedidos.component').then(m => m.MisPedidosComponent),
-    canActivate: [AuthGuard],
-  },
-  {
     path: 'perfil',
     loadComponent: () => import('./perfil/components/perfil.component').then(m => m.PerfilComponent),
     canActivate: [AuthGuard],
   },
   {
     path: 'pedidos',
-    loadComponent: () => import('./pedidos/components/pedidos/pedidos.component').then(m => m.PedidosComponent),
+    loadComponent: () => import('./pedidos/components/mis-pedidos/mis-pedidos.component').then(m => m.MisPedidosComponent),
   },
   {
     path: 'admin',

@@ -1,6 +1,7 @@
 from sqlalchemy import text
 
 from src.core.database import get_connection
+from src.core.id_generator import generate_id
 
 
 class ClienteRepository:
@@ -14,6 +15,11 @@ class ClienteRepository:
             result = await conn.execute(text("SELECT * FROM clientes WHERE id_usuario = :id"), {"id": id_usuario})
             return result.mappings().one_or_none()
 
+    async def get_by_telefono(self, telefono: str):
+        async with get_connection() as conn:
+            result = await conn.execute(text("SELECT * FROM clientes WHERE telefono = :tel"), {"tel": telefono})
+            return result.mappings().one_or_none()
+
     async def get_all(self):
         async with get_connection() as conn:
             result = await conn.execute(text("SELECT * FROM clientes ORDER BY nombre"))
@@ -21,9 +27,10 @@ class ClienteRepository:
 
     async def create(self, data: dict):
         async with get_connection() as conn:
+            id_cliente = await generate_id(conn, "clientes", "id_cliente", "CLI")
             result = await conn.execute(
-                text("INSERT INTO clientes (id_usuario, nombre, apellido, telefono, email) VALUES (:id_usuario, :nombre, :apellido, :telefono, :email) RETURNING *"),
-                data,
+                text("INSERT INTO clientes (id_cliente, id_usuario, nombre, apellido, telefono, email) VALUES (:id, :id_usuario, :nombre, :apellido, :telefono, :email) RETURNING *"),
+                {"id": id_cliente, **data},
             )
             await conn.commit()
             return result.mappings().one()

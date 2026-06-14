@@ -33,3 +33,16 @@ class PasswordRecoveryRequest(BaseModel):
 class PasswordResetRequest(BaseModel):
     token: str
     nueva_password: str
+
+
+class RegisterRequest(BaseModel):
+    nombre: str
+    apellido: str
+    email: str
+    telefono: str
+    password: str
+
+
+class CambiarPasswordRequest(BaseModel):
+    password_actual: str
+    password_nueva: str

@@ -1,6 +1,7 @@
 from sqlalchemy import text
 
 from src.core.database import get_connection
+from src.core.id_generator import generate_id
 
 
 class ProductoRepository:
@@ -20,9 +21,10 @@ class ProductoRepository:
 
     async def create(self, data: dict):
         async with get_connection() as conn:
+            id_producto = await generate_id(conn, "productos", "id_producto", "PRO")
             result = await conn.execute(
-                text("INSERT INTO productos (id_categoria, nombre, precio_unitario, descripcion, imagen) VALUES (:id_categoria, :nombre, :precio_unitario, :descripcion, :imagen) RETURNING *"),
-                data,
+                text("INSERT INTO productos (id_producto, id_categoria, nombre, precio_unitario, descripcion, imagen) VALUES (:id, :id_categoria, :nombre, :precio_unitario, :descripcion, :imagen) RETURNING *"),
+                {"id": id_producto, **data},
             )
             await conn.commit()
             return result.mappings().one()
@@ -42,3 +44,9 @@ class ProductoRepository:
         async with get_connection() as conn:
             await conn.execute(text("DELETE FROM productos WHERE id_producto = :id"), {"id": id_producto})
             await conn.commit()
+
+    async def count_active(self):
+        async with get_connection() as conn:
+            result = await conn.execute(text("SELECT COUNT(*) AS cantidad FROM productos"))
+            row = result.mappings().one()
+            return row["cantidad"]

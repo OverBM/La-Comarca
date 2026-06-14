@@ -12,6 +12,7 @@ from src.apis.pedidos import router as pedidos_router
 from src.apis.inventario import router as inventario_router
 from src.apis.comprobantes import router as comprobantes_router
 from src.apis.usuarios import router as usuarios_router
+from src.apis.checkout import router as checkout_router
 
 
 @asynccontextmanager
@@ -42,3 +43,4 @@ app.include_router(pedidos_router)
 app.include_router(inventario_router)
 app.include_router(comprobantes_router)
 app.include_router(usuarios_router)
+app.include_router(checkout_router)

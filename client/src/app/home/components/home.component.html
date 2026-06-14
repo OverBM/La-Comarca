@@ -121,8 +121,10 @@
                 </div>
               </a>
               <div class="card-footer bg-transparent border-0 pt-0">
-                <button class="btn btn-sm w-100" [class.btn-primary]="!isAdded(product.id_producto)" [class.btn-added]="isAdded(product.id_producto)" (click)="addToCart(product, $event)">
-                  @if (isAdded(product.id_producto)) {
+                <button class="btn btn-sm w-100" [class.btn-primary]="!isAdded(product.id_producto)" [class.btn-added]="isAdded(product.id_producto)" [disabled]="product.stock_actual === 0" (click)="addToCart(product, $event)">
+                  @if (product.stock_actual === 0) {
+                    Sin stock
+                  } @else if (isAdded(product.id_producto)) {
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 24 24" class="me-1">
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                     </svg>
