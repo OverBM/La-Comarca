@@ -12,4 +12,6 @@ export interface PedidoDetalle {
     subtotal: number;
   }[];
   total: number;
+  metodo_pago: string;
+  estado_pago: string;
 }

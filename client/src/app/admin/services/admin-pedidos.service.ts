@@ -38,6 +38,10 @@ export class AdminPedidosService {
   emitirComprobantesMasivo(ids_pedido: string[], id_tipo: string): Observable<ComprobanteMasivoResponse> {
     return this.http.post<ComprobanteMasivoResponse>(`${this.apiUrl}/comprobantes/masivo`, { ids_pedido, id_tipo });
   }
+
+  confirmarPago(id_pedido: string): Observable<PedidoDetalle> {
+    return this.http.put<PedidoDetalle>(`${this.apiUrl}/pedidos/${id_pedido}/pago`, {});
+  }
 }
 
 export interface TipoComprobante {

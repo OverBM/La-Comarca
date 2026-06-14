@@ -21,6 +21,21 @@
             <small class="detail-label d-block">Fecha</small>
             <span>{{ pedido.fecha_pedido | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
+          <div class="col-md-4 mt-2">
+            <small class="detail-label d-block">Método de Pago</small>
+            <span>{{ metodoPagoLabel[pedido.metodo_pago] || pedido.metodo_pago }}</span>
+          </div>
+          <div class="col-md-4 mt-2">
+            <small class="detail-label d-block">Estado de Pago</small>
+            <span [class.text-success]="pedido.estado_pago === 'pagado'" [class.text-warning]="pedido.estado_pago === 'pendiente'" class="fw-semibold">{{ estadoPagoLabel[pedido.estado_pago] || pedido.estado_pago }}</span>
+          </div>
+          <div class="col-md-4 mt-2 d-flex align-items-end">
+            @if (pedido.estado_pago === 'pendiente') {
+              <button class="btn btn-sm btn-success" [disabled]="confirmandoPago() === pedido.id_pedido" (click)="confirmarPago(pedido.id_pedido)">
+                {{ confirmandoPago() === pedido.id_pedido ? 'Confirmando…' : '✓ Confirmar Pago' }}
+              </button>
+            }
+          </div>
         </div>
 
         <table class="data-table table table-sm">
@@ -62,6 +77,8 @@
               <th class="table-header small fw-semibold">Pedido</th>
               <th class="table-header small fw-semibold">Cliente</th>
               <th class="table-header small fw-semibold">Fecha</th>
+              <th class="table-header small fw-semibold">Pago</th>
+              <th class="table-header small fw-semibold">Estado</th>
               <th class="table-header small fw-semibold text-end">Total</th>
               <th class="table-header small fw-semibold"></th>
             </tr>
@@ -72,6 +89,10 @@
                 <td class="small fw-semibold">{{ ped.id_pedido }}</td>
                 <td class="small">{{ ped.cliente }}</td>
                 <td class="small">{{ ped.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td class="small">{{ metodoPagoLabel[ped.metodo_pago] || ped.metodo_pago }}</td>
+                <td class="small">
+                  <span [class.text-success]="ped.estado_pago === 'pagado'" [class.text-warning]="ped.estado_pago === 'pendiente'" class="fw-semibold">{{ estadoPagoLabel[ped.estado_pago] || ped.estado_pago }}</span>
+                </td>
                 <td class="total-cell small text-end fw-semibold">{{ ped.total | formatoPrecio }}</td>
                 <td>
                   <button class="btn btn-sm btn-view" (click)="viewDetail(ped.id_pedido)">Ver</button>

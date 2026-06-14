@@ -11,6 +11,7 @@ class DetallePedidoInput(BaseModel):
 class PedidoCreate(BaseModel):
     id_cliente: str
     items: list[DetallePedidoInput]
+    metodo_pago: str = "efectivo"
 
 
 class DetallePedidoResponse(BaseModel):
@@ -29,6 +30,8 @@ class PedidoResponse(BaseModel):
     fecha_pedido: datetime
     detalle: list[DetallePedidoResponse]
     total: float
+    metodo_pago: str
+    estado_pago: str
 
 
 class PedidoResumenResponse(BaseModel):
@@ -36,4 +39,6 @@ class PedidoResumenResponse(BaseModel):
     cliente: str
     fecha: datetime
     total: float
+    metodo_pago: str
+    estado_pago: str
 

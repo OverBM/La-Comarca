@@ -11,7 +11,7 @@ router = APIRouter(prefix="/pedidos", tags=["pedidos"])
 async def crear(body: PedidoCreate, _=Depends(get_current_user)):
     service = PedidoService()
     try:
-        result = await service.crear(body.id_cliente, [i.model_dump() for i in body.items])
+        result = await service.crear(body.id_cliente, [i.model_dump() for i in body.items], body.metodo_pago)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -48,6 +48,14 @@ async def obtener(id_pedido: str, _=Depends(get_current_user)):
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+
+@router.put("/{id_pedido}/pago", response_model=PedidoResponse)
+async def confirmar_pago(id_pedido: str, _=Depends(require_admin)):
+    service = PedidoService()
+    try:
+        return await service.confirmar_pago(id_pedido)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 @router.get("", response_model=list[PedidoResumenResponse])
 async def listar_todos(_=Depends(require_admin)):

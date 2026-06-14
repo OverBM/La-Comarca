@@ -31,6 +31,10 @@ export class CarritoComponent {
   protected selectedAddressId = signal<string | null>(null);
   protected recogerEnTienda = signal(false);
 
+  protected readonly metodosPago = ['efectivo', 'yape'];
+  protected selectedMetodoPago = signal<string>('efectivo');
+  protected confirmandoPagoDigital = signal(false);
+
   protected seleccionarDelivery(): void {
     this.recogerEnTienda.set(false);
     if (this.authService.authState().isAuthenticated) {
@@ -73,7 +77,7 @@ export class CarritoComponent {
   });
 
   private readonly pedidoVersion = signal(0);
-  private readonly pedidoBody = signal<{ id_cliente: string; items: { id_producto: string; cantidad: number }[] } | undefined>(undefined);
+  private readonly pedidoBody = signal<{ id_cliente: string; items: { id_producto: string; cantidad: number }[]; metodo_pago: string } | undefined>(undefined);
   private readonly pedidoResource = httpResource(() => {
     this.pedidoVersion();
     const body = this.pedidoBody();
@@ -132,9 +136,30 @@ export class CarritoComponent {
     }));
     if (items.length === 0) return;
 
+    const metodo = this.selectedMetodoPago();
+    if (metodo === 'yape') {
+      this.confirmandoPagoDigital.set(true);
+      return;
+    }
+    this.ejecutarPedido(metodo);
+  }
+
+  confirmarPagoDigital(): void {
+    this.ejecutarPedido(this.selectedMetodoPago());
+  }
+
+  cancelarPagoDigital(): void {
+    this.confirmandoPagoDigital.set(false);
+  }
+
+  private ejecutarPedido(metodo_pago: string): void {
     const cliente = this.meResource.value();
     if (!cliente?.id_cliente) return;
-    this.pedidoBody.set({ id_cliente: cliente.id_cliente, items });
+    const items = this.carritoService.items().map(i => ({
+      id_producto: i.id_producto,
+      cantidad: i.cantidad,
+    }));
+    this.pedidoBody.set({ id_cliente: cliente.id_cliente, items, metodo_pago });
     this.pedidoVersion.update(v => v + 1);
   }
 

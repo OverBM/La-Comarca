@@ -127,7 +127,31 @@
               <span>Total</span>
               <span>{{ totalFinal() | formatoPrecio }}</span>
             </div>
-            <button class="carrito-btn-pedido" (click)="finalizarPedido()">Finalizar Pedido</button>
+
+            <div class="carrito-pago">
+              <h4 class="carrito-pago-titulo">Método de Pago</h4>
+              @for (mp of metodosPago; track mp) {
+                <label class="carrito-radio">
+                  <input type="radio" name="metodo-pago" [value]="mp" [checked]="selectedMetodoPago() === mp" (change)="selectedMetodoPago.set(mp)">
+                  {{ mp === 'efectivo' ? 'Efectivo' : 'Yape' }}
+                </label>
+              }
+            </div>
+
+            @if (confirmandoPagoDigital()) {
+              <div class="carrito-pago-digital">
+                <div class="carrito-pago-digital-info">
+                  <p>Paga con <strong>Yape</strong> al número:</p>
+                  <p class="carrito-pago-digital-numero">987 654 321</p>
+                  <img class="carrito-pago-digital-qr" src="https://api.qrcode-monkey.com/tmp/2061e7475a9013cbc8c74d552356b01d.svg?1781479816342" alt="QR Yape">
+                  <p class="carrito-pago-digital-msg">Después de pagar, confirma tu pedido</p>
+                </div>
+                <button class="carrito-btn-pedido" (click)="confirmarPagoDigital()">✔ Ya pagué — Confirmar Pedido</button>
+                <button class="carrito-btn-secundario carrito-btn-full" (click)="cancelarPagoDigital()">Cancelar</button>
+              </div>
+            } @else {
+              <button class="carrito-btn-pedido" (click)="finalizarPedido()">Finalizar Pedido</button>
+            }
           </div>
 
         </div>

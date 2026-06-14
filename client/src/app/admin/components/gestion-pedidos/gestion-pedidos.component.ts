@@ -1,6 +1,5 @@
 ﻿import { Component, signal, computed, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { AdminPedidosService } from '../../services/admin-pedidos.service';
 import { PedidoResumen } from '../../models/pedido-resumen.model';
@@ -19,10 +18,18 @@ export class GestionPedidosComponent {
   private readonly pedidosService = inject(AdminPedidosService);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly pedidosResource = toSignal(this.pedidosService.getPedidos(), { initialValue: [] as PedidoResumen[] });
-  readonly pedidos = computed(() => this.pedidosResource());
+  readonly pedidos = signal<PedidoResumen[]>([]);
   readonly selectedPedido = signal<PedidoDetalle | null>(null);
   readonly loading = signal(false);
+  readonly confirmandoPago = signal<string | null>(null);
+
+  constructor() {
+    this.cargarPedidos();
+  }
+
+  private cargarPedidos(): void {
+    this.pedidosService.getPedidos().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(p => this.pedidos.set(p));
+  }
 
   viewDetail(id: string): void {
     this.pedidosService.getPedidoDetalle(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(d => this.selectedPedido.set(d ?? null));
@@ -31,4 +38,27 @@ export class GestionPedidosComponent {
   backToList(): void {
     this.selectedPedido.set(null);
   }
+
+  confirmarPago(id: string): void {
+    this.confirmandoPago.set(id);
+    this.pedidosService.confirmarPago(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (pedido) => {
+        this.selectedPedido.set(pedido);
+        this.confirmandoPago.set(null);
+        this.cargarPedidos();
+      },
+      error: () => this.confirmandoPago.set(null),
+    });
+  }
+
+  readonly metodoPagoLabel: Record<string, string> = {
+    efectivo: 'Efectivo',
+    yape: 'Yape',
+  };
+
+  readonly estadoPagoLabel: Record<string, string> = {
+    pendiente: 'Pendiente',
+    pagado: 'Pagado',
+    anulado: 'Anulado',
+  };
 }

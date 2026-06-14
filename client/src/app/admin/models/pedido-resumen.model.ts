@@ -3,4 +3,6 @@ export interface PedidoResumen {
   cliente: string;
   fecha: Date;
   total: number;
+  metodo_pago: string;
+  estado_pago: string;
 }
