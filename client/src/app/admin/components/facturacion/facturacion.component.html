@@ -14,14 +14,85 @@
       </svg>
       Reporte Mensual
     </button>
-    <button class="fact-btn fact-btn--primary" (click)="mostrarToast('Nuevo comprobante — pr&oacute;ximamente')">
+    <button class="fact-btn fact-btn--primary" (click)="toggleForm()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
       </svg>
-      Emitir Nuevo Comprobante
+      {{ showForm() ? 'Cancelar' : 'Emitir Nuevo Comprobante' }}
     </button>
   </div>
 </div>
+
+@if (showForm()) {
+  <div class="card border-0 mb-4 shadow-sm">
+    <div class="card-body p-4">
+      <h3 class="h5 mb-3">Emitir Comprobante(s)</h3>
+
+      @if (emitirMsg()) {
+        <div class="alert" [class.alert-success]="erroresEmitir().length === 0" [class.alert-warning]="erroresEmitir().length > 0">
+          {{ emitirMsg() }}
+        </div>
+      }
+
+      @if (ultimosComprobantes().length) {
+        <div class="alert alert-success mb-3">
+          <strong>Emitidos:</strong>
+          <ul class="mb-0 mt-1">
+            @for (c of ultimosComprobantes(); track c.id_comprobante) {
+              <li>{{ c.tipo }} {{ c.serie }}-{{ c.correlativo }} &mdash; {{ c.cliente }} &mdash; {{ c.total | formatoPrecio }}</li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (erroresEmitir().length) {
+        <div class="alert alert-danger mb-3">
+          <strong>Errores:</strong>
+          <ul class="mb-0 mt-1">
+            @for (e of erroresEmitir(); track e.id_pedido) {
+              <li>{{ e.id_pedido }}: {{ e.error }}</li>
+            }
+          </ul>
+        </div>
+      }
+
+      <div class="mb-3">
+        <label class="form-label small fw-semibold">Pedidos</label>
+        @if (pedidosLoading()) {
+          <app-loading></app-loading>
+        } @else {
+          <div class="list-group" style="max-height: 240px; overflow-y: auto;">
+            @for (p of pedidosSinComprobante(); track p.id_pedido) {
+              <label class="list-group-item d-flex align-items-center gap-2 py-2">
+                <input type="checkbox" class="form-check-input fact-checkbox m-0"
+                  [checked]="selectedPedidosIds().has(p.id_pedido)"
+                  (change)="togglePedido(p.id_pedido)" />
+                <span class="flex-grow-1">{{ p.id_pedido }} &mdash; {{ p.cliente }} ({{ p.fecha | date:'short' }})</span>
+                <span class="fw-semibold text-nowrap">{{ p.total | formatoPrecio }}</span>
+              </label>
+            }
+          </div>
+        }
+      </div>
+
+      @if (haySeleccion()) {
+        <div>
+          <label class="form-label small fw-semibold">Tipo de Comprobante</label>
+          <div class="d-flex gap-2">
+            @for (t of tiposComprobante(); track t.id_tipo) {
+              <button class="btn btn-outline-primary" (click)="emitirComprobantes(t.id_tipo)" [disabled]="emitirLoading()">
+                @if (emitirLoading()) {
+                  <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                }
+                Emitir {{ t.nombre }} ({{ selectedPedidosIds().size }})
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
 
 @if (loading()) {
   <app-loading></app-loading>
@@ -47,6 +118,10 @@
       <p class="fact-cert-venc">Vence en 45 d&iacute;as</p>
     </div>
     <button class="fact-btn fact-btn--small" (click)="mostrarToast('Renovaci&oacute;n de certificado — pr&oacute;ximamente')">RENOVAR AHORA</button>
+  </div>
+
+  <div class="mb-3">
+    <input type="text" class="form-control" placeholder="Buscar comprobante..." [value]="busqueda()" (input)="onBuscar(($any($event.target)).value)" />
   </div>
 
   <div class="fact-tabla-wrapper">

@@ -66,9 +66,17 @@
           <label class="perfil-label" for="perfil-telefono">Teléfono</label>
           <input id="perfil-telefono" class="perfil-input" type="tel" [formField]="perfilForm.telefono">
         </div>
-        <button type="submit" class="perfil-btn" [disabled]="perfilForm().invalid()">Guardar Cambios</button>
+        <button type="submit" class="perfil-btn" [disabled]="perfilForm().invalid() || guardando()">
+          @if (guardando()) {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+          }
+          Guardar Cambios
+        </button>
         @if (guardado()) {
           <span class="perfil-feedback">Cambios guardados</span>
+        }
+        @if (guardarError()) {
+          <span class="perfil-feedback perfil-feedback-error">{{ guardarError() }}</span>
         }
       </form>
     </div>

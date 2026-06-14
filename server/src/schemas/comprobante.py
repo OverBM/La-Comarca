@@ -8,6 +8,11 @@ class ComprobanteCreate(BaseModel):
     id_tipo: str
 
 
+class ComprobanteMasivoCreate(BaseModel):
+    ids_pedido: list[str]
+    id_tipo: str
+
+
 class ComprobanteResponse(BaseModel):
     id_comprobante: str
     tipo: str
@@ -18,6 +23,16 @@ class ComprobanteResponse(BaseModel):
     ruc: str | None = None
     razon_social: str | None = None
     total: float
+
+
+class ErrorEmitirItem(BaseModel):
+    id_pedido: str
+    error: str
+
+
+class ComprobanteMasivoResponse(BaseModel):
+    emitidos: list[ComprobanteResponse]
+    errores: list[ErrorEmitirItem]
 
 
 class TipoComprobanteResponse(BaseModel):

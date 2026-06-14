@@ -7,6 +7,7 @@ class ProductoCreate(BaseModel):
     precio_unitario: float
     descripcion: str | None = None
     imagen: str | None = None
+    stock_minimo: int = 0
 
 
 class ProductoUpdate(BaseModel):
@@ -25,5 +26,6 @@ class ProductoResponse(BaseModel):
     descripcion: str | None
     imagen: str | None
     stock_actual: int | None = None
+    stock_minimo: int | None = None
 
     model_config = {"from_attributes": True}

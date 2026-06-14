@@ -1,11 +1,13 @@
 from src.repositories.cliente import ClienteRepository
 from src.repositories.direccion import DireccionRepository
+from src.repositories.usuario import UsuarioRepository
 
 
 class ClienteService:
     def __init__(self):
         self.repo = ClienteRepository()
         self.direccion_repo = DireccionRepository()
+        self.usuario_repo = UsuarioRepository()
 
     async def obtener_perfil(self, id_usuario: str):
         cliente = await self.repo.get_by_usuario_id(id_usuario)
@@ -17,6 +19,7 @@ class ClienteService:
         cliente = await self.repo.get_by_usuario_id(id_usuario)
         if not cliente:
             raise ValueError("Cliente no encontrado")
+        await self.usuario_repo.update_profile(id_usuario, data)
         return await self.repo.update(cliente["id_cliente"], data)
 
     async def listar_todos(self):

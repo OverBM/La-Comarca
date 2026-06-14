@@ -1,6 +1,6 @@
 ﻿/** Componente para la gestión CRUD de productos desde el panel admin */
 import { Component, OnInit, signal } from '@angular/core';
-import { form, required, minLength, FormField } from '@angular/forms/signals';
+import { form, required, minLength, min, FormField } from '@angular/forms/signals';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { AdminProductosService } from '../../services/admin-productos.service';
 import { Producto } from '../../../core/models/producto.model';
@@ -28,12 +28,14 @@ export class GestionProductosComponent implements OnInit {
 
   private readonly destroy$ = new Subject<void>();
 
-  private prodModel = signal({ id_categoria: '', nombre: '', precio_unitario: 0, descripcion: '', imagen: '' });
+  private prodModel = signal({ id_categoria: '', nombre: '', precio_unitario: 0, descripcion: '', imagen: '', stock_minimo: 0 });
   protected prodForm = form(this.prodModel, (f) => {
     required(f.nombre, { message: 'El nombre es obligatorio' });
     minLength(f.nombre, 2, { message: 'Mínimo 2 caracteres' });
     required(f.id_categoria, { message: 'Seleccione una categoría' });
     required(f.precio_unitario, { message: 'El precio es obligatorio' });
+    min(f.precio_unitario, 0, { message: 'No puede ser negativo' });
+    min(f.stock_minimo, 0, { message: 'No puede ser negativo' });
   });
 
   constructor(
@@ -76,13 +78,13 @@ export class GestionProductosComponent implements OnInit {
 
   openCreateForm(): void {
     this.editingProduct.set(null);
-    this.prodModel.set({ id_categoria: '', nombre: '', precio_unitario: 0, descripcion: '', imagen: '' });
+    this.prodModel.set({ id_categoria: '', nombre: '', precio_unitario: 0, descripcion: '', imagen: '', stock_minimo: 0 });
     this.showForm.set(true);
   }
 
   openEditForm(product: Producto): void {
     this.editingProduct.set(product);
-    this.prodModel.set({ id_categoria: product.id_categoria, nombre: product.nombre, precio_unitario: product.precio_unitario, descripcion: product.descripcion ?? '', imagen: product.imagen ?? '' });
+    this.prodModel.set({ id_categoria: product.id_categoria, nombre: product.nombre, precio_unitario: product.precio_unitario, descripcion: product.descripcion ?? '', imagen: product.imagen ?? '', stock_minimo: (product as any).stock_minimo ?? 0 });
     this.showForm.set(true);
   }
 

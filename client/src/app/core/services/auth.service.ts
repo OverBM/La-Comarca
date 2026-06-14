@@ -122,6 +122,18 @@ export class AuthService {
     return this.http.put(`${environment.apiUrl}/clientes/me`, data);
   }
 
+  updateStoredUser(data: { nombre: string; apellido: string; email: string; telefono: string }): void {
+    const raw = this.storage.getUser();
+    if (raw) {
+      const user = JSON.parse(raw);
+      user.nombre = data.nombre;
+      user.apellido = data.apellido;
+      user.email = data.email;
+      user.telefono = data.telefono;
+      this.storage.setUser(JSON.stringify(user));
+    }
+  }
+
   getRol(): string | null {
     const token = this.storage.getToken();
     if (!token) return null;

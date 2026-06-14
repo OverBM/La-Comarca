@@ -1,5 +1,4 @@
-﻿/** Componente para listar y ver detalle de pedidos desde el panel admin */
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { AdminPedidosService } from '../../services/admin-pedidos.service';

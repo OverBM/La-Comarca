@@ -1,9 +1,11 @@
 from src.repositories.producto import ProductoRepository
+from src.repositories.inventario import InventarioRepository
 
 
 class ProductoService:
     def __init__(self):
         self.repo = ProductoRepository()
+        self.inventario_repo = InventarioRepository()
 
     async def listar(self, id_categoria: str | None = None):
         return await self.repo.get_all(id_categoria)
@@ -15,7 +17,10 @@ class ProductoService:
         return result
 
     async def crear(self, data: dict):
-        return await self.repo.create(data)
+        stock_minimo = data.pop("stock_minimo", 0)
+        producto = await self.repo.create(data)
+        await self.inventario_repo.create(producto["id_producto"], stock_minimo=stock_minimo)
+        return producto
 
     async def actualizar(self, id_producto: str, data: dict):
         result = await self.repo.update(id_producto, data)

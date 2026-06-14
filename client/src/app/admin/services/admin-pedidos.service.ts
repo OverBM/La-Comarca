@@ -34,4 +34,39 @@ export class AdminPedidosService {
   getPedidosDelDia(): Observable<number> {
     return this.http.get<number>(`${this.apiUrl}/pedidos/pedidos-hoy`);
   }
+
+  getTiposComprobante(): Observable<TipoComprobante[]> {
+    return this.http.get<TipoComprobante[]>(`${this.apiUrl}/comprobantes/tipos`);
+  }
+
+  emitirComprobante(id_pedido: string, id_tipo: string): Observable<ComprobanteEmitido> {
+    return this.http.post<ComprobanteEmitido>(`${this.apiUrl}/comprobantes`, { id_pedido, id_tipo });
+  }
+
+  emitirComprobantesMasivo(ids_pedido: string[], id_tipo: string): Observable<ComprobanteMasivoResponse> {
+    return this.http.post<ComprobanteMasivoResponse>(`${this.apiUrl}/comprobantes/masivo`, { ids_pedido, id_tipo });
+  }
+}
+
+export interface TipoComprobante {
+  id_tipo: string;
+  nombre: string;
+  serie_base: string;
+}
+
+export interface ComprobanteMasivoResponse {
+  emitidos: ComprobanteEmitido[];
+  errores: { id_pedido: string; error: string }[];
+}
+
+export interface ComprobanteEmitido {
+  id_comprobante: string;
+  tipo: string;
+  serie: string;
+  correlativo: string;
+  total: number;
+  fecha: string;
+  cliente: string;
+  ruc?: string;
+  razon_social?: string;
 }

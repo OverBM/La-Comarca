@@ -50,14 +50,22 @@ class ComprobanteRepository:
                 result = await conn.execute(text(f"{sql} ORDER BY c.fecha_emision DESC"))
             return result.mappings().all()
 
+    async def get_by_pedido(self, id_pedido: str):
+        async with get_connection() as conn:
+            result = await conn.execute(
+                text("SELECT id_comprobante FROM comprobantes WHERE id_pedido = :id"),
+                {"id": id_pedido},
+            )
+            return result.mappings().one_or_none()
+
     async def get_tipos(self):
         async with get_connection() as conn:
-            result = await conn.execute(text("SELECT * FROM tipos_comprobantes ORDER BY nombre"))
+            result = await conn.execute(text("SELECT * FROM tipos_comprobante ORDER BY nombre"))
             return result.mappings().all()
 
     async def get_next_correlativo(self, id_tipo: str):
         async with get_connection() as conn:
-            tipo = await conn.execute(text("SELECT * FROM tipos_comprobantes WHERE id_tipo = :id"), {"id": id_tipo})
+            tipo = await conn.execute(text("SELECT * FROM tipos_comprobante WHERE id_tipo = :id"), {"id": id_tipo})
             tipo_row = tipo.mappings().one_or_none()
             if not tipo_row:
                 return None, None

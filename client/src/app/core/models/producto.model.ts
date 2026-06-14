@@ -6,4 +6,5 @@ export interface Producto {
   descripcion: string | null;
   imagen: string | null;
   stock_actual?: number;
+  stock_minimo?: number;
 }

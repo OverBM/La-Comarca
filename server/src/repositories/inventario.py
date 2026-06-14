@@ -18,6 +18,16 @@ class InventarioRepository:
             result = await conn.execute(text("SELECT * FROM inventario WHERE id_producto = :id"), {"id": id_producto})
             return result.mappings().one_or_none()
 
+    async def create(self, id_producto: str, stock_actual: int = 0, stock_minimo: int = 0):
+        async with get_connection() as conn:
+            id_inventario = await generate_id(conn, "inventario", "id_inventario", "INV")
+            result = await conn.execute(
+                text("INSERT INTO inventario (id_inventario, id_producto, stock_actual, stock_minimo) VALUES (:id, :id_producto, :stock, :minimo) RETURNING *"),
+                {"id": id_inventario, "id_producto": id_producto, "stock": stock_actual, "minimo": stock_minimo},
+            )
+            await conn.commit()
+            return result.mappings().one()
+
     async def update_stock(self, id_inventario: str, stock_actual: int):
         async with get_connection() as conn:
             await conn.execute(text("UPDATE inventario SET stock_actual = :stock, ultima_actualizacion = NOW() WHERE id_inventario = :id"), {"stock": stock_actual, "id": id_inventario})

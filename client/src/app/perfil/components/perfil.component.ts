@@ -1,4 +1,5 @@
-import { Component, inject, signal, computed, effect } from '@angular/core';
+import { Component, inject, signal, computed, effect, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { httpResource } from '@angular/common/http';
 import { form, required, email, minLength, FormField } from '@angular/forms/signals';
 import { AuthService } from '../../core/services/auth.service';
@@ -7,6 +8,14 @@ import { NavbarComponent } from '../../shared/components/navbar/navbar.component
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { CurrencyPipe } from '@angular/common';
 import { environment } from '../../../environments/environment';
+
+interface ClientePerfil {
+  id_cliente: string;
+  nombre: string;
+  apellido: string;
+  email: string | null;
+  telefono: string | null;
+}
 
 interface InventarioItem {
   id_inventario: string;
@@ -25,17 +34,23 @@ interface InventarioItem {
 export class PerfilComponent {
   protected readonly authService = inject(AuthService);
   protected readonly direccionService = inject(DireccionService);
+  private readonly destroyRef = inject(DestroyRef);
   protected esAdmin = computed(() => this.authService.authState().rol === 'admin');
 
   protected guardado = signal(false);
+  protected guardando = signal(false);
+  protected guardarError = signal('');
   protected passCambiada = signal(false);
   protected passError = signal('');
   protected negocioGuardado = signal(false);
 
   private readonly apiUrl = environment.apiUrl;
 
-  private readonly meResource = httpResource<{ id_cliente: string }>(() => {
+  private readonly meVersion = signal(0);
+
+  private readonly meResource = httpResource<ClientePerfil>(() => {
     if (this.esAdmin()) return undefined;
+    this.meVersion();
     return `${this.apiUrl}/clientes/me`;
   });
 
@@ -99,49 +114,25 @@ export class PerfilComponent {
     required(f.negocioRuc, { message: 'El RUC es obligatorio' });
   });
 
-  private readonly saveProfileData = signal<{ nombre: string; apellido: string; email: string; telefono: string } | undefined>(undefined);
-  private readonly saveProfileVersion = signal(0);
-  private readonly saveProfileRes = httpResource(() => {
-    this.saveProfileVersion();
-    const data = this.saveProfileData();
-    if (!data) return undefined;
-    return { url: `${this.apiUrl}/clientes/me`, method: 'PUT' as const, body: data };
-  });
-
-  private readonly passData = signal<{ password_actual: string; password_nueva: string } | undefined>(undefined);
-  private readonly passVersion = signal(0);
-  private readonly passRes = httpResource(() => {
-    this.passVersion();
-    const data = this.passData();
-    if (!data) return undefined;
-    return { url: `${this.apiUrl}/auth/cambiar-password`, method: 'POST' as const, body: data };
-  });
-
   constructor() {
-    const state = this.authService.authState();
-    this.perfilModel.set({
-      nombre: state.nombre ?? '',
-      apellido: state.apellido ?? '',
-      email: state.email ?? '',
-      telefono: state.telefono ?? '',
-    });
-
-    effect(() => {
-      const err = this.passRes.error();
-      if (err) {
-        this.passError.set((err as any)?.error?.detail ?? 'Error al cambiar la contraseña');
-      }
-    });
-
     effect(() => {
       const cliente = this.meResource.value();
-      if (cliente?.id_cliente) {
-        this.direccionService.cargarDirecciones(cliente.id_cliente);
+      if (cliente) {
+        this.perfilModel.set({
+          nombre: cliente.nombre ?? '',
+          apellido: cliente.apellido ?? '',
+          email: cliente.email ?? '',
+          telefono: cliente.telefono ?? '',
+        });
+        if (cliente.id_cliente) {
+          this.direccionService.cargarDirecciones(cliente.id_cliente);
+        }
       }
     });
   }
 
   guardarInfo(): void {
+    this.guardarError.set('');
     if (this.perfilForm().invalid()) return;
     if (this.esAdmin()) {
       this.guardado.set(true);
@@ -149,10 +140,23 @@ export class PerfilComponent {
       return;
     }
     const { nombre, apellido, email, telefono } = this.perfilModel();
-    this.saveProfileData.set({ nombre, apellido, email, telefono });
-    this.saveProfileVersion.update(v => v + 1);
-    this.guardado.set(true);
-    setTimeout(() => this.guardado.set(false), 2000);
+    this.guardando.set(true);
+    this.authService.updateProfile({ nombre, apellido, email, telefono }).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (res: any) => {
+        this.authService.authState.update(s => ({ ...s, nombre, apellido, email, telefono }));
+        this.authService.updateStoredUser({ nombre, apellido, email, telefono });
+        this.meVersion.update(v => v + 1);
+        this.guardando.set(false);
+        this.guardado.set(true);
+        setTimeout(() => this.guardado.set(false), 2000);
+      },
+      error: (err) => {
+        this.guardando.set(false);
+        this.guardarError.set(err.error?.detail ?? 'Error al guardar los cambios');
+      },
+    });
   }
 
   cambiarPass(): void {
@@ -163,11 +167,18 @@ export class PerfilComponent {
       return;
     }
     this.passError.set('');
-    this.passData.set({ password_actual: passActual, password_nueva: passNueva });
-    this.passVersion.update(v => v + 1);
-    this.passCambiada.set(true);
-    this.passModel.set({ passActual: '', passNueva: '', passConfirmar: '' });
-    setTimeout(() => this.passCambiada.set(false), 2000);
+    this.authService.changePassword(passActual, passNueva).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: () => {
+        this.passCambiada.set(true);
+        this.passModel.set({ passActual: '', passNueva: '', passConfirmar: '' });
+        setTimeout(() => this.passCambiada.set(false), 2000);
+      },
+      error: (err) => {
+        this.passError.set(err.error?.detail ?? 'Error al cambiar la contraseña');
+      },
+    });
   }
 
   guardarNegocio(): void {
