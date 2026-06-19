@@ -3,3 +3,6 @@
 .opencode/
 openspec/
 **/AGENTS.md
+
+# Migrations (SQL scripts ejecutados manualmente en pgAdmin)
+server/migrations/
