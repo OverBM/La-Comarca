@@ -11,3 +11,6 @@ wheels/
 
 # Agents
 **/AGENTS.md
+
+# Migrations
+migrations/*

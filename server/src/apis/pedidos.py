@@ -8,10 +8,10 @@ router = APIRouter(prefix="/pedidos", tags=["pedidos"])
 
 
 @router.post("", response_model=PedidoResponse, status_code=201)
-async def crear(body: PedidoCreate, _=Depends(get_current_user)):
+async def crear(body: PedidoCreate, usuario: dict = Depends(get_current_user)):
     service = PedidoService()
     try:
-        result = await service.crear(body.id_cliente, [i.model_dump() for i in body.items], body.metodo_pago)
+        result = await service.crear(body.id_cliente, [i.model_dump() for i in body.items], body.metodo_pago, usuario["sub"])
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

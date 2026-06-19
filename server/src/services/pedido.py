@@ -11,7 +11,7 @@ class PedidoService:
         self.producto_repo = ProductoRepository()
         self.cliente_repo = ClienteRepository()
 
-    async def crear(self, id_cliente: str, items: list[dict], metodo_pago: str = "efectivo"):
+    async def crear(self, id_cliente: str, items: list[dict], metodo_pago: str = "efectivo", id_usuario: str = ""):
         total = 0
         items_con_precio = []
         for item in items:
@@ -30,10 +30,17 @@ class PedidoService:
                 "precio_unitario": producto["precio_unitario"],
                 "subtotal": subtotal,
             })
-            if inventario:
-                nuevo_stock = inventario["stock_actual"] - item["cantidad"]
-                await self.inventario_repo.update_stock(inventario["id_inventario"], nuevo_stock)
         pedido, detalle = await self.pedido_repo.create(id_cliente, items_con_precio, metodo_pago)
+        for item in items:
+            inventario = await self.inventario_repo.get_by_producto(item["id_producto"])
+            if inventario:
+                await self.inventario_repo.actualizar_stock(
+                    id_producto=item["id_producto"],
+                    cantidad=item["cantidad"],
+                    tipo="salida",
+                    motivo=f"Venta - Pedido {pedido['id_pedido']}",
+                    id_usuario=id_usuario,
+                )
         cliente = await self.cliente_repo.get_by_id(id_cliente)
         cliente_nombre = f"{cliente['nombre']} {cliente['apellido']}" if cliente else ""
         return {**pedido, "detalle": detalle, "total": total, "cliente_nombre": cliente_nombre, "metodo_pago": metodo_pago, "estado_pago": "pendiente"}
@@ -43,7 +50,7 @@ class PedidoService:
         if not pedido:
             raise ValueError("Pedido no encontrado")
         detalle = await self.pedido_repo.get_detalle(id_pedido)
-        total = sum(d["subtotal"] for d in detalle)
+        total = await self.pedido_repo.get_total(id_pedido)
         cliente = await self.cliente_repo.get_by_id(pedido["id_cliente"])
         cliente_nombre = f"{cliente['nombre']} {cliente['apellido']}" if cliente else ""
         return {**pedido, "detalle": detalle, "total": total, "cliente_nombre": cliente_nombre, "metodo_pago": pedido.get("metodo_pago", "efectivo"), "estado_pago": pedido.get("estado_pago", "pendiente")}
@@ -52,8 +59,7 @@ class PedidoService:
         pedidos = await self.pedido_repo.get_by_cliente(id_cliente)
         resultado = []
         for p in pedidos:
-            detalle = await self.pedido_repo.get_detalle(p["id_pedido"])
-            total = sum(d["subtotal"] for d in detalle)
+            total = await self.pedido_repo.get_total(p["id_pedido"])
             cliente = await self.cliente_repo.get_by_id(p["id_cliente"])
             cliente_nombre = f"{cliente['nombre']} {cliente['apellido']}" if cliente else ""
             resultado.append({
@@ -70,8 +76,7 @@ class PedidoService:
         pedidos = await self.pedido_repo.get_all()
         resultado = []
         for p in pedidos:
-            detalle = await self.pedido_repo.get_detalle(p["id_pedido"])
-            total = sum(d["subtotal"] for d in detalle)
+            total = await self.pedido_repo.get_total(p["id_pedido"])
             cliente = await self.cliente_repo.get_by_id(p["id_cliente"])
             cliente_nombre = f"{cliente['nombre']} {cliente['apellido']}" if cliente else ""
             resultado.append({

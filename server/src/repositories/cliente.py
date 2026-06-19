@@ -1,8 +1,6 @@
 from sqlalchemy import text
-from sqlalchemy.exc import IntegrityError
 
 from src.core.database import get_connection
-from src.core.id_generator import generate_id
 
 
 class ClienteRepository:
@@ -22,19 +20,15 @@ class ClienteRepository:
             return result.mappings().all()
 
     async def create(self, data: dict):
-        for _ in range(3):
-            async with get_connection() as conn:
-                id_cliente = await generate_id(conn, "clientes", "id_cliente", "CLI")
-                try:
-                    result = await conn.execute(
-                        text("INSERT INTO clientes (id_cliente, id_usuario, nombre, apellido, telefono, email) VALUES (:id, :id_usuario, :nombre, :apellido, :telefono, :email) RETURNING *"),
-                        {"id": id_cliente, **data},
-                    )
-                except IntegrityError:
-                    continue
-                await conn.commit()
-                return result.mappings().one()
-        raise ValueError("Error al crear cliente — intente nuevamente")
+        async with get_connection() as conn:
+            result = await conn.execute(text("SELECT generate_id_cliente() AS id"))
+            id_cliente = result.mappings().one()["id"]
+            result = await conn.execute(
+                text("INSERT INTO clientes (id_cliente, id_usuario, nombre, apellido, telefono, email) VALUES (:id, :id_usuario, :nombre, :apellido, :telefono, :email) RETURNING *"),
+                {"id": id_cliente, **data},
+            )
+            await conn.commit()
+            return result.mappings().one()
 
     async def update(self, id_cliente: str, data: dict):
         data["id"] = id_cliente

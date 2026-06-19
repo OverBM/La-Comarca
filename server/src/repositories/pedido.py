@@ -1,13 +1,13 @@
 from sqlalchemy import text
 
 from src.core.database import get_connection
-from src.core.id_generator import generate_id
 
 
 class PedidoRepository:
     async def create(self, id_cliente: str, items: list[dict], metodo_pago: str = "efectivo"):
         async with get_connection() as conn:
-            id_pedido = await generate_id(conn, "pedidos", "id_pedido", "PED")
+            result = await conn.execute(text("SELECT generate_id_pedido() AS id"))
+            id_pedido = result.mappings().one()["id"]
             result = await conn.execute(
                 text("INSERT INTO pedidos (id_pedido, id_cliente, metodo_pago) VALUES (:id, :cliente, :metodo_pago) RETURNING *"),
                 {"id": id_pedido, "cliente": id_cliente, "metodo_pago": metodo_pago},
@@ -15,7 +15,8 @@ class PedidoRepository:
             pedido = result.mappings().one()
             detalle = []
             for item in items:
-                id_detalle = await generate_id(conn, "detalle_pedido", "id_detalle", "DET")
+                result = await conn.execute(text("SELECT generate_id_detalle() AS id"))
+                id_detalle = result.mappings().one()["id"]
                 await conn.execute(
                     text("INSERT INTO detalle_pedido (id_detalle, id_pedido, id_producto, cantidad, precio_unitario, subtotal) VALUES (:id, :pedido, :producto, :cantidad, :precio, :subtotal)"),
                     {"id": id_detalle, "pedido": id_pedido, "producto": item["id_producto"], "cantidad": item["cantidad"], "precio": item["precio_unitario"], "subtotal": item["subtotal"]},
@@ -43,6 +44,14 @@ class PedidoRepository:
         async with get_connection() as conn:
             result = await conn.execute(text("SELECT * FROM pedidos ORDER BY fecha_pedido DESC"))
             return result.mappings().all()
+
+    async def get_total(self, id_pedido: str) -> float:
+        async with get_connection() as conn:
+            result = await conn.execute(
+                text("SELECT calcular_total_pedido(:id) AS total"),
+                {"id": id_pedido},
+            )
+            return float(result.mappings().one()["total"])
 
     async def count_today(self):
         async with get_connection() as conn:

@@ -11,10 +11,10 @@ class ComprobanteService:
         existente = await self.repo.get_by_pedido(id_pedido)
         if existente:
             raise ValueError(f"El pedido {id_pedido} ya tiene un comprobante emitido")
-        detalle = await self.pedido_repo.get_detalle(id_pedido)
-        if not detalle:
+        pedido = await self.pedido_repo.get_by_id(id_pedido)
+        if not pedido:
             raise ValueError("Pedido no encontrado")
-        total = sum(d["subtotal"] for d in detalle)
+        total = await self.pedido_repo.get_total(id_pedido)
         serie, correlativo = await self.repo.get_next_correlativo(id_tipo)
         if not serie:
             raise ValueError("Tipo de comprobante no válido")

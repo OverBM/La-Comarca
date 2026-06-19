@@ -1,8 +1,6 @@
 from sqlalchemy import text
-from sqlalchemy.exc import IntegrityError
 
 from src.core.database import get_connection
-from src.core.id_generator import generate_id
 
 
 class UsuarioRepository:
@@ -17,19 +15,15 @@ class UsuarioRepository:
             return result.mappings().one_or_none()
 
     async def create(self, data: dict):
-        for _ in range(3):
-            async with get_connection() as conn:
-                id_usuario = await generate_id(conn, "usuarios", "id_usuario", "USU")
-                try:
-                    result = await conn.execute(
-                        text("INSERT INTO usuarios (id_usuario, nombre, apellido, email, contrasena, telefono, rol, activo) VALUES (:id, :nombre, :apellido, :email, :password, :telefono, 'cliente', true) RETURNING *"),
-                        {"id": id_usuario, **data},
-                    )
-                except IntegrityError:
-                    continue
-                await conn.commit()
-                return result.mappings().one()
-        raise ValueError("Error al crear usuario — intente nuevamente")
+        async with get_connection() as conn:
+            result = await conn.execute(text("SELECT generate_id_usuario() AS id"))
+            id_usuario = result.mappings().one()["id"]
+            result = await conn.execute(
+                text("INSERT INTO usuarios (id_usuario, nombre, apellido, email, contrasena, telefono, rol, activo) VALUES (:id, :nombre, :apellido, :email, :password, :telefono, 'cliente', true) RETURNING *"),
+                {"id": id_usuario, **data},
+            )
+            await conn.commit()
+            return result.mappings().one()
 
     async def get_all(self):
         async with get_connection() as conn:
