@@ -4,7 +4,7 @@
   <div class="perfil-container">
 
     <div class="perfil-header">
-      <div class="perfil-avatar">{{ authService.authState().nombre?.charAt(0) }}{{ authService.authState().apellido?.charAt(0) }}</div>
+      <div class="perfil-avatar">{{ iniciales() }}</div>
       <div class="perfil-header-info">
         <h1 class="perfil-nombre">{{ authService.authState().nombre }} {{ authService.authState().apellido }}</h1>
         <span class="perfil-badge">{{ esAdmin() ? 'Administrador' : 'Cliente' }}</span>

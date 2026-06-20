@@ -1,5 +1,6 @@
 import { Component, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -22,13 +23,20 @@ export class MisPedidosComponent {
   private readonly pedidosService = inject(PedidosService);
   private readonly destroyRef = inject(DestroyRef);
 
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
+
   private readonly pedidosResource = toSignal(
-    this.pedidosService.obtenerMisPedidos(),
+    this.pedidosService.obtenerMisPedidos().pipe(
+      catchError(() => {
+        this.error.set('Error al cargar los pedidos. Intente de nuevo más tarde.');
+        return of([] as PedidoResumen[]);
+      }),
+    ),
     { initialValue: [] as PedidoResumen[] },
   );
 
   readonly pedidos = this.pedidosResource;
-  readonly loading = signal(false);
 
   readonly expandedId = signal<string | null>(null);
   readonly expandedPedido = signal<PedidoDetalle | undefined>(undefined);

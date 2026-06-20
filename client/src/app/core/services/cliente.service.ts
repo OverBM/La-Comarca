@@ -16,7 +16,13 @@ export class ClienteService {
     return this.apiUrl;
   });
 
-  readonly cliente = computed(() => this.recursoCliente.value() ?? undefined);
+  readonly cliente = computed(() => {
+    try {
+      return this.recursoCliente.value() ?? undefined;
+    } catch {
+      return undefined;
+    }
+  });
   readonly cargando = computed(() => this.recursoCliente.isLoading());
   readonly error = computed(() => this.recursoCliente.error() as Error | undefined);
 

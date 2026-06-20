@@ -10,6 +10,10 @@
     </div>
   } @else if (loading()) {
     <app-loading></app-loading>
+  } @else if (error()) {
+    <div class="text-center py-5 text-danger">
+      <p>{{ error() }}</p>
+    </div>
   } @else if (pedidos().length === 0) {
     <div class="text-center py-5 text-secondary">
       <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 24 24" class="opacity-50 mb-2">

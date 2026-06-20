@@ -28,6 +28,10 @@ export class PerfilComponent {
   private readonly adminProductosService = inject(AdminProductosService);
   private readonly destroyRef = inject(DestroyRef);
   protected esAdmin = computed(() => this.authService.authState().rol === 'admin');
+  protected readonly iniciales = computed(() => {
+    const s = this.authService.authState();
+    return (s.nombre?.charAt(0) ?? '') + (s.apellido?.charAt(0) ?? '');
+  });
 
   protected guardado = signal(false);
   protected guardando = signal(false);

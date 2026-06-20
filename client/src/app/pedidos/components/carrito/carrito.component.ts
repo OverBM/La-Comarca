@@ -75,6 +75,12 @@ export class CarritoComponent {
   });
 
   constructor() {
+    const { rol, isAuthenticated } = this.authService.authState();
+    if (isAuthenticated && rol === 'admin') {
+      this.router.navigate(['/admin/dashboard']);
+      return;
+    }
+
     const saved = localStorage.getItem('la-comarca-direccion');
     if (saved) {
       try {
@@ -87,7 +93,7 @@ export class CarritoComponent {
       localStorage.setItem('la-comarca-direccion', JSON.stringify(addr));
     });
 
-    if (this.authService.authState().isAuthenticated) {
+    if (isAuthenticated) {
       this.clienteService.cargar();
     }
 
@@ -139,7 +145,10 @@ export class CarritoComponent {
 
   private ejecutarPedido(metodo_pago: string): void {
     const cliente = this.clienteService.cliente();
-    if (!cliente?.id_cliente) return;
+    if (!cliente?.id_cliente) {
+      this.errorMsg.set('No se pudo identificar tu perfil. Recarga la página e intenta de nuevo.');
+      return;
+    }
     const items = this.carritoService.items().map(i => ({
       id_producto: i.id_producto,
       cantidad: i.cantidad,

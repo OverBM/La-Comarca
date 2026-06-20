@@ -1,6 +1,8 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { Routes, Router } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RolGuard } from './core/guards/rol.guard';
+import { AuthService } from './core/services/auth.service';
 
 export const routes: Routes = [
   {
@@ -22,6 +24,13 @@ export const routes: Routes = [
   {
     path: 'carrito',
     loadComponent: () => import('./pedidos/components/carrito/carrito.component').then(m => m.CarritoComponent),
+    canActivate: [() => {
+      const auth = inject(AuthService);
+      if (auth.authState().isAuthenticated && auth.authState().rol === 'admin') {
+        return inject(Router).parseUrl('/admin/dashboard');
+      }
+      return true;
+    }],
   },
   {
     path: 'catalogo/:id',
@@ -43,6 +52,13 @@ export const routes: Routes = [
   {
     path: 'pedidos',
     loadComponent: () => import('./pedidos/components/mis-pedidos/mis-pedidos.component').then(m => m.MisPedidosComponent),
+    canActivate: [AuthGuard, () => {
+      const auth = inject(AuthService);
+      if (auth.authState().isAuthenticated && auth.authState().rol === 'admin') {
+        return inject(Router).parseUrl('/admin/dashboard');
+      }
+      return true;
+    }],
   },
   {
     path: 'admin',
