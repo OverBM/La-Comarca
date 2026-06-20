@@ -50,7 +50,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.message || 'Credenciales incorrectas');
+        this.error.set(err.error?.detail || 'Credenciales incorrectas');
       },
     });
   }

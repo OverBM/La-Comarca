@@ -1,5 +1,6 @@
-﻿import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+﻿import { Component, signal, computed, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed, toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { AdminPedidosService, TipoComprobante, ComprobanteEmitido } from '../../services/admin-pedidos.service';
 import { PedidoResumen } from '../../models/pedido-resumen.model';
@@ -14,15 +15,19 @@ import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
   templateUrl: './facturacion.component.html',
   styleUrl: './facturacion.component.css',
 })
-export class FacturacionComponent implements OnInit {
+export class FacturacionComponent {
   private readonly pedidosService = inject(AdminPedidosService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly versionRefresco = signal(0);
 
-  readonly comprobantesResource = toSignal(
-    this.pedidosService.getComprobantes(),
+  readonly allComprobantes = toSignal(
+    toObservable(this.versionRefresco).pipe(
+      switchMap(() => this.pedidosService.getComprobantes()),
+    ),
     { initialValue: [] as Comprobante[] },
   );
-  readonly allComprobantes = computed(() => this.comprobantesResource());
+
+  private readonly comprobantesCargados = computed(() => this.allComprobantes() ?? []);
   readonly loading = signal(false);
   toastMsg = signal<string | null>(null);
   busqueda = signal('');
@@ -49,9 +54,10 @@ export class FacturacionComponent implements OnInit {
   });
 
   readonly filtrados = computed(() => {
+    const comprobantes = this.comprobantesCargados();
     const q = this.busqueda().toLowerCase().trim();
-    if (!q) return this.allComprobantes();
-    return this.allComprobantes().filter(
+    if (!q) return comprobantes;
+    return comprobantes.filter(
       c =>
         c.tipo.toLowerCase().includes(q) ||
         c.serie.toLowerCase().includes(q) ||
@@ -70,10 +76,6 @@ export class FacturacionComponent implements OnInit {
 
   readonly haySeleccion = computed(() => this.selectedPedidosIds().size > 0);
 
-  ngOnInit(): void {
-    this.loading.set(false);
-  }
-
   toggleForm(): void {
     const visible = !this.showForm();
     this.showForm.set(visible);
@@ -83,9 +85,12 @@ export class FacturacionComponent implements OnInit {
     this.selectedPedidosIds.set(new Set());
     if (visible) {
       this.pedidosLoading.set(true);
-      this.pedidosService.getPedidos().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(p => {
-        this.pedidosSinComprobante.set(p);
-        this.pedidosLoading.set(false);
+      this.pedidosService.getPedidos().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: p => {
+          this.pedidosSinComprobante.set(p);
+          this.pedidosLoading.set(false);
+        },
+        error: () => this.pedidosLoading.set(false),
       });
       this.pedidosService.getTiposComprobante().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(t => this.tiposComprobante.set(t));
     }
@@ -122,7 +127,7 @@ export class FacturacionComponent implements OnInit {
         }
         this.emitirLoading.set(false);
         this.selectedPedidosIds.set(new Set());
-        this.loading.set(false);
+        this.versionRefresco.update(v => v + 1);
       },
       error: (err) => {
         this.emitirMsg.set(err.error?.detail || 'Error al emitir comprobantes');

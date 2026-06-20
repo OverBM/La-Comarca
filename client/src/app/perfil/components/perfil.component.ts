@@ -1,15 +1,16 @@
 import { Component, inject, signal, computed, effect, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { httpResource } from '@angular/common/http';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { form, required, email, minLength, FormField } from '@angular/forms/signals';
 import { AuthService } from '../../core/services/auth.service';
-import { Cliente } from '../../core/models/cliente.model';
-import { Inventario } from '../../admin/models/inventario.model';
+import { ClienteService } from '../../core/services/cliente.service';
 import { DireccionService } from '../../shared/services/direccion.service';
+import { AdminPedidosService } from '../../admin/services/admin-pedidos.service';
+import { InventarioService } from '../../admin/services/inventario.service';
+import { AdminProductosService } from '../../admin/services/admin-productos.service';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { CurrencyPipe } from '@angular/common';
-import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-perfil',
@@ -20,7 +21,11 @@ import { environment } from '../../../environments/environment';
 })
 export class PerfilComponent {
   protected readonly authService = inject(AuthService);
+  protected readonly clienteService = inject(ClienteService);
   protected readonly direccionService = inject(DireccionService);
+  private readonly adminPedidosService = inject(AdminPedidosService);
+  private readonly inventarioService = inject(InventarioService);
+  private readonly adminProductosService = inject(AdminProductosService);
   private readonly destroyRef = inject(DestroyRef);
   protected esAdmin = computed(() => this.authService.authState().rol === 'admin');
 
@@ -31,16 +36,6 @@ export class PerfilComponent {
   protected passError = signal('');
   protected negocioGuardado = signal(false);
 
-  private readonly apiUrl = environment.apiUrl;
-
-  private readonly meVersion = signal(0);
-
-  private readonly meResource = httpResource<Cliente>(() => {
-    if (this.esAdmin()) return undefined;
-    this.meVersion();
-    return `${this.apiUrl}/clientes/me`;
-  });
-
   protected direccionFormVisible = signal(false);
   private readonly direccionModel = signal({ calle: '', ciudad: '', referencia: '' });
   protected direccionForm = form(this.direccionModel, (f) => {
@@ -48,36 +43,27 @@ export class PerfilComponent {
     required(f.ciudad, { message: 'La ciudad es obligatoria' });
   });
 
-  private readonly pedidosGestionadosResource = httpResource<number>(() => {
-    if (!this.esAdmin()) return undefined;
-    return `${this.apiUrl}/pedidos/pedidos-hoy`;
-  });
-  protected pedidosGestionados = computed(() => this.pedidosGestionadosResource.value() ?? 0);
-
-  private readonly ingresosGeneradosResource = httpResource<number>(() => {
-    if (!this.esAdmin()) return undefined;
-    return `${this.apiUrl}/pedidos/ventas-hoy`;
-  });
-  protected ingresosGenerados = computed(() => this.ingresosGeneradosResource.value() ?? 0);
-
-  private readonly stockBajoResource = httpResource<Inventario[]>(() => {
-    if (!this.esAdmin()) return undefined;
-    return `${this.apiUrl}/inventario?bajo=true`;
-  });
-  protected stockBajoCount = computed(() => this.stockBajoResource.value()?.length ?? 0);
-
-  private readonly productosActivosResource = httpResource<{ cantidad: number }>(() => {
-    if (!this.esAdmin()) return undefined;
-    return `${this.apiUrl}/productos/count`;
-  });
-  protected productosActivos = computed(() => this.productosActivosResource.value()?.cantidad ?? 0);
-
-  protected loadingStats = computed(() =>
-    this.pedidosGestionadosResource.isLoading() ||
-    this.ingresosGeneradosResource.isLoading() ||
-    this.stockBajoResource.isLoading() ||
-    this.productosActivosResource.isLoading()
+  protected readonly pedidosGestionados = toSignal(
+    this.adminPedidosService.getPedidosDelDia(),
+    { initialValue: 0 },
   );
+
+  protected readonly ingresosGenerados = toSignal(
+    this.adminPedidosService.getVentasDelDia(),
+    { initialValue: 0 },
+  );
+
+  protected readonly stockBajoCount = toSignal(
+    this.inventarioService.getLowStock().pipe(map(a => a.length)),
+    { initialValue: 0 },
+  );
+
+  protected readonly productosActivos = toSignal(
+    this.adminProductosService.getProductosCount().pipe(map(r => r.cantidad)),
+    { initialValue: 0 },
+  );
+
+
 
   private readonly perfilModel = signal({ nombre: '', apellido: '', email: '', telefono: '' });
   protected perfilForm = form(this.perfilModel, (f) => {
@@ -102,8 +88,10 @@ export class PerfilComponent {
   });
 
   constructor() {
+    this.clienteService.cargar();
+
     effect(() => {
-      const cliente = this.meResource.value();
+      const cliente = this.clienteService.cliente();
       if (cliente) {
         this.perfilModel.set({
           nombre: cliente.nombre ?? '',
@@ -114,6 +102,20 @@ export class PerfilComponent {
         if (cliente.id_cliente) {
           this.direccionService.cargarDirecciones(cliente.id_cliente);
         }
+      } else if (this.esAdmin()) {
+        const state = this.authService.authState();
+        this.perfilModel.set({
+          nombre: state.nombre ?? '',
+          apellido: state.apellido ?? '',
+          email: state.email ?? '',
+          telefono: state.telefono ?? '',
+        });
+        this.negocioModel.set({
+          negocioNombre: state.nombre ?? '',
+          negocioRuc: '',
+          negocioDireccion: '',
+          negocioTelefono: state.telefono ?? '',
+        });
       }
     });
   }
@@ -134,7 +136,7 @@ export class PerfilComponent {
       next: () => {
         this.authService.authState.update(s => ({ ...s, nombre, apellido, email, telefono }));
         this.authService.updateStoredUser({ nombre, apellido, email, telefono });
-        this.meVersion.update(v => v + 1);
+        this.clienteService.recargar();
         this.guardando.set(false);
         this.guardado.set(true);
         setTimeout(() => this.guardado.set(false), 2000);
@@ -177,12 +179,28 @@ export class PerfilComponent {
   guardarDireccion(): void {
     if (this.direccionForm().invalid()) return;
     const { calle, ciudad, referencia } = this.direccionModel();
-    this.direccionService.agregarDireccion({ calle, ciudad, referencia: referencia || undefined });
-    this.direccionModel.set({ calle: '', ciudad: '', referencia: '' });
-    this.direccionFormVisible.set(false);
+    this.direccionService.agregarDireccion({ calle, ciudad, referencia: referencia || undefined })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.direccionService.recargarDirecciones();
+          this.direccionModel.set({ calle: '', ciudad: '', referencia: '' });
+          this.direccionFormVisible.set(false);
+        },
+        error: () => {
+          // error handled via DireccionService.error signal
+        },
+      });
   }
 
   eliminarDireccion(id: string): void {
-    this.direccionService.eliminarDireccion(id);
+    this.direccionService.eliminarDireccion(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.direccionService.recargarDirecciones(),
+        error: () => {
+          // error handled via DireccionService.error signal
+        },
+      });
   }
 }

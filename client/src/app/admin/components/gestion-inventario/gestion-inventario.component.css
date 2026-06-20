@@ -19,8 +19,9 @@
 }
 
 .btn-secondary {
+  background-color: var(--color-surface-container);
   border: 1.5px solid var(--color-outline);
-  color: var(--color-on-surface-variant);
+  color: var(--color-on-surface);
   border-radius: var(--radius-default);
 }
 

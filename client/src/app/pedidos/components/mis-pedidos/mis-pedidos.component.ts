@@ -3,7 +3,8 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { PedidosService, PedidoResumen, PedidoDetalle } from '../../services/pedidos.service';
+import { PedidosService } from '../../services/pedidos.service';
+import { PedidoResumen, PedidoDetalle } from '../../models/pedido.models';
 import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
@@ -39,11 +40,14 @@ export class MisPedidosComponent {
       this.expandedPedido.set(undefined);
     } else {
       this.expandedId.set(id);
-      this.detalleLoading.set(true);
-      this.pedidosService.obtenerPedidoPorId(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(d => {
+    this.detalleLoading.set(true);
+    this.pedidosService.obtenerPedidoPorId(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: d => {
         this.expandedPedido.set(d ?? undefined);
         this.detalleLoading.set(false);
-      });
+      },
+      error: () => this.detalleLoading.set(false),
+    });
     }
   }
 }

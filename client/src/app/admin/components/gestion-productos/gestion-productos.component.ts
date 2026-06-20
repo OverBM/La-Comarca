@@ -53,9 +53,12 @@ export class GestionProductosComponent {
 
   loadProductos(): void {
     this.loading.set(true);
-    this.adminProductosService.getProductos().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(p => {
-      this.productos.set(p);
-      this.loading.set(false);
+    this.adminProductosService.getProductos().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: p => {
+        this.productos.set(p);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
     });
   }
 
@@ -64,9 +67,12 @@ export class GestionProductosComponent {
     this.selectedCategory.set(catId);
     this.loading.set(true);
     if (catId) {
-      this.adminProductosService.getProductosByCategoria(catId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(p => {
-        this.productos.set(p);
-        this.loading.set(false);
+      this.adminProductosService.getProductosByCategoria(catId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: p => {
+          this.productos.set(p);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
       });
     } else {
       this.loadProductos();

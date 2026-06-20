@@ -28,4 +28,8 @@ export class AdminProductosService {
   deleteProducto(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  getProductosCount(): Observable<{ cantidad: number }> {
+    return this.http.get<{ cantidad: number }>(`${this.apiUrl}/count`);
+  }
 }

@@ -47,11 +47,19 @@ export class GestionInventarioComponent {
     forkJoin({
       stock: this.inventarioService.getStock(),
       movimientos: this.inventarioService.getUltimosMovimientos(10),
-    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ stock, movimientos }) => {
-      this.stockList.set(stock);
-      this.movimientos.set(movimientos);
-      this.loading.set(false);
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: ({ stock, movimientos }) => {
+        this.stockList.set(stock);
+        this.movimientos.set(movimientos);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
     });
+  }
+
+  cancelForm(): void {
+    this.showMovForm.set(false);
+    this.movModel.set({ id_producto: '', tipo: 'entrada', cantidad: 0, motivo: '', id_usuario: 'usr-001' });
   }
 
   registerMovement(): void {

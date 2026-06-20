@@ -59,7 +59,7 @@
               @if (!recogerEnTienda()) {
                 @if (authService.authState().isAuthenticated) {
                   <div class="carrito-direcciones-lista">
-                    @if (direccionService.loading()) {
+                    @if (direccionService.cargando()) {
                       <p class="carrito-cargando">Cargando direcciones...</p>
                     } @else {
                       @for (dir of direccionService.direcciones(); track dir.id_direccion) {
@@ -184,10 +184,6 @@
           </section>
         }
       </div>
-    }
-
-    @if (loading() && carritoService.items().length === 0) {
-      <app-loading></app-loading>
     }
 
   </div>

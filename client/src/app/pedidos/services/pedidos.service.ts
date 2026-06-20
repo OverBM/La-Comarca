@@ -2,29 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { PedidoResumen, PedidoDetalle, PedidoCreacion } from '../models/pedido.models';
 
-export interface PedidoResumen {
-  id_pedido: string;
-  cliente: string;
-  fecha: string;
-  total: number;
-}
-
-export interface PedidoDetalle {
-  id_pedido: string;
-  id_cliente: string;
-  cliente_nombre: string;
-  fecha_pedido: string;
-  detalle: {
-    id_detalle: string;
-    id_producto: string;
-    nombre_producto?: string;
-    cantidad: number;
-    precio_unitario: number;
-    subtotal: number;
-  }[];
-  total: number;
-}
+export type { PedidoResumen, PedidoDetalle, PedidoCreacion };
 
 @Injectable({ providedIn: 'root' })
 export class PedidosService {
@@ -37,5 +17,9 @@ export class PedidosService {
 
   obtenerPedidoPorId(id: string): Observable<PedidoDetalle> {
     return this.http.get<PedidoDetalle>(`${this.apiUrl}/pedidos/${id}`);
+  }
+
+  crear(data: PedidoCreacion): Observable<PedidoDetalle> {
+    return this.http.post<PedidoDetalle>(`${this.apiUrl}/pedidos`, data);
   }
 }

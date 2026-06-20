@@ -14,19 +14,19 @@
     @if (esAdmin()) {
       <div class="perfil-stats">
         <div class="perfil-stat-card">
-          <p class="perfil-stat-valor">{{ loadingStats() ? '...' : pedidosGestionados() }}</p>
+          <p class="perfil-stat-valor">{{ pedidosGestionados() }}</p>
           <p class="perfil-stat-label">Pedidos Hoy</p>
         </div>
         <div class="perfil-stat-card">
-          <p class="perfil-stat-valor">{{ loadingStats() ? '...' : (ingresosGenerados() | currency:'S/ ') }}</p>
+          <p class="perfil-stat-valor">{{ ingresosGenerados() | currency:'S/ ' }}</p>
           <p class="perfil-stat-label">Ventas Hoy</p>
         </div>
         <div class="perfil-stat-card">
-          <p class="perfil-stat-valor">{{ loadingStats() ? '...' : productosActivos() }}</p>
+          <p class="perfil-stat-valor">{{ productosActivos() }}</p>
           <p class="perfil-stat-label">Productos Activos</p>
         </div>
         <div class="perfil-stat-card">
-          <p class="perfil-stat-valor">{{ loadingStats() ? '...' : stockBajoCount() }}</p>
+          <p class="perfil-stat-valor">{{ stockBajoCount() }}</p>
           <p class="perfil-stat-label">Stock Bajo</p>
         </div>
       </div>
@@ -162,7 +162,7 @@
     @if (!esAdmin()) {
       <div class="perfil-seccion">
         <h2 class="perfil-seccion-titulo">Mis Direcciones</h2>
-        @if (direccionService.loading()) {
+        @if (direccionService.cargando()) {
           <p class="perfil-cargando">Cargando direcciones...</p>
         } @else if (direccionService.direcciones().length === 0) {
           <p class="perfil-vacio">No tienes direcciones registradas.</p>
