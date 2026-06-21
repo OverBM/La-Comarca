@@ -7,3 +7,10 @@ export interface MovimientoInventario {
   id_usuario: string;
   fecha: Date;
 }
+
+export interface MovimientosPaginados {
+  items: MovimientoInventario[];
+  total: number;
+  page: number;
+  limit: number;
+}

@@ -1,0 +1,25 @@
+<div class="paginacion-bar">
+  <div class="paginacion-info">
+    <select class="paginacion-select" [value]="pageSize()" (change)="cambiarPageSize($event)">
+      @for (opt of pageSizeOptions(); track opt) {
+        <option [value]="opt">{{ opt }} por página</option>
+      }
+    </select>
+  </div>
+
+  <div class="paginacion-controles">
+    <button class="paginacion-btn" [disabled]="!mostrarAnterior()" (click)="irAPagina(paginaActual() - 1)">
+      &laquo; Anterior
+    </button>
+
+    @for (n of numerosPagina(); track n) {
+      <button class="paginacion-btn paginacion-numero" [class.paginacion-activa]="n === paginaActual()" (click)="irAPagina(n)">
+        {{ n }}
+      </button>
+    }
+
+    <button class="paginacion-btn" [disabled]="!mostrarSiguiente()" (click)="irAPagina(paginaActual() + 1)">
+      Siguiente &raquo;
+    </button>
+  </div>
+</div>

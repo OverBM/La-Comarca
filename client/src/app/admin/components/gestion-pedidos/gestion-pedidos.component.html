@@ -70,6 +70,20 @@
     @if (loading()) {
       <app-loading></app-loading>
     } @else {
+      <div class="d-flex gap-2 mb-3">
+        <input class="form-control form-control-sm" type="text" placeholder="Buscar por ID o cliente..." [value]="filtro()" (input)="filtro.set(($any($event.target)).value); paginaActual.set(1)">
+        <select class="form-select form-select-sm w-auto" [value]="filtroPago()" (change)="filtroPago.set(($any($event.target)).value); paginaActual.set(1)">
+          <option value="">Todos los pagos</option>
+          <option value="efectivo">Efectivo</option>
+          <option value="yape">Yape</option>
+        </select>
+        <select class="form-select form-select-sm w-auto" [value]="filtroEstado()" (change)="filtroEstado.set(($any($event.target)).value); paginaActual.set(1)">
+          <option value="">Todos los estados</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="pagado">Pagado</option>
+          <option value="anulado">Anulado</option>
+        </select>
+      </div>
       <div class="table-responsive mt-3">
         <table class="data-table table table-hover align-middle">
           <thead>
@@ -84,7 +98,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (ped of pedidos(); track ped.id_pedido) {
+            @for (ped of pedidosPaginados(); track ped.id_pedido) {
               <tr>
                 <td class="small fw-semibold">{{ ped.id_pedido }}</td>
                 <td class="small">{{ ped.cliente }}</td>
@@ -102,6 +116,13 @@
           </tbody>
         </table>
       </div>
+      <app-paginacion
+        [totalPaginas]="totalPaginas()"
+        [paginaActual]="paginaActual()"
+        [pageSize]="pageSize()"
+        (paginaCambiada)="paginaActual.set($event)"
+        (pageSizeCambiado)="pageSize.set($event); paginaActual.set(1)"
+      ></app-paginacion>
     }
   }
 </div>

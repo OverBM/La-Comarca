@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import text
 
 from src.core.database import get_connection
@@ -37,10 +39,35 @@ class InventarioRepository:
             await conn.commit()
             return result.mappings().one_or_none()
 
-    async def get_movimientos(self, id_producto: str | None = None, limit: int = 50):
+    async def get_movimientos(self, id_producto: str | None = None, page: int = 1, limit: int = 10, desde: str | None = None, hasta: str | None = None):
         async with get_connection() as conn:
+            offset = (page - 1) * limit
+            where_parts = []
+            params: dict = {"lim": limit, "off": offset}
+
             if id_producto:
-                result = await conn.execute(text("SELECT * FROM movimientos_inventario WHERE id_producto = :id ORDER BY fecha DESC LIMIT :lim"), {"id": id_producto, "lim": limit})
-            else:
-                result = await conn.execute(text("SELECT * FROM movimientos_inventario ORDER BY fecha DESC LIMIT :lim"), {"lim": limit})
-            return result.mappings().all()
+                where_parts.append("id_producto = :id_producto")
+                params["id_producto"] = id_producto
+            if desde:
+                where_parts.append("fecha::date >= :desde")
+                params["desde"] = datetime.strptime(desde, "%Y-%m-%d").date()
+            if hasta:
+                where_parts.append("fecha::date <= :hasta")
+                params["hasta"] = datetime.strptime(hasta, "%Y-%m-%d").date()
+
+            where_sql = ""
+            if where_parts:
+                where_sql = "WHERE " + " AND ".join(where_parts)
+
+            count_result = await conn.execute(
+                text(f"SELECT COUNT(*) FROM movimientos_inventario {where_sql}"),
+                {k: v for k, v in params.items() if k in ("id_producto", "desde", "hasta")},
+            )
+            total = count_result.scalar_one()
+
+            result = await conn.execute(
+                text(f"SELECT * FROM movimientos_inventario {where_sql} ORDER BY fecha DESC LIMIT :lim OFFSET :off"),
+                params,
+            )
+            items = result.mappings().all()
+            return items, total

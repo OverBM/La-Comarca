@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Inventario } from '../models/inventario.model';
-import { MovimientoInventario } from '../models/movimiento.model';
+import { MovimientoInventario, MovimientosPaginados } from '../models/movimiento.model';
 
 @Injectable({ providedIn: 'root' })
 export class InventarioService {
@@ -23,6 +23,14 @@ export class InventarioService {
   }
 
   getUltimosMovimientos(limit = 5): Observable<MovimientoInventario[]> {
-    return this.http.get<MovimientoInventario[]>(`${this.apiUrl}/movimientos?limit=${limit}`);
+    return this.http.get<MovimientosPaginados>(`${this.apiUrl}/movimientos?limit=${limit}`)
+      .pipe(map(r => r.items));
+  }
+
+  getMovimientos(page = 1, limit = 10, desde?: string, hasta?: string): Observable<MovimientosPaginados> {
+    let params = `?page=${page}&limit=${limit}`;
+    if (desde) params += `&desde=${desde}`;
+    if (hasta) params += `&hasta=${hasta}`;
+    return this.http.get<MovimientosPaginados>(`${this.apiUrl}/movimientos${params}`);
   }
 }

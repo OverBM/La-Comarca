@@ -55,10 +55,20 @@
           <div class="col-md-3">
             <label class="form-label small" for="prod-img">Imagen URL</label>
             <input id="prod-img" class="form-input form-control form-control-sm" [formField]="prodForm.imagen">
+            @if (prodForm.imagen().invalid() && prodForm.imagen().touched()) {
+              @for (err of prodForm.imagen().errors(); track err.kind) {
+                <div class="admin-error">{{ err.message }}</div>
+              }
+            }
           </div>
           <div class="col-12">
-            <label class="form-label small" for="prod-desc">Descripción</label>
+            <label class="form-label small" for="prod-desc">Descripci&oacute;n</label>
             <textarea id="prod-desc" class="form-input form-control form-control-sm" rows="2" [formField]="prodForm.descripcion"></textarea>
+            @if (prodForm.descripcion().invalid() && prodForm.descripcion().touched()) {
+              @for (err of prodForm.descripcion().errors(); track err.kind) {
+                <div class="admin-error">{{ err.message }}</div>
+              }
+            }
           </div>
           <div class="col-12">
             <button class="btn btn-sm fw-semibold me-2 btn-primary" (click)="saveProduct()" [disabled]="prodForm().invalid()">Guardar</button>
@@ -69,7 +79,8 @@
     </div>
   }
 
-  <div class="mb-3">
+  <div class="d-flex gap-2 mb-3">
+    <input class="form-control form-control-sm" type="text" placeholder="Buscar por ID o nombre..." [value]="filtro()" (input)="filtro.set(($any($event.target)).value); paginaActual.set(1)">
     <select class="form-select form-select-sm w-auto" [value]="selectedCategory()" (change)="filterByCategory($event)">
       <option value="">Todas las categorías</option>
       @for (cat of categorias(); track cat.id_categoria) {
@@ -85,6 +96,7 @@
       <table class="data-table table table-hover align-middle">
         <thead>
           <tr class="table-header-row">
+            <th class="table-header small fw-semibold">ID</th>
             <th class="table-header small fw-semibold">Nombre</th>
             <th class="table-header small fw-semibold">Categoría</th>
             <th class="table-header small fw-semibold">Precio</th>
@@ -93,10 +105,11 @@
           </tr>
         </thead>
         <tbody>
-          @for (prod of productos(); track prod.id_producto) {
+          @for (prod of productosPaginados(); track prod.id_producto) {
             <tr>
+              <td class="table-cell small text-on-surface-variant">{{ prod.id_producto }}</td>
               <td class="table-cell small">{{ prod.nombre }}</td>
-              <td class="table-cell small text-on-surface-variant">{{ prod.id_categoria }}</td>
+              <td class="table-cell small text-on-surface-variant">{{ getCategoriaNombre(prod.id_categoria) }}</td>
               <td class="table-cell small fw-semibold text-primary-container">S/ {{ prod.precio_unitario.toFixed(2) }}</td>
               <td><span class="table-badge badge">{{ prod.stock_actual ?? '—' }}</span></td>
               <td>
@@ -108,6 +121,13 @@
         </tbody>
       </table>
     </div>
+    <app-paginacion
+      [totalPaginas]="totalPaginas()"
+      [paginaActual]="paginaActual()"
+      [pageSize]="pageSize()"
+      (paginaCambiada)="paginaActual.set($event)"
+      (pageSizeCambiado)="pageSize.set($event); paginaActual.set(1)"
+    ></app-paginacion>
   }
   @if (showConfirmDialog()) {
     <app-dialogo-confirmacion

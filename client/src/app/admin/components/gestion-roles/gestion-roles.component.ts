@@ -1,4 +1,4 @@
-import { Component, inject, signal, DestroyRef } from '@angular/core';
+import { Component, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AdminUsuariosService } from '../../services/admin-usuarios.service';
 import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo-confirmacion/dialogo-confirmacion.component';
@@ -15,6 +15,17 @@ export class GestionRolesComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly usuarios = this.adminUsuariosService.usuarios;
+  readonly filtro = signal('');
+
+  readonly usuariosFiltrados = computed(() => {
+    const f = this.filtro().toLowerCase();
+    if (!f) return this.usuarios();
+    return this.usuarios().filter(u =>
+      u.nombre.toLowerCase().includes(f) ||
+      u.apellido.toLowerCase().includes(f) ||
+      u.email.toLowerCase().includes(f)
+    );
+  });
 
   readonly dialogVisible = signal(false);
   pendingChange: { id: string; email: string; rolActual: string; nuevoRol: string } | null = null;

@@ -30,3 +30,10 @@ class MovimientoResponse(BaseModel):
     fecha: datetime | None = None
 
     model_config = {"from_attributes": True}
+
+
+class MovimientosPaginados(BaseModel):
+    items: list[MovimientoResponse]
+    total: int
+    page: int
+    limit: int

@@ -1,7 +1,6 @@
 ﻿/** Componente para la gestión CRUD de productos desde el panel admin */
 import { Component, signal, computed, inject, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { form, required, minLength, min, FormField } from '@angular/forms/signals';
 import { AdminProductosService } from '../../services/admin-productos.service';
 import { Producto } from '../../../core/models/producto.model';
@@ -9,11 +8,12 @@ import { Categoria } from '../../../core/models/categoria.model';
 import { CatalogoService } from '../../../catalogo/services/catalogo.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo-confirmacion/dialogo-confirmacion.component';
+import { PaginacionComponent } from '../../../shared/components/paginacion/paginacion.component';
 
 @Component({
   selector: 'app-gestion-productos',
   standalone: true,
-  imports: [FormField, LoadingComponent, DialogoConfirmacionComponent],
+  imports: [FormField, LoadingComponent, DialogoConfirmacionComponent, PaginacionComponent],
   templateUrl: './gestion-productos.component.html',
   styleUrl: './gestion-productos.component.css',
 })
@@ -36,15 +36,43 @@ export class GestionProductosComponent {
   readonly productos = signal<Producto[]>([]);
   readonly loading = signal(true);
   readonly selectedCategory = signal('');
+  readonly filtro = signal('');
 
-  private prodModel = signal({ id_categoria: '', nombre: '', precio_unitario: 0, descripcion: '', imagen: '', stock_minimo: 0 });
+  readonly paginaActual = signal(1);
+  readonly pageSize = signal(10);
+
+  readonly productosFiltrados = computed(() => {
+    const f = this.filtro().toLowerCase();
+    if (!f) return this.productos();
+    return this.productos().filter(p =>
+      p.id_producto.toLowerCase().includes(f) ||
+      p.nombre.toLowerCase().includes(f)
+    );
+  });
+
+  readonly totalPaginas = computed(() => Math.max(1, Math.ceil(this.productosFiltrados().length / this.pageSize())));
+
+  readonly productosPaginados = computed(() => {
+    const p = this.productosFiltrados();
+    const inicio = (this.paginaActual() - 1) * this.pageSize();
+    return p.slice(inicio, inicio + this.pageSize());
+  });
+
+  getCategoriaNombre(id_categoria: string): string {
+    return this.categorias().find(c => c.id_categoria === id_categoria)?.nombre ?? id_categoria;
+  }
+
+  private readonly prodModel = signal({ id_categoria: '', nombre: '', precio_unitario: 0, descripcion: '', imagen: '', stock_minimo: 0 });
   protected prodForm = form(this.prodModel, (f) => {
     required(f.nombre, { message: 'El nombre es obligatorio' });
     minLength(f.nombre, 2, { message: 'Mínimo 2 caracteres' });
     required(f.id_categoria, { message: 'Seleccione una categoría' });
     required(f.precio_unitario, { message: 'El precio es obligatorio' });
-    min(f.precio_unitario, 0, { message: 'No puede ser negativo' });
+    min(f.precio_unitario, 0.01, { message: 'Debe ser mayor a 0' });
+    required(f.stock_minimo, { message: 'El stock mínimo es obligatorio' });
     min(f.stock_minimo, 0, { message: 'No puede ser negativo' });
+    required(f.descripcion, { message: 'La descripción es obligatoria' });
+    required(f.imagen, { message: 'La imagen es obligatoria' });
   });
 
   constructor() {

@@ -7,6 +7,10 @@
   <div class="roles-toast">{{ toastMsg() }}</div>
 }
 
+<div class="mb-3">
+  <input class="form-control form-control-sm" type="text" placeholder="Buscar por nombre, apellido o email..." [value]="filtro()" (input)="filtro.set(($any($event.target)).value)">
+</div>
+
 <div class="roles-tabla-wrapper">
   <table class="roles-tabla">
     <thead>
@@ -18,7 +22,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (u of usuarios(); track u.email) {
+      @for (u of usuariosFiltrados(); track u.email) {
         <tr>
           <td class="roles-nombre">{{ u.nombre }} {{ u.apellido }}</td>
           <td class="roles-email">{{ u.email }}</td>

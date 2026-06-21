@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
 
-from src.schemas.inventario import InventarioResponse, MovimientoCreate, MovimientoResponse
+from src.schemas.inventario import InventarioResponse, MovimientoCreate, MovimientoResponse, MovimientosPaginados
 from src.services.inventario import InventarioService
 from src.core.dependencies import require_admin
 
@@ -13,10 +13,16 @@ async def listar(bajo: bool = Query(default=False), _=Depends(require_admin)):
     return await service.listar(bajo)
 
 
-@router.get("/movimientos", response_model=list[MovimientoResponse])
-async def listar_movimientos(limit: int = Query(default=50), _=Depends(require_admin)):
+@router.get("/movimientos", response_model=MovimientosPaginados)
+async def listar_movimientos(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=50),
+    desde: str | None = Query(default=None),
+    hasta: str | None = Query(default=None),
+    _=Depends(require_admin),
+):
     service = InventarioService()
-    return await service.movimientos(None, limit)
+    return await service.movimientos(None, page, limit, desde, hasta)
 
 
 @router.get("/{id_producto}", response_model=InventarioResponse)
@@ -39,7 +45,14 @@ async def registrar_movimiento(body: MovimientoCreate, usuario: dict = Depends(r
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/{id_producto}/movimientos", response_model=list[MovimientoResponse])
-async def movimientos_por_producto(id_producto: str, limit: int = Query(default=50), _=Depends(require_admin)):
+@router.get("/{id_producto}/movimientos", response_model=MovimientosPaginados)
+async def movimientos_por_producto(
+    id_producto: str,
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=50),
+    desde: str | None = Query(default=None),
+    hasta: str | None = Query(default=None),
+    _=Depends(require_admin),
+):
     service = InventarioService()
-    return await service.movimientos(id_producto, limit)
+    return await service.movimientos(id_producto, page, limit, desde, hasta)

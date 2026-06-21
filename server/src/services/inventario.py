@@ -15,6 +15,12 @@ class InventarioService:
         return result
 
     async def registrar_movimiento(self, data: dict):
+        if data["tipo"] == "salida":
+            inventario = await self.repo.get_by_producto(data["id_producto"])
+            if not inventario:
+                raise ValueError("Producto no encontrado en inventario")
+            if inventario["stock_actual"] < data["cantidad"]:
+                raise ValueError(f"Stock insuficiente. Actual: {inventario['stock_actual']}, requerido: {data['cantidad']}")
         resultado = await self.repo.actualizar_stock(
             id_producto=data["id_producto"],
             cantidad=data["cantidad"],
@@ -26,5 +32,6 @@ class InventarioService:
             raise ValueError("Producto no encontrado en inventario")
         return resultado
 
-    async def movimientos(self, id_producto: str | None = None, limit: int = 50):
-        return await self.repo.get_movimientos(id_producto, limit)
+    async def movimientos(self, id_producto: str | None = None, page: int = 1, limit: int = 10, desde: str | None = None, hasta: str | None = None):
+        items, total = await self.repo.get_movimientos(id_producto, page, limit, desde, hasta)
+        return {"items": items, "total": total, "page": page, "limit": limit}

@@ -43,6 +43,37 @@
   color: var(--color-error);
 }
 
+.text-warning {
+  color: var(--color-warning);
+}
+
 .text-on-surface-variant {
   color: var(--color-on-surface-variant);
+}
+
+.mov-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.mov-icono--entrada {
+  background-color: var(--color-success-container, #d0f0d0);
+  color: var(--color-success, #1b7a1b);
+}
+
+.mov-icono--salida {
+  background-color: var(--color-error-container, #f0d0d0);
+  color: var(--color-error, #b3261e);
+}
+
+.mov-icono--ajuste {
+  background-color: var(--color-warning-container, #f0e6c0);
+  color: var(--color-warning, #8a6d00);
 }

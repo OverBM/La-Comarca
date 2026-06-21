@@ -23,6 +23,9 @@
       <a routerLink="/catalogo" class="btn btn-primary btn-sm">Ir al Catálogo</a>
     </div>
   } @else {
+    <div class="mb-3">
+      <input class="form-control form-control-sm" type="text" placeholder="Buscar por ID o fecha..." [value]="filtro()" (input)="filtro.set(($any($event.target)).value); paginaActual.set(1)">
+    </div>
     <div class="table-responsive">
       <table class="table align-middle">
         <thead>
@@ -34,7 +37,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (p of pedidos(); track p.id_pedido) {
+          @for (p of pedidosPaginados(); track p.id_pedido) {
             <tr (click)="toggleDetalle(p.id_pedido)" role="button" class="pedido-row" [class.table-active]="expandedId() === p.id_pedido">
               <td>{{ p.id_pedido }}</td>
               <td>{{ p.fecha | date:'short' }}</td>
@@ -82,6 +85,13 @@
         </tbody>
       </table>
     </div>
+    <app-paginacion
+      [totalPaginas]="totalPaginas()"
+      [paginaActual]="paginaActual()"
+      [pageSize]="pageSize()"
+      (paginaCambiada)="paginaActual.set($event)"
+      (pageSizeCambiado)="pageSize.set($event); paginaActual.set(1)"
+    ></app-paginacion>
   }
 </div>
 
