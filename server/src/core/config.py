@@ -1,14 +1,19 @@
-DATABASE_URL = "postgresql+asyncpg://postgres:u4GpiROIRaAhE4AJ@db.amtbjadeyymmxvdnlbcx.supabase.co:5432/postgres"
+import os
+from dotenv import load_dotenv
 
-JWT_SECRET = "la-comarca-secret-key-temp"
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL") or "postgresql+asyncpg://postgres:123@localhost:5432/Comarca"
+
+JWT_SECRET = os.getenv("JWT_SECRET") or "la-comarca-secret-key-temp"
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
 
-SMTP_HOST = "smtp.gmail.com"
-SMTP_PORT = 587
-SMTP_USER = "comarcatesting@gmail.com"
-SMTP_PASSWORD = "rjak mvzu mbek vmun"
-FRONTEND_URL = "http://localhost:4200"
+SMTP_HOST = os.getenv("SMTP_HOST") or "smtp.gmail.com"
+SMTP_PORT = int(os.getenv("SMTP_PORT") or "587")
+SMTP_USER = os.getenv("SMTP_USER") or ""
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD") or ""
+FRONTEND_URL = os.getenv("FRONTEND_URL") or "http://localhost:4200"
 
-NUBEFACT_API_URL = "https://api.nubefact.com/api/v1/b046e0ef-bcd5-4af6-b627-fa439b3dd055"
-NUBEFACT_API_KEY = "6e82244b16aa4e0cb4e367e1593153425f7c376ddf6545019350219d7d00e556"
+NUBEFACT_API_URL = os.getenv("NUBEFACT_API_URL") or "https://api.nubefact.com"
+NUBEFACT_API_KEY = os.getenv("NUBEFACT_API_KEY") or ""
