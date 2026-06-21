@@ -9,11 +9,12 @@ import { LoadingComponent } from '../../../shared/components/loading/loading.com
 import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
 import { PaginacionComponent } from '../../../shared/components/paginacion/paginacion.component';
 import { SinResultadosComponent } from '../../../shared/components/sin-resultados/sin-resultados.component';
+import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo-confirmacion/dialogo-confirmacion.component';
 
 @Component({
   selector: 'app-gestion-pedidos',
   standalone: true,
-  imports: [LoadingComponent, DatePipe, FormatoPrecioPipe, PaginacionComponent, SinResultadosComponent],
+  imports: [LoadingComponent, DatePipe, FormatoPrecioPipe, PaginacionComponent, SinResultadosComponent, DialogoConfirmacionComponent],
   templateUrl: './gestion-pedidos.component.html',
   styleUrl: './gestion-pedidos.component.css',
 })
@@ -28,6 +29,8 @@ export class GestionPedidosComponent {
   readonly selectedPedido = signal<PedidoDetalle | null>(null);
   readonly loading = signal(false);
   readonly confirmandoPago = signal<string | null>(null);
+  readonly anularDialogo = signal<string | null>(null);
+  readonly anulando = signal(false);
 
   readonly filtro = signal('');
   readonly filtroPago = signal('');
@@ -90,6 +93,32 @@ export class GestionPedidosComponent {
       },
       error: () => this.confirmandoPago.set(null),
     });
+  }
+
+  confirmarAnular(id: string): void {
+    this.anularDialogo.set(id);
+  }
+
+  ejecutarAnular(): void {
+    const id = this.anularDialogo();
+    if (!id) return;
+    this.anulando.set(true);
+    this.pedidosService.anularPedido(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (pedido) => {
+        this.selectedPedido.set(pedido);
+        this.anulando.set(false);
+        this.anularDialogo.set(null);
+        this.cargarPedidos();
+      },
+      error: () => {
+        this.anulando.set(false);
+        this.anularDialogo.set(null);
+      },
+    });
+  }
+
+  cancelarAnular(): void {
+    this.anularDialogo.set(null);
   }
 
   readonly metodoPagoLabel: Record<string, string> = {

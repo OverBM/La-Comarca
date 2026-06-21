@@ -95,6 +95,12 @@ class PedidoService:
             raise ValueError("Pedido no encontrado")
         return await self.obtener(id_pedido)
 
+    async def anular(self, id_pedido: str):
+        pedido = await self.pedido_repo.update_estado_pago(id_pedido, "anulado")
+        if not pedido:
+            raise ValueError("Pedido no encontrado")
+        return await self.obtener(id_pedido)
+
     async def contar_hoy(self) -> int:
         return await self.pedido_repo.count_today()
 

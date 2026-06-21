@@ -42,6 +42,10 @@ export class AdminPedidosService {
   confirmarPago(id_pedido: string): Observable<PedidoDetalle> {
     return this.http.put<PedidoDetalle>(`${this.apiUrl}/pedidos/${id_pedido}/pago`, {});
   }
+
+  anularPedido(id_pedido: string): Observable<PedidoDetalle> {
+    return this.http.put<PedidoDetalle>(`${this.apiUrl}/pedidos/${id_pedido}/anular`, {});
+  }
 }
 
 export interface TipoComprobante {

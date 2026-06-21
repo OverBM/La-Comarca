@@ -49,6 +49,15 @@ async def obtener(id_pedido: str, _=Depends(get_current_user)):
         raise HTTPException(status_code=404, detail=str(e))
 
 
+@router.put("/{id_pedido}/anular", response_model=PedidoResponse)
+async def anular_pedido(id_pedido: str, _=Depends(require_admin_or_vendedor)):
+    service = PedidoService()
+    try:
+        return await service.anular(id_pedido)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
 @router.put("/{id_pedido}/pago", response_model=PedidoResponse)
 async def confirmar_pago(id_pedido: str, _=Depends(require_admin_or_vendedor)):
     service = PedidoService()

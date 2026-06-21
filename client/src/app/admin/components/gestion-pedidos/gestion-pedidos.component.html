@@ -31,9 +31,10 @@
           </div>
           <div class="col-md-4 mt-2 d-flex align-items-end">
             @if ((esAdmin() || esVendedor()) && pedido.estado_pago === 'pendiente') {
-              <button class="btn btn-sm btn-success" [disabled]="confirmandoPago() === pedido.id_pedido" (click)="confirmarPago(pedido.id_pedido)">
+              <button class="btn btn-sm btn-success me-2" [disabled]="confirmandoPago() === pedido.id_pedido" (click)="confirmarPago(pedido.id_pedido)">
                 {{ confirmandoPago() === pedido.id_pedido ? 'Confirmando…' : '✓ Confirmar Pago' }}
               </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="confirmarAnular(pedido.id_pedido)">✕ Anular</button>
             }
           </div>
         </div>
@@ -128,3 +129,13 @@
     }
   }
 </div>
+
+@if (anularDialogo()) {
+  <app-dialogo-confirmacion
+    titulo="Anular Pedido"
+    mensaje="¿Estás seguro de anular este pedido? Esta acción no se puede deshacer."
+    textoBoton="Anular"
+    (confirmar)="ejecutarAnular()"
+    (cancelar)="cancelarAnular()"
+  ></app-dialogo-confirmacion>
+}
