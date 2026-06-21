@@ -10,11 +10,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo-confirmacion/dialogo-confirmacion.component';
 import { PaginacionComponent } from '../../../shared/components/paginacion/paginacion.component';
+import { SinResultadosComponent } from '../../../shared/components/sin-resultados/sin-resultados.component';
 
 @Component({
   selector: 'app-gestion-productos',
   standalone: true,
-  imports: [FormField, LoadingComponent, DialogoConfirmacionComponent, PaginacionComponent],
+  imports: [FormField, LoadingComponent, DialogoConfirmacionComponent, PaginacionComponent, SinResultadosComponent],
   templateUrl: './gestion-productos.component.html',
   styleUrl: './gestion-productos.component.css',
 })

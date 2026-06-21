@@ -8,11 +8,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
 import { PaginacionComponent } from '../../../shared/components/paginacion/paginacion.component';
+import { SinResultadosComponent } from '../../../shared/components/sin-resultados/sin-resultados.component';
 
 @Component({
   selector: 'app-gestion-pedidos',
   standalone: true,
-  imports: [LoadingComponent, DatePipe, FormatoPrecioPipe, PaginacionComponent],
+  imports: [LoadingComponent, DatePipe, FormatoPrecioPipe, PaginacionComponent, SinResultadosComponent],
   templateUrl: './gestion-pedidos.component.html',
   styleUrl: './gestion-pedidos.component.css',
 })

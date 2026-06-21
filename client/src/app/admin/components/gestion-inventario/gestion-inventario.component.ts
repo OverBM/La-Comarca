@@ -10,11 +10,12 @@ import { MovimientoInventario } from '../../models/movimiento.model';
 import { Producto } from '../../../core/models/producto.model';
 import { CatalogoService } from '../../../catalogo/services/catalogo.service';
 import { PaginacionComponent } from '../../../shared/components/paginacion/paginacion.component';
+import { SinResultadosComponent } from '../../../shared/components/sin-resultados/sin-resultados.component';
 
 @Component({
   selector: 'app-gestion-inventario',
   standalone: true,
-  imports: [FormField, PaginacionComponent, DatePipe],
+  imports: [FormField, PaginacionComponent, SinResultadosComponent, DatePipe],
   templateUrl: './gestion-inventario.component.html',
   styleUrl: './gestion-inventario.component.css',
 })

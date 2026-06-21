@@ -1,0 +1,11 @@
+.sin-resultados {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  color: var(--color-on-surface-variant, #6c757d);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  text-align: center;
+}

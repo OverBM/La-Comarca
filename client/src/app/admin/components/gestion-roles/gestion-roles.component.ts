@@ -2,11 +2,12 @@ import { Component, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AdminUsuariosService } from '../../services/admin-usuarios.service';
 import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo-confirmacion/dialogo-confirmacion.component';
+import { SinResultadosComponent } from '../../../shared/components/sin-resultados/sin-resultados.component';
 
 @Component({
   selector: 'app-gestion-roles',
   standalone: true,
-  imports: [DialogoConfirmacionComponent],
+  imports: [DialogoConfirmacionComponent, SinResultadosComponent],
   templateUrl: './gestion-roles.component.html',
   styleUrl: './gestion-roles.component.css',
 })

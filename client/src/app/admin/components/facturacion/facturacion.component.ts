@@ -7,11 +7,12 @@ import { PedidoResumen } from '../../models/pedido-resumen.model';
 import { Comprobante } from '../../models/comprobante.model';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
+import { SinResultadosComponent } from '../../../shared/components/sin-resultados/sin-resultados.component';
 
 @Component({
   selector: 'app-facturacion',
   standalone: true,
-  imports: [DatePipe, LoadingComponent, FormatoPrecioPipe],
+  imports: [DatePipe, LoadingComponent, FormatoPrecioPipe, SinResultadosComponent],
   templateUrl: './facturacion.component.html',
   styleUrl: './facturacion.component.css',
 })

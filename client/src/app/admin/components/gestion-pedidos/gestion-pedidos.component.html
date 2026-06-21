@@ -112,6 +112,8 @@
                   <button class="btn btn-sm btn-view" (click)="viewDetail(ped.id_pedido)">Ver</button>
                 </td>
               </tr>
+            } @empty {
+              <tr><td colspan="7"><app-sin-resultados mensaje="No se encontraron pedidos" /></td></tr>
             }
           </tbody>
         </table>
