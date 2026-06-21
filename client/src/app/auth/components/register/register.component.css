@@ -57,3 +57,8 @@
 .register-footer a:hover {
   text-decoration: underline;
 }
+
+.form-check-input:checked {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}

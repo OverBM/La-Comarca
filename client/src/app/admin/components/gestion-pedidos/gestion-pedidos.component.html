@@ -30,7 +30,7 @@
             <span [class.text-success]="pedido.estado_pago === 'pagado'" [class.text-warning]="pedido.estado_pago === 'pendiente'" class="fw-semibold">{{ estadoPagoLabel[pedido.estado_pago] || pedido.estado_pago }}</span>
           </div>
           <div class="col-md-4 mt-2 d-flex align-items-end">
-            @if (pedido.estado_pago === 'pendiente') {
+            @if ((esAdmin() || esVendedor()) && pedido.estado_pago === 'pendiente') {
               <button class="btn btn-sm btn-success" [disabled]="confirmandoPago() === pedido.id_pedido" (click)="confirmarPago(pedido.id_pedido)">
                 {{ confirmandoPago() === pedido.id_pedido ? 'Confirmando…' : '✓ Confirmar Pago' }}
               </button>

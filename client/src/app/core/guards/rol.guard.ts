@@ -1,18 +1,16 @@
-import { Injectable, inject } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-@Injectable({ providedIn: 'root' })
-export class RolGuard implements CanActivate {
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-
-  canActivate(): boolean {
-    const rol = this.authService.getRol();
-    if (rol !== 'admin') {
-      this.router.navigate(['/']);
+export function rolGuard(allowedRoles: string[]) {
+  return () => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
+    const rol = authService.getRol();
+    if (!rol || !allowedRoles.includes(rol)) {
+      router.navigate(['/']);
       return false;
     }
     return true;
-  }
+  };
 }

@@ -7,8 +7,3 @@
 .login-form-wrap {
   max-width: 400px;
 }
-
-.form-check-input:checked {
-  background-color: var(--color-primary) !important;
-  border-color: var(--color-primary) !important;
-}

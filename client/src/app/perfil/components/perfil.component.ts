@@ -1,9 +1,11 @@
 import { Component, inject, signal, computed, effect, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { map, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { form, required, email, minLength, FormField } from '@angular/forms/signals';
 import { AuthService } from '../../core/services/auth.service';
 import { ClienteService } from '../../core/services/cliente.service';
+import { ClienteEmpresaService } from '../../core/services/cliente-empresa.service';
 import { DireccionService } from '../../shared/services/direccion.service';
 import { AdminPedidosService } from '../../admin/services/admin-pedidos.service';
 import { InventarioService } from '../../admin/services/inventario.service';
@@ -22,12 +24,21 @@ import { CurrencyPipe } from '@angular/common';
 export class PerfilComponent {
   protected readonly authService = inject(AuthService);
   protected readonly clienteService = inject(ClienteService);
+  private readonly clienteEmpresaService = inject(ClienteEmpresaService);
   protected readonly direccionService = inject(DireccionService);
   private readonly adminPedidosService = inject(AdminPedidosService);
   private readonly inventarioService = inject(InventarioService);
   private readonly adminProductosService = inject(AdminProductosService);
   private readonly destroyRef = inject(DestroyRef);
   protected esAdmin = computed(() => this.authService.authState().rol === 'admin');
+  protected esVendedor = computed(() => this.authService.authState().rol === 'vendedor');
+  protected readonly rolLabel = computed(() => {
+    const r = this.authService.authState().rol;
+    if (r === 'admin') return 'Administrador';
+    if (r === 'vendedor') return 'Vendedor';
+    return 'Cliente';
+  });
+  protected readonly empresa = signal<{ ruc: string; razon_social: string } | null>(null);
   protected readonly iniciales = computed(() => {
     const s = this.authService.authState();
     return (s.nombre?.charAt(0) ?? '') + (s.apellido?.charAt(0) ?? '');
@@ -48,22 +59,22 @@ export class PerfilComponent {
   });
 
   protected readonly pedidosGestionados = toSignal(
-    this.adminPedidosService.getPedidosDelDia(),
+    this.adminPedidosService.getPedidosDelDia().pipe(catchError(() => of(0))),
     { initialValue: 0 },
   );
 
   protected readonly ingresosGenerados = toSignal(
-    this.adminPedidosService.getVentasDelDia(),
+    this.adminPedidosService.getVentasDelDia().pipe(catchError(() => of(0))),
     { initialValue: 0 },
   );
 
   protected readonly stockBajoCount = toSignal(
-    this.inventarioService.getLowStock().pipe(map(a => a.length)),
+    this.inventarioService.getLowStock().pipe(catchError(() => of([])), map(a => a.length)),
     { initialValue: 0 },
   );
 
   protected readonly productosActivos = toSignal(
-    this.adminProductosService.getProductosCount().pipe(map(r => r.cantidad)),
+    this.adminProductosService.getProductosCount().pipe(catchError(() => of({ cantidad: 0 })), map(r => r.cantidad)),
     { initialValue: 0 },
   );
 
@@ -81,7 +92,7 @@ export class PerfilComponent {
   protected passForm = form(this.passModel, (f) => {
     required(f.passActual, { message: 'Ingrese su contraseña actual' });
     required(f.passNueva, { message: 'Ingrese la nueva contraseña' });
-    minLength(f.passNueva, 6, { message: 'Mínimo 6 caracteres' });
+    minLength(f.passNueva, 8, { message: 'Mínimo 8 caracteres' });
     required(f.passConfirmar, { message: 'Confirme la nueva contraseña' });
   });
 
@@ -90,6 +101,13 @@ export class PerfilComponent {
     required(f.negocioNombre, { message: 'El nombre del negocio es obligatorio' });
     required(f.negocioRuc, { message: 'El RUC es obligatorio' });
   });
+
+  private readonly empresaModel = signal({ ruc: '', razon_social: '' });
+  protected empresaForm = form(this.empresaModel, (f) => {
+    required(f.ruc, { message: 'El RUC es obligatorio' });
+    required(f.razon_social, { message: 'La razón social es obligatoria' });
+  });
+  protected empresaGuardada = signal(false);
 
   constructor() {
     this.clienteService.cargar();
@@ -105,6 +123,15 @@ export class PerfilComponent {
         });
         if (cliente.id_cliente) {
           this.direccionService.cargarDirecciones(cliente.id_cliente);
+          this.clienteEmpresaService.getByClienteId(cliente.id_cliente).pipe(
+            takeUntilDestroyed(this.destroyRef),
+          ).subscribe({
+            next: (emp) => {
+              this.empresa.set(emp);
+              this.empresaModel.set({ ruc: emp.ruc, razon_social: emp.razon_social });
+            },
+            error: () => this.empresa.set(null),
+          });
         }
       } else if (this.esAdmin()) {
         const state = this.authService.authState();
@@ -120,6 +147,14 @@ export class PerfilComponent {
           negocioDireccion: '',
           negocioTelefono: state.telefono ?? '',
         });
+      } else if (this.esVendedor()) {
+        const state = this.authService.authState();
+        this.perfilModel.set({
+          nombre: state.nombre ?? '',
+          apellido: state.apellido ?? '',
+          email: state.email ?? '',
+          telefono: state.telefono ?? '',
+        });
       }
     });
   }
@@ -127,7 +162,7 @@ export class PerfilComponent {
   guardarInfo(): void {
     this.guardarError.set('');
     if (this.perfilForm().invalid()) return;
-    if (this.esAdmin()) {
+    if (this.esAdmin() || this.esVendedor()) {
       this.guardado.set(true);
       setTimeout(() => this.guardado.set(false), 2000);
       return;
@@ -140,7 +175,7 @@ export class PerfilComponent {
       next: () => {
         this.authService.authState.update(s => ({ ...s, nombre, apellido, email, telefono }));
         this.authService.updateStoredUser({ nombre, apellido, email, telefono });
-        this.clienteService.recargar();
+    this.clienteService.cargar();
         this.guardando.set(false);
         this.guardado.set(true);
         setTimeout(() => this.guardado.set(false), 2000);
@@ -178,6 +213,25 @@ export class PerfilComponent {
     if (this.negocioForm().invalid()) return;
     this.negocioGuardado.set(true);
     setTimeout(() => this.negocioGuardado.set(false), 2000);
+  }
+
+  guardarEmpresa(): void {
+    if (this.empresaForm().invalid()) return;
+    const cliente = this.clienteService.cliente();
+    if (!cliente?.id_cliente) return;
+    const { ruc, razon_social } = this.empresaModel();
+    this.clienteEmpresaService.update(cliente.id_cliente, { ruc, razon_social }).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (emp) => {
+        this.empresa.set(emp);
+        this.empresaGuardada.set(true);
+        setTimeout(() => this.empresaGuardada.set(false), 2000);
+      },
+      error: () => {
+        this.empresaGuardada.set(false);
+      },
+    });
   }
 
   guardarDireccion(): void {

@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 
 from src.schemas.pedido import PedidoCreate, PedidoResponse, PedidoResumenResponse
 from src.services.pedido import PedidoService
-from src.core.dependencies import get_current_user, require_admin
+from src.core.dependencies import get_current_user, require_admin, require_admin_or_vendedor
 
 router = APIRouter(prefix="/pedidos", tags=["pedidos"])
 
@@ -29,13 +29,13 @@ async def mis_pedidos(usuario: dict = Depends(get_current_user)):
 
 
 @router.get("/pedidos-hoy")
-async def pedidos_hoy(_=Depends(require_admin)):
+async def pedidos_hoy(_=Depends(require_admin_or_vendedor)):
     service = PedidoService()
     return await service.contar_hoy()
 
 
 @router.get("/ventas-hoy")
-async def ventas_hoy(_=Depends(require_admin)):
+async def ventas_hoy(_=Depends(require_admin_or_vendedor)):
     service = PedidoService()
     return await service.ventas_hoy()
 
@@ -50,7 +50,7 @@ async def obtener(id_pedido: str, _=Depends(get_current_user)):
 
 
 @router.put("/{id_pedido}/pago", response_model=PedidoResponse)
-async def confirmar_pago(id_pedido: str, _=Depends(require_admin)):
+async def confirmar_pago(id_pedido: str, _=Depends(require_admin_or_vendedor)):
     service = PedidoService()
     try:
         return await service.confirmar_pago(id_pedido)
@@ -58,6 +58,6 @@ async def confirmar_pago(id_pedido: str, _=Depends(require_admin)):
         raise HTTPException(status_code=404, detail=str(e))
 
 @router.get("", response_model=list[PedidoResumenResponse])
-async def listar_todos(_=Depends(require_admin)):
+async def listar_todos(_=Depends(require_admin_or_vendedor)):
     service = PedidoService()
     return await service.listar_todos()

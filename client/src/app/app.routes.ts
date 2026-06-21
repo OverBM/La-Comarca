@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { Routes, Router } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
-import { RolGuard } from './core/guards/rol.guard';
+import { rolGuard } from './core/guards/rol.guard';
 import { AuthService } from './core/services/auth.service';
 
 export const routes: Routes = [
@@ -18,6 +18,14 @@ export const routes: Routes = [
     loadComponent: () => import('./auth/components/register/register.component').then(m => m.RegisterComponent),
   },
   {
+    path: 'auth/recuperar',
+    loadComponent: () => import('./auth/components/recuperar/recuperar.component').then(m => m.RecuperarComponent),
+  },
+  {
+    path: 'auth/restablecer',
+    loadComponent: () => import('./auth/components/restablecer/restablecer.component').then(m => m.RestablecerComponent),
+  },
+  {
     path: 'catalogo',
     loadComponent: () => import('./catalogo/components/lista-productos/lista-productos.component').then(m => m.ListaProductosComponent),
   },
@@ -26,7 +34,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pedidos/components/carrito/carrito.component').then(m => m.CarritoComponent),
     canActivate: [() => {
       const auth = inject(AuthService);
-      if (auth.authState().isAuthenticated && auth.authState().rol === 'admin') {
+      if (auth.authState().isAuthenticated && (auth.authState().rol === 'admin' || auth.authState().rol === 'vendedor')) {
         return inject(Router).parseUrl('/admin/dashboard');
       }
       return true;
@@ -54,7 +62,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pedidos/components/mis-pedidos/mis-pedidos.component').then(m => m.MisPedidosComponent),
     canActivate: [AuthGuard, () => {
       const auth = inject(AuthService);
-      if (auth.authState().isAuthenticated && auth.authState().rol === 'admin') {
+      if (auth.authState().isAuthenticated && (auth.authState().rol === 'admin' || auth.authState().rol === 'vendedor')) {
         return inject(Router).parseUrl('/admin/dashboard');
       }
       return true;
@@ -63,7 +71,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     loadComponent: () => import('./admin/components/layout/admin-layout.component').then(m => m.AdminLayoutComponent),
-    canActivate: [AuthGuard, RolGuard],
+    canActivate: [AuthGuard, rolGuard(['admin', 'vendedor'])],
     children: [
       {
         path: 'dashboard',

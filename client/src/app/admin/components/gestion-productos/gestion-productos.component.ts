@@ -6,6 +6,7 @@ import { AdminProductosService } from '../../services/admin-productos.service';
 import { Producto } from '../../../core/models/producto.model';
 import { Categoria } from '../../../core/models/categoria.model';
 import { CatalogoService } from '../../../catalogo/services/catalogo.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { DialogoConfirmacionComponent } from '../../../shared/components/dialogo-confirmacion/dialogo-confirmacion.component';
 import { PaginacionComponent } from '../../../shared/components/paginacion/paginacion.component';
@@ -25,7 +26,9 @@ export class GestionProductosComponent {
 
   private readonly adminProductosService = inject(AdminProductosService);
   private readonly catalogoService = inject(CatalogoService);
+  private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly esAdmin = computed(() => this.authService.authState().rol === 'admin');
 
   private readonly categoriasSignal = toSignal(
     this.catalogoService.getCategorias(),

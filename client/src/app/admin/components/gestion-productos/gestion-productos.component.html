@@ -1,9 +1,11 @@
 ﻿<div class="container-fluid">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="page-title">Gestión de Productos</h2>
-    <button class="btn btn-sm fw-semibold btn-primary" (click)="openCreateForm()">
-      + Nuevo Producto
-    </button>
+    @if (esAdmin()) {
+      <button class="btn btn-sm fw-semibold btn-primary" (click)="openCreateForm()">
+        + Nuevo Producto
+      </button>
+    }
   </div>
 
   @if (showForm()) {
@@ -113,8 +115,10 @@
               <td class="table-cell small fw-semibold text-primary-container">S/ {{ prod.precio_unitario.toFixed(2) }}</td>
               <td><span class="table-badge badge">{{ prod.stock_actual ?? '—' }}</span></td>
               <td>
-                <button class="btn btn-sm me-1 btn-edit" (click)="openEditForm(prod)">Editar</button>
-                <button class="btn btn-sm btn-delete" (click)="deleteProduct(prod.id_producto)">Eliminar</button>
+                @if (esAdmin()) {
+                  <button class="btn btn-sm me-1 btn-edit" (click)="openEditForm(prod)">Editar</button>
+                  <button class="btn btn-sm btn-delete" (click)="deleteProduct(prod.id_producto)">Eliminar</button>
+                }
               </td>
             </tr>
           }

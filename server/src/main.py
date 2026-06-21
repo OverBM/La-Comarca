@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.core.config import FRONTEND_URL
 from src.core.database import verify_connection
 from src.apis.auth import router as auth_router
 from src.apis.categorias import router as categorias_router
@@ -12,6 +13,7 @@ from src.apis.pedidos import router as pedidos_router
 from src.apis.inventario import router as inventario_router
 from src.apis.comprobantes import router as comprobantes_router
 from src.apis.usuarios import router as usuarios_router
+from src.apis.clientes_empresa import router as clientes_empresa_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     ok = await verify_connection()
@@ -26,7 +28,7 @@ app = FastAPI(title="La Comarca API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200"],
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,4 +42,5 @@ app.include_router(pedidos_router)
 app.include_router(inventario_router)
 app.include_router(comprobantes_router)
 app.include_router(usuarios_router)
+app.include_router(clientes_empresa_router)
 

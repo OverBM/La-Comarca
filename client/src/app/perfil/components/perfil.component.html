@@ -7,11 +7,11 @@
       <div class="perfil-avatar">{{ iniciales() }}</div>
       <div class="perfil-header-info">
         <h1 class="perfil-nombre">{{ authService.authState().nombre }} {{ authService.authState().apellido }}</h1>
-        <span class="perfil-badge">{{ esAdmin() ? 'Administrador' : 'Cliente' }}</span>
+        <span class="perfil-badge">{{ rolLabel() }}</span>
       </div>
     </div>
 
-    @if (esAdmin()) {
+    @if (esAdmin() || esVendedor()) {
       <div class="perfil-stats">
         <div class="perfil-stat-card">
           <p class="perfil-stat-valor">{{ pedidosGestionados() }}</p>
@@ -159,7 +159,37 @@
       </form>
     </div>
 
-    @if (!esAdmin()) {
+    @if (empresa()) {
+      <div class="perfil-seccion">
+        <h2 class="perfil-seccion-titulo">Datos de Facturación</h2>
+        <form class="perfil-form" (submit)="guardarEmpresa(); $event.preventDefault()">
+          <div class="perfil-campo">
+            <label class="perfil-label" for="perfil-ruc">RUC</label>
+            <input id="perfil-ruc" class="perfil-input" [formField]="empresaForm.ruc">
+            @if (empresaForm.ruc().invalid() && empresaForm.ruc().touched()) {
+              @for (err of empresaForm.ruc().errors(); track err.kind) {
+                <div class="perfil-error">{{ err.message }}</div>
+              }
+            }
+          </div>
+          <div class="perfil-campo">
+            <label class="perfil-label" for="perfil-razon-social">Razón Social</label>
+            <input id="perfil-razon-social" class="perfil-input" [formField]="empresaForm.razon_social">
+            @if (empresaForm.razon_social().invalid() && empresaForm.razon_social().touched()) {
+              @for (err of empresaForm.razon_social().errors(); track err.kind) {
+                <div class="perfil-error">{{ err.message }}</div>
+              }
+            }
+          </div>
+          <button type="submit" class="perfil-btn" [disabled]="empresaForm().invalid()">Guardar</button>
+          @if (empresaGuardada()) {
+            <span class="perfil-feedback">Datos de facturación guardados</span>
+          }
+        </form>
+      </div>
+    }
+
+    @if (authService.authState().rol === 'cliente') {
       <div class="perfil-seccion">
         <h2 class="perfil-seccion-titulo">Mis Direcciones</h2>
         @if (direccionService.cargando()) {

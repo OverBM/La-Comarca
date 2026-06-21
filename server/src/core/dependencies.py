@@ -19,3 +19,9 @@ def require_admin(user: dict = Depends(get_current_user)) -> dict:
     if user.get("rol") != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Se requiere rol admin")
     return user
+
+
+def require_admin_or_vendedor(user: dict = Depends(get_current_user)) -> dict:
+    if user.get("rol") not in ("admin", "vendedor"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acceso denegado")
+    return user

@@ -1,8 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, field_validator
+from typing import Optional
 
 
 class LoginRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 
 
@@ -27,20 +28,44 @@ class TokenRefreshResponse(BaseModel):
 
 
 class PasswordRecoveryRequest(BaseModel):
-    email: str
+    email: EmailStr
 
 
 class PasswordResetRequest(BaseModel):
     token: str
     nueva_password: str
 
+    @field_validator("nueva_password")
+    @classmethod
+    def fortaleza(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Mínimo 8 caracteres")
+        if not any(c.isupper() for c in v):
+            raise ValueError("Debe contener al menos una mayúscula")
+        if not any(c.isdigit() for c in v):
+            raise ValueError("Debe contener al menos un número")
+        return v
+
 
 class RegisterRequest(BaseModel):
     nombre: str
     apellido: str
-    email: str
+    email: EmailStr
     telefono: str
     password: str
+    ruc: Optional[str] = None
+    razon_social: Optional[str] = None
+
+    @field_validator("password")
+    @classmethod
+    def fortaleza(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Mínimo 8 caracteres")
+        if not any(c.isupper() for c in v):
+            raise ValueError("Debe contener al menos una mayúscula")
+        if not any(c.isdigit() for c in v):
+            raise ValueError("Debe contener al menos un número")
+        return v
 
 
 class CambiarPasswordRequest(BaseModel):

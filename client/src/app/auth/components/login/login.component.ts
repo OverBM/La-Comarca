@@ -25,6 +25,7 @@ export class LoginComponent {
 
   error = signal('');
   loading = signal(false);
+  protected recordarme = signal(false);
 
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -36,13 +37,13 @@ export class LoginComponent {
     this.error.set('');
 
     const { email, password } = this.model();
-    this.authService.login(email, password).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.authService.login(email, password, this.recordarme()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.loading.set(false);
         const returnUrl = this.route.snapshot.queryParams['returnUrl'];
         if (returnUrl) {
           this.router.navigateByUrl(returnUrl);
-        } else if (res.rol === 'admin') {
+        } else if (res.rol === 'admin' || res.rol === 'vendedor') {
           this.router.navigate(['/admin/dashboard']);
         } else {
           this.router.navigate(['/']);

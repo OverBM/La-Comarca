@@ -27,13 +27,17 @@
           <td class="roles-nombre">{{ u.nombre }} {{ u.apellido }}</td>
           <td class="roles-email">{{ u.email }}</td>
           <td>
-            <span class="roles-badge" [class.roles-badge--admin]="u.rol === 'admin'" [class.roles-badge--cliente]="u.rol === 'cliente'">
-              {{ u.rol === 'admin' ? 'Administrador' : 'Cliente' }}
+            <span class="roles-badge"
+              [class.roles-badge--admin]="u.rol === 'admin'"
+              [class.roles-badge--vendedor]="u.rol === 'vendedor'"
+              [class.roles-badge--cliente]="u.rol === 'cliente'">
+              {{ u.rol === 'admin' ? 'Administrador' : u.rol === 'vendedor' ? 'Vendedor' : 'Cliente' }}
             </span>
           </td>
           <td>
             <select class="roles-select" [value]="u.rol" (change)="solicitarCambio(u.id_usuario, u.email, u.rol, ($any($event.target)).value, $event)">
               <option value="admin">Administrador</option>
+              <option value="vendedor">Vendedor</option>
               <option value="cliente">Cliente</option>
             </select>
           </td>

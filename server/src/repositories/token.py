@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import text
 
@@ -21,7 +21,7 @@ class TokenRepository:
         async with get_connection() as conn:
             result = await conn.execute(
                 text("SELECT * FROM tokens_recuperacion WHERE token = :tok AND usado = false AND expiracion > :now"),
-                {"tok": token, "now": datetime.now(timezone.utc)},
+                {"tok": token, "now": datetime.utcnow()},
             )
             return result.mappings().one_or_none()
 

@@ -4,6 +4,7 @@ import { DatePipe } from '@angular/common';
 import { AdminPedidosService } from '../../services/admin-pedidos.service';
 import { PedidoResumen } from '../../models/pedido-resumen.model';
 import { PedidoDetalle } from '../../models/pedido-detalle.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
 import { PaginacionComponent } from '../../../shared/components/paginacion/paginacion.component';
@@ -17,7 +18,10 @@ import { PaginacionComponent } from '../../../shared/components/paginacion/pagin
 })
 export class GestionPedidosComponent {
   private readonly pedidosService = inject(AdminPedidosService);
+  private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly esAdmin = computed(() => this.authService.authState().rol === 'admin');
+  protected readonly esVendedor = computed(() => this.authService.authState().rol === 'vendedor');
 
   readonly pedidos = signal<PedidoResumen[]>([]);
   readonly selectedPedido = signal<PedidoDetalle | null>(null);

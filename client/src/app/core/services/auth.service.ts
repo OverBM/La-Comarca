@@ -42,9 +42,12 @@ export class AuthService {
     }
   }
 
-  login(email: string, password: string): Observable<LoginResponse> {
+  login(email: string, password: string, recordarme = true): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password }).pipe(
-      tap(res => this.handleLoginSuccess(res)),
+      tap(res => {
+        this.storage.setPersist(recordarme);
+        this.handleLoginSuccess(res);
+      }),
     );
   }
 
@@ -95,7 +98,7 @@ export class AuthService {
     });
   }
 
-  register(data: { nombre: string; apellido: string; email: string; telefono: string; password: string }): Observable<LoginResponse> {
+  register(data: { nombre: string; apellido: string; email: string; telefono: string; password: string; ruc?: string; razon_social?: string }): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/register`, data).pipe(
       tap(res => this.handleLoginSuccess(res)),
     );
