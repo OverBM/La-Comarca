@@ -69,4 +69,5 @@ export interface ComprobanteEmitido {
   cliente: string;
   ruc?: string;
   razon_social?: string;
+  enlace?: string;
 }

@@ -8,12 +8,7 @@
     <p class="fact-desc">Gesti&oacute;n de comprobantes electr&oacute;nicos y env&iacute;o a SUNAT.</p>
   </div>
   <div class="fact-header-acciones">
-    <button class="fact-btn fact-btn--outline" (click)="mostrarToast('Reporte mensual generado')">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-      </svg>
-      Reporte Mensual
-    </button>
+
     <button class="fact-btn fact-btn--primary" (click)="toggleForm()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
@@ -39,7 +34,10 @@
           <strong>Emitidos:</strong>
           <ul class="mb-0 mt-1">
             @for (c of ultimosComprobantes(); track c.id_comprobante) {
-              <li>{{ c.tipo }} {{ c.serie }}-{{ c.correlativo }} &mdash; {{ c.cliente }} &mdash; {{ c.total | formatoPrecio }}</li>
+              <li>
+                {{ c.tipo }} {{ c.serie }}-{{ c.correlativo }} &mdash; {{ c.cliente }} &mdash; {{ c.total | formatoPrecio }}
+                <a *ngIf="c.enlace" [href]="c.enlace.replace('.pdf', '.xml')" target="_blank" rel="noopener noreferrer" class="ms-2 text-decoration-none">XML</a>
+              </li>
             }
           </ul>
         </div>
@@ -114,10 +112,10 @@
 
   <div class="fact-cert-card">
     <div class="fact-cert-info">
-      <p class="fact-cert-titulo">Certificado Digital</p>
-      <p class="fact-cert-venc">Vence en 45 d&iacute;as</p>
+      <p class="fact-cert-titulo">Integraci&oacute;n Nubefact</p>
+      <p class="fact-cert-venc">OSE autorizado por SUNAT</p>
     </div>
-    <button class="fact-btn fact-btn--small" (click)="mostrarToast('Renovaci&oacute;n de certificado — pr&oacute;ximamente')">RENOVAR AHORA</button>
+    <a href="https://nubefact.com" target="_blank" rel="noopener noreferrer" class="fact-btn fact-btn--small text-decoration-none">IR A NUBEFACT</a>
   </div>
 
   <div class="mb-3">
@@ -149,16 +147,29 @@
             <td class="fact-monto">{{ c.total | formatoPrecio }}</td>
             <td>
               <div class="fact-acciones">
-                <button class="fact-accion-btn" (click)="mostrarToast('PDF — pr&oacute;ximamente')" aria-label="Descargar PDF">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/>
-                  </svg>
-                </button>
-                <button class="fact-accion-btn" (click)="mostrarToast('XML — pr&oacute;ximamente')" aria-label="Descargar XML">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-3.06 16L7.4 14.46l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41L10.94 18zM13 9V3.5L18.5 9H13z"/>
-                  </svg>
-                </button>
+                @if (c.enlace) {
+                  <a [href]="c.enlace" target="_blank" rel="noopener noreferrer" class="fact-accion-btn text-decoration-none" aria-label="Descargar PDF">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/>
+                    </svg>
+                  </a>
+                  <a [href]="c.enlace.replace('.pdf', '.xml')" target="_blank" rel="noopener noreferrer" class="fact-accion-btn text-decoration-none" aria-label="Descargar XML">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-3.06 16L7.4 14.46l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41L10.94 18zM13 9V3.5L18.5 9H13z"/>
+                    </svg>
+                  </a>
+                } @else {
+                  <span class="fact-accion-btn fact-accion-btn--disabled" aria-label="PDF no disponible">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/>
+                    </svg>
+                  </span>
+                  <span class="fact-accion-btn fact-accion-btn--disabled" aria-label="XML no disponible">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-3.06 16L7.4 14.46l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41L10.94 18zM13 9V3.5L18.5 9H13z"/>
+                    </svg>
+                  </span>
+                }
               </div>
             </td>
           </tr>
@@ -180,25 +191,17 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="var(--color-primary)" viewBox="0 0 24 24">
         <path d="M21 6h-2v2h-2V6h-2V4h2V2h2v2h2v2zm-10 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm-6 8.2c0-2.33 4.67-3.5 6-3.5s6 1.17 6 3.5V19H5v-2.8z"/>
       </svg>
-      <p class="fact-soporte-titulo">Soporte SUNAT</p>
-      <p class="fact-soporte-desc">Comunicate con nuestro equipo para resolver dudas sobre facturaci&oacute;n electr&oacute;nica.</p>
-      <button class="fact-btn fact-btn--small" (click)="mostrarToast('Soporte — pr&oacute;ximamente')">Contactar</button>
-    </div>
-    <div class="fact-soporte-card">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="var(--color-primary)" viewBox="0 0 24 24">
-        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
-      </svg>
-      <p class="fact-soporte-titulo">Carga Masiva</p>
-      <p class="fact-soporte-desc">Sube tus comprobantes en lote mediante archivo CSV o Excel.</p>
-      <button class="fact-btn fact-btn--small" (click)="mostrarToast('Carga masiva — pr&oacute;ximamente')">Subir Archivo</button>
+      <p class="fact-soporte-titulo">Soporte Nubefact</p>
+      <p class="fact-soporte-desc">Comunicate con el equipo de Nubefact para resolver dudas sobre facturaci&oacute;n electr&oacute;nica.</p>
+      <a href="https://ayuda.nubefact.com" target="_blank" rel="noopener noreferrer" class="fact-btn fact-btn--small text-decoration-none">Contactar</a>
     </div>
     <div class="fact-soporte-card">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="var(--color-primary)" viewBox="0 0 24 24">
         <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
       </svg>
       <p class="fact-soporte-titulo">B&oacute;veda XML</p>
-      <p class="fact-soporte-desc">Almacena y consulta tus archivos XML de comprobantes electr&oacute;nicos.</p>
-      <button class="fact-btn fact-btn--small" (click)="mostrarToast('B&oacute;veda XML — pr&oacute;ximamente')">Ir a B&oacute;veda</button>
+      <p class="fact-soporte-desc">Almacena y consulta los archivos XML de tus comprobantes electr&oacute;nicos.</p>
+      <button class="fact-btn fact-btn--small" (click)="irBovedaXml()">Ir a B&oacute;veda</button>
     </div>
   </div>
 }

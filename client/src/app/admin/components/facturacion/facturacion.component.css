@@ -300,6 +300,11 @@
   color: var(--color-primary);
 }
 
+.fact-accion-btn--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .fact-paginacion {
   display: flex;
   justify-content: center;

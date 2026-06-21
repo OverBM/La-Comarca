@@ -1,6 +1,8 @@
 from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 
+PREFIJOS_RUC = {"10", "15", "17", "20"}
+
 
 class LoginRequest(BaseModel):
     email: EmailStr
@@ -65,6 +67,17 @@ class RegisterRequest(BaseModel):
             raise ValueError("Debe contener al menos una mayúscula")
         if not any(c.isdigit() for c in v):
             raise ValueError("Debe contener al menos un número")
+        return v
+
+    @field_validator("ruc")
+    @classmethod
+    def validar_ruc(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        if len(v) != 11 or not v.isdigit():
+            raise ValueError("RUC debe tener 11 dígitos")
+        if v[:2] not in PREFIJOS_RUC:
+            raise ValueError("RUC debe iniciar con 10, 15, 17 ó 20")
         return v
 
 

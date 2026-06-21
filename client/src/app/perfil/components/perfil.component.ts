@@ -2,7 +2,7 @@ import { Component, inject, signal, computed, effect, DestroyRef } from '@angula
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { form, required, email, minLength, FormField } from '@angular/forms/signals';
+import { form, required, email, minLength, validate, FormField } from '@angular/forms/signals';
 import { AuthService } from '../../core/services/auth.service';
 import { ClienteService } from '../../core/services/cliente.service';
 import { ClienteEmpresaService } from '../../core/services/cliente-empresa.service';
@@ -106,6 +106,13 @@ export class PerfilComponent {
   protected empresaForm = form(this.empresaModel, (f) => {
     required(f.ruc, { message: 'El RUC es obligatorio' });
     required(f.razon_social, { message: 'La razón social es obligatoria' });
+    validate(f.ruc, (ctx) => {
+      const v = ctx.value();
+      if (!v) return null;
+      if (!/^\d{11}$/.test(v)) return { kind: 'pattern', message: 'El RUC debe tener 11 dígitos' };
+      if (!/^(10|15|17|20)/.test(v)) return { kind: 'pattern', message: 'El RUC debe iniciar con 10, 15, 17 ó 20' };
+      return null;
+    });
   });
   protected empresaGuardada = signal(false);
 

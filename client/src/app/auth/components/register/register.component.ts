@@ -31,7 +31,10 @@ export class RegisterComponent {
     required(f.razon_social, { message: 'La razón social es obligatoria', when: () => this.empresa() });
     validate(f.ruc, (ctx) => {
       const v = ctx.value();
-      if (this.empresa() && v && !/^\d{11}$/.test(v)) return { kind: 'pattern', message: 'El RUC debe tener 11 dígitos' };
+      if (this.empresa() && v) {
+        if (!/^\d{11}$/.test(v)) return { kind: 'pattern', message: 'El RUC debe tener 11 dígitos' };
+        if (!/^(10|15|17|20)/.test(v)) return { kind: 'pattern', message: 'El RUC debe iniciar con 10, 15, 17 ó 20' };
+      }
       return null;
     });
   });

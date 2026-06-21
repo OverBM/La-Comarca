@@ -8,9 +8,15 @@ class ComprobanteRepository:
         async with get_connection() as conn:
             result = await conn.execute(text("SELECT generate_id_comprobante() AS id"))
             id_comprobante = result.mappings().one()["id"]
+            cols = ["id_comprobante", "id_pedido", "id_empresa", "id_tipo", "serie", "correlativo", "total"]
+            placeholders = [f":{c}" for c in cols]
+            if "enlace" in data:
+                cols.append("enlace")
+                placeholders.append(":enlace")
+            data["id_comprobante"] = id_comprobante
             result = await conn.execute(
-                text("INSERT INTO comprobantes (id_comprobante, id_pedido, id_empresa, id_tipo, serie, correlativo, total) VALUES (:id, :id_pedido, :id_empresa, :id_tipo, :serie, :correlativo, :total) RETURNING *"),
-                {"id": id_comprobante, **data},
+                text(f"INSERT INTO comprobantes ({', '.join(cols)}) VALUES ({', '.join(placeholders)}) RETURNING *"),
+                data,
             )
             await conn.commit()
             return result.mappings().one()
@@ -21,7 +27,7 @@ class ComprobanteRepository:
                 SELECT c.id_comprobante, tc.nombre AS tipo, c.serie, c.correlativo,
                        c.fecha_emision AS fecha,
                        CONCAT(cl.nombre, ' ', cl.apellido) AS cliente,
-                       ce.ruc, ce.razon_social, c.total
+                       ce.ruc, ce.razon_social, c.total, c.enlace
                 FROM comprobantes c
                 JOIN tipos_comprobante tc ON tc.id_tipo = c.id_tipo
                 JOIN pedidos p ON p.id_pedido = c.id_pedido
@@ -37,7 +43,7 @@ class ComprobanteRepository:
                 SELECT c.id_comprobante, tc.nombre AS tipo, c.serie, c.correlativo,
                        c.fecha_emision AS fecha,
                        CONCAT(cl.nombre, ' ', cl.apellido) AS cliente,
-                       ce.ruc, ce.razon_social, c.total
+                       ce.ruc, ce.razon_social, c.total, c.enlace
                 FROM comprobantes c
                 JOIN tipos_comprobante tc ON tc.id_tipo = c.id_tipo
                 JOIN pedidos p ON p.id_pedido = c.id_pedido
@@ -57,6 +63,14 @@ class ComprobanteRepository:
                 {"id": id_pedido},
             )
             return result.mappings().one_or_none()
+
+    async def update_enlace(self, id_comprobante: str, enlace: str):
+        async with get_connection() as conn:
+            await conn.execute(
+                text("UPDATE comprobantes SET enlace = :enlace WHERE id_comprobante = :id"),
+                {"id": id_comprobante, "enlace": enlace},
+            )
+            await conn.commit()
 
     async def get_tipos(self):
         async with get_connection() as conn:

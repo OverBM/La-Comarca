@@ -8,4 +8,5 @@ export interface Comprobante {
   cliente: string;
   ruc?: string;
   razon_social?: string;
+  enlace?: string;
 }

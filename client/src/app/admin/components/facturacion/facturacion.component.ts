@@ -1,7 +1,7 @@
 ﻿import { Component, signal, computed, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed, toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgIf } from '@angular/common';
 import { AdminPedidosService, TipoComprobante, ComprobanteEmitido } from '../../services/admin-pedidos.service';
 import { PedidoResumen } from '../../models/pedido-resumen.model';
 import { Comprobante } from '../../models/comprobante.model';
@@ -12,7 +12,7 @@ import { SinResultadosComponent } from '../../../shared/components/sin-resultado
 @Component({
   selector: 'app-facturacion',
   standalone: true,
-  imports: [DatePipe, LoadingComponent, FormatoPrecioPipe, SinResultadosComponent],
+  imports: [DatePipe, LoadingComponent, FormatoPrecioPipe, SinResultadosComponent, NgIf],
   templateUrl: './facturacion.component.html',
   styleUrl: './facturacion.component.css',
 })
@@ -149,5 +149,12 @@ export class FacturacionComponent {
   mostrarToast(msg: string): void {
     this.toastMsg.set(msg);
     setTimeout(() => this.toastMsg.set(null), 2500);
+  }
+
+  irBovedaXml(): void {
+    this.busqueda.set('');
+    this.page.set(1);
+    const el = document.querySelector('.fact-tabla-wrapper');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }

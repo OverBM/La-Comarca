@@ -23,6 +23,7 @@ class ComprobanteResponse(BaseModel):
     ruc: str | None = None
     razon_social: str | None = None
     total: float
+    enlace: str | None = None
 
 
 class ErrorEmitirItem(BaseModel):
