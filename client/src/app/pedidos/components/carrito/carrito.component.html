@@ -146,11 +146,23 @@
                   <img class="carrito-pago-digital-qr" src="https://api.qrcode-monkey.com/tmp/2061e7475a9013cbc8c74d552356b01d.svg?1781479816342" alt="QR Yape">
                   <p class="carrito-pago-digital-msg">Después de pagar, confirma tu pedido</p>
                 </div>
-                <button class="carrito-btn-pedido" (click)="confirmarPagoDigital()">✔ Ya pagué — Confirmar Pedido</button>
+                <button class="carrito-btn-pedido" (click)="confirmarPagoDigital()" [disabled]="guardando()">
+                  @if (guardando()) {
+                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                  }
+                  ✔ Ya pagué — Confirmar Pedido
+                </button>
                 <button class="carrito-btn-secundario carrito-btn-full" (click)="cancelarPagoDigital()">Cancelar</button>
               </div>
             } @else {
-              <button class="carrito-btn-pedido" (click)="finalizarPedido()">Finalizar Pedido</button>
+              <button class="carrito-btn-pedido" (click)="finalizarPedido()" [disabled]="guardando()">
+                @if (guardando()) {
+                  <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                  Procesando...
+                } @else {
+                  Finalizar Pedido
+                }
+              </button>
             }
           </div>
 

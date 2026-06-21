@@ -373,6 +373,7 @@
 }
 
 .c-location-titulo {
+  color: var(--color-secondary-container);
   font-family: var(--font-headline);
   font-size: 1.25rem;
   font-weight: 600;

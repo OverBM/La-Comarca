@@ -1,12 +1,9 @@
 /** Componente de la página de contacto con formulario de consulta y datos de la tienda */
 import { Component, signal, inject } from '@angular/core';
 import { form, required, email, minLength, FormField } from '@angular/forms/signals';
-import { Subject, of } from 'rxjs';
-import { delay, takeUntil } from 'rxjs/operators';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { TelefonoPipe } from '../../shared/pipes/telefono.pipe';
-import { RETARDO_MOCK } from '../../core/constants/app.constants';
 import { DOCUMENT } from '@angular/common';
 
 @Component({
@@ -17,9 +14,8 @@ import { DOCUMENT } from '@angular/common';
   styleUrl: './contacto.component.css',
 })
 export class ContactoComponent {
-  private readonly MAPS_URL = 'https://maps.google.com/?q=Av+La+Mar+1234+Miraflores+Lima';
+  private readonly MAPS_URL = 'https://www.google.com/maps/place/San+Pedro+1410,+lima+15036/data=!4m2!3m1!1s0x9105c872b7bcf307:0x873d3db69a928b78?sa=X&ved=1t:242&ictx=111';
   private readonly document = inject(DOCUMENT);
-  private readonly destroy$ = new Subject<void>();
 
   private model = signal({ nombre: '', email: '', telefono: '', mensaje: '' });
   protected formulario = form(this.model, (f) => {
@@ -38,19 +34,18 @@ export class ContactoComponent {
   onSubmit(): void {
     if (this.formulario().invalid()) return;
 
-    this.enviando.set(true);
-    this.error.set('');
-    of({ exito: true }).pipe(delay(RETARDO_MOCK), takeUntil(this.destroy$)).subscribe({
-      next: () => {
-        this.enviado.set(true);
-        this.enviando.set(false);
-        this.model.set({ nombre: '', email: '', telefono: '', mensaje: '' });
-      },
-      error: () => {
-        this.error.set('Error al enviar el mensaje');
-        this.enviando.set(false);
-      },
-    });
+    const { nombre, email, telefono, mensaje } = this.model();
+    const asunto = encodeURIComponent(`Consulta de ${nombre}`);
+    const cuerpo = encodeURIComponent(
+      `Nombre: ${nombre}\nEmail: ${email}\nTeléfono: ${telefono}\n\nMensaje:\n${mensaje}`
+    );
+    this.document.defaultView?.open(
+      `mailto:comarcatesting@gmail.com?subject=${asunto}&body=${cuerpo}`,
+      '_blank'
+    );
+
+    this.enviado.set(true);
+    this.model.set({ nombre: '', email: '', telefono: '', mensaje: '' });
   }
 
   abrirMapa(): void {
