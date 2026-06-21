@@ -1,3 +1,5 @@
+from sqlalchemy.exc import IntegrityError
+
 from src.repositories.producto import ProductoRepository
 from src.repositories.inventario import InventarioRepository
 
@@ -29,7 +31,14 @@ class ProductoService:
         return result
 
     async def eliminar(self, id_producto: str):
-        await self.repo.delete(id_producto)
+        try:
+            await self.inventario_repo.delete_by_producto(id_producto)
+            await self.repo.delete(id_producto)
+        except IntegrityError:
+            raise ValueError(
+                "No se puede eliminar el producto porque está siendo usado "
+                "en pedidos. Elimine primero los pedidos que lo contengan."
+            )
 
     async def contar_activos(self) -> int:
         return await self.repo.count_active()

@@ -24,6 +24,7 @@ export class GestionProductosComponent {
   readonly showForm = signal(false);
   readonly showConfirmDialog = signal(false);
   readonly pendingDeleteId = signal('');
+  readonly deleteError = signal<string | null>(null);
 
   private readonly adminProductosService = inject(AdminProductosService);
   private readonly catalogoService = inject(CatalogoService);
@@ -150,7 +151,14 @@ export class GestionProductosComponent {
     if (!id) return;
     this.showConfirmDialog.set(false);
     this.pendingDeleteId.set('');
-    this.adminProductosService.deleteProducto(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.loadProductos());
+    this.deleteError.set(null);
+    this.adminProductosService.deleteProducto(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => this.loadProductos(),
+      error: (err) => {
+        this.deleteError.set(err.error?.detail || 'Error al eliminar producto');
+        setTimeout(() => this.deleteError.set(null), 4000);
+      },
+    });
   }
 
   onCancelarEliminar(): void {

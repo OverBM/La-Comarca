@@ -46,4 +46,7 @@ async def actualizar(id_producto: str, body: ProductoUpdate, _=Depends(require_a
 @router.delete("/{id_producto}", status_code=204)
 async def eliminar(id_producto: str, _=Depends(require_admin)):
     service = ProductoService()
-    await service.eliminar(id_producto)
+    try:
+        await service.eliminar(id_producto)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

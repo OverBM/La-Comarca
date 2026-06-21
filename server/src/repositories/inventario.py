@@ -71,3 +71,15 @@ class InventarioRepository:
             )
             items = result.mappings().all()
             return items, total
+
+    async def delete_by_producto(self, id_producto: str):
+        async with get_connection() as conn:
+            await conn.execute(
+                text("DELETE FROM movimientos_inventario WHERE id_producto = :id"),
+                {"id": id_producto},
+            )
+            await conn.execute(
+                text("DELETE FROM inventario WHERE id_producto = :id"),
+                {"id": id_producto},
+            )
+            await conn.commit()
