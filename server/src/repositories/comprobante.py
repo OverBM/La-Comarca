@@ -24,7 +24,7 @@ class ComprobanteRepository:
     async def get_by_id(self, id_comprobante: str):
         async with get_connection() as conn:
             result = await conn.execute(text("""
-                SELECT c.id_comprobante, tc.nombre AS tipo, c.serie, c.correlativo,
+                SELECT c.id_comprobante, c.id_pedido, tc.nombre AS tipo, c.serie, c.correlativo,
                        c.fecha_emision AS fecha,
                        CONCAT(cl.nombre, ' ', cl.apellido) AS cliente,
                        ce.ruc, ce.razon_social, c.total, c.enlace
@@ -40,7 +40,7 @@ class ComprobanteRepository:
     async def get_all(self, id_tipo: str | None = None):
         async with get_connection() as conn:
             sql = """
-                SELECT c.id_comprobante, tc.nombre AS tipo, c.serie, c.correlativo,
+                SELECT c.id_comprobante, c.id_pedido, tc.nombre AS tipo, c.serie, c.correlativo,
                        c.fecha_emision AS fecha,
                        CONCAT(cl.nombre, ' ', cl.apellido) AS cliente,
                        ce.ruc, ce.razon_social, c.total, c.enlace

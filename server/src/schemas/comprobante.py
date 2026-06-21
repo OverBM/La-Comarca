@@ -15,6 +15,7 @@ class ComprobanteMasivoCreate(BaseModel):
 
 class ComprobanteResponse(BaseModel):
     id_comprobante: str
+    id_pedido: str
     tipo: str
     serie: str
     correlativo: str

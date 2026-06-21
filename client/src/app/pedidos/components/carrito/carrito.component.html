@@ -131,8 +131,8 @@
             <div class="carrito-pago">
               <h4 class="carrito-pago-titulo">Método de Pago</h4>
               @for (mp of metodosPago; track mp) {
-                <label class="carrito-radio">
-                  <input type="radio" name="metodo-pago" [value]="mp" [checked]="selectedMetodoPago() === mp" (change)="selectedMetodoPago.set(mp)">
+                <label class="carrito-radio" [class.carrito-radio--disabled]="metodoPagoBloqueado()">
+                  <input type="radio" name="metodo-pago" [value]="mp" [checked]="selectedMetodoPago() === mp" [disabled]="metodoPagoBloqueado()" (change)="selectedMetodoPago.set(mp)">
                   {{ mp === 'efectivo' ? 'Efectivo' : 'Yape' }}
                 </label>
               }

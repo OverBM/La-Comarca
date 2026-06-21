@@ -8,11 +8,12 @@ import { Comprobante } from '../../models/comprobante.model';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { FormatoPrecioPipe } from '../../../shared/pipes/formato-precio.pipe';
 import { SinResultadosComponent } from '../../../shared/components/sin-resultados/sin-resultados.component';
+import { PaginacionComponent } from '../../../shared/components/paginacion/paginacion.component';
 
 @Component({
   selector: 'app-facturacion',
   standalone: true,
-  imports: [DatePipe, LoadingComponent, FormatoPrecioPipe, SinResultadosComponent, NgIf],
+  imports: [DatePipe, LoadingComponent, FormatoPrecioPipe, SinResultadosComponent, PaginacionComponent, NgIf],
   templateUrl: './facturacion.component.html',
   styleUrl: './facturacion.component.css',
 })
@@ -40,12 +41,20 @@ export class FacturacionComponent {
   selectedPedidosIds = signal<Set<string>>(new Set());
   tiposComprobante = signal<TipoComprobante[]>([]);
   emitirLoading = signal(false);
+  filtroPedidoEstado = signal<string>('sin');
+  busquedaPedido = signal('');
   emitirMsg = signal<string | null>(null);
   ultimosComprobantes = signal<ComprobanteEmitido[]>([]);
   erroresEmitir = signal<{ id_pedido: string; error: string }[]>([]);
 
+  constructor() {
+    this.pedidosService.getTiposComprobante().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(t => this.tiposComprobante.set(t));
+  }
+
   page = signal(1);
-  pageSize = 10;
+  pageSize = signal(10);
+  filtroTipo = signal<string>('');
+  filtroFecha = signal<string>('');
 
   readonly totalDia = computed(() => {
     const hoy = new Date();
@@ -57,25 +66,51 @@ export class FacturacionComponent {
   readonly filtrados = computed(() => {
     const comprobantes = this.comprobantesCargados();
     const q = this.busqueda().toLowerCase().trim();
-    if (!q) return comprobantes;
-    return comprobantes.filter(
-      c =>
-        c.tipo.toLowerCase().includes(q) ||
-        c.serie.toLowerCase().includes(q) ||
-        c.correlativo.toLowerCase().includes(q) ||
-        c.cliente.toLowerCase().includes(q) ||
-        (c.ruc && c.ruc.includes(q)),
-    );
+    const tipo = this.filtroTipo();
+    const fecha = this.filtroFecha();
+    return comprobantes.filter(c => {
+      if (q && !c.tipo.toLowerCase().includes(q) && !c.serie.toLowerCase().includes(q) &&
+          !c.correlativo.toLowerCase().includes(q) && !c.cliente.toLowerCase().includes(q) &&
+          !(c.ruc && c.ruc.includes(q))) return false;
+      if (tipo && c.tipo !== tipo) return false;
+      if (fecha) {
+        const d = c.fecha.slice(0, 10);
+        if (d !== fecha) return false;
+      }
+      return true;
+    });
   });
 
-  readonly totalPages = computed(() => Math.ceil(this.filtrados().length / this.pageSize));
+  readonly totalPages = computed(() => Math.ceil(this.filtrados().length / this.pageSize()));
 
   readonly paginados = computed(() => {
-    const start = (this.page() - 1) * this.pageSize;
-    return this.filtrados().slice(start, start + this.pageSize);
+    const ps = this.pageSize();
+    const start = (this.page() - 1) * ps;
+    return this.filtrados().slice(start, start + ps);
   });
 
   readonly haySeleccion = computed(() => this.selectedPedidosIds().size > 0);
+
+  private readonly pedidoIdsConComprobante = computed(() => {
+    const ids = new Set<string>();
+    for (const c of this.comprobantesCargados()) {
+      if (c.id_pedido) ids.add(c.id_pedido);
+    }
+    return ids;
+  });
+
+  readonly pedidosFiltradosEmitir = computed(() => {
+    const todos = this.pedidosSinComprobante();
+    const filtro = this.filtroPedidoEstado();
+    const q = this.busquedaPedido().toLowerCase().trim();
+    const conComprobante = this.pedidoIdsConComprobante();
+    return todos.filter(p => {
+      if (filtro === 'sin' && conComprobante.has(p.id_pedido)) return false;
+      if (filtro === 'con' && !conComprobante.has(p.id_pedido)) return false;
+      if (q && !p.id_pedido.toLowerCase().includes(q) && !p.cliente.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  });
 
   toggleForm(): void {
     const visible = !this.showForm();
@@ -84,6 +119,8 @@ export class FacturacionComponent {
     this.ultimosComprobantes.set([]);
     this.erroresEmitir.set([]);
     this.selectedPedidosIds.set(new Set());
+    this.filtroPedidoEstado.set('sin');
+    this.busquedaPedido.set('');
     if (visible) {
       this.pedidosLoading.set(true);
       this.pedidosService.getPedidos().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -144,6 +181,21 @@ export class FacturacionComponent {
 
   irPagina(p: number): void {
     if (p >= 1 && p <= this.totalPages()) this.page.set(p);
+  }
+
+  cambiarPageSize(ps: number): void {
+    this.pageSize.set(ps);
+    this.page.set(1);
+  }
+
+  onFiltroTipo(tipo: string): void {
+    this.filtroTipo.set(tipo);
+    this.page.set(1);
+  }
+
+  onFiltroFecha(fecha: string): void {
+    this.filtroFecha.set(fecha);
+    this.page.set(1);
   }
 
   mostrarToast(msg: string): void {

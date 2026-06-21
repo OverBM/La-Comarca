@@ -38,6 +38,7 @@ export class CarritoComponent {
   protected selectedMetodoPago = signal<string>('efectivo');
   protected confirmandoPagoDigital = signal(false);
   protected guardando = signal(false);
+  protected metodoPagoBloqueado = signal(false);
   protected errorMsg = signal('');
 
   protected seleccionarDelivery(): void {
@@ -128,6 +129,7 @@ export class CarritoComponent {
     if (items.length === 0) return;
 
     const metodo = this.selectedMetodoPago();
+    this.metodoPagoBloqueado.set(true);
     if (metodo === 'yape') {
       this.confirmandoPagoDigital.set(true);
       return;
@@ -141,6 +143,7 @@ export class CarritoComponent {
 
   cancelarPagoDigital(): void {
     this.confirmandoPagoDigital.set(false);
+    this.metodoPagoBloqueado.set(false);
   }
 
   private ejecutarPedido(metodo_pago: string): void {
@@ -160,11 +163,13 @@ export class CarritoComponent {
       .subscribe({
         next: () => {
           this.guardando.set(false);
+          this.metodoPagoBloqueado.set(false);
           this.carritoService.limpiar();
           this.router.navigate(['/pedidos']);
         },
         error: (err) => {
           this.guardando.set(false);
+          this.metodoPagoBloqueado.set(false);
           this.errorMsg.set(err.error?.detail ?? 'Error al crear el pedido');
         },
       });

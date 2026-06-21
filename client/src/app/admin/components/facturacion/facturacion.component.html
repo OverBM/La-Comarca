@@ -56,11 +56,19 @@
 
       <div class="mb-3">
         <label class="form-label small fw-semibold">Pedidos</label>
+        <div class="d-flex gap-2 mb-2 flex-wrap">
+          <input type="text" class="form-control flex-grow-1" placeholder="Buscar pedido..." [value]="busquedaPedido()" (input)="busquedaPedido.set(($any($event.target)).value)" />
+          <select class="form-select" style="width:auto" [value]="filtroPedidoEstado()" (change)="filtroPedidoEstado.set(($any($event.target)).value)">
+            <option value="sin">Sin comprobante</option>
+            <option value="con">Con comprobante</option>
+            <option value="todas">Todos los pedidos</option>
+          </select>
+        </div>
         @if (pedidosLoading()) {
           <app-loading></app-loading>
         } @else {
           <div class="list-group lista-comprobantes">
-            @for (p of pedidosSinComprobante(); track p.id_pedido) {
+            @for (p of pedidosFiltradosEmitir(); track p.id_pedido) {
               <label class="list-group-item d-flex align-items-center gap-2 py-2">
                 <input type="checkbox" class="form-check-input fact-checkbox m-0"
                   [checked]="selectedPedidosIds().has(p.id_pedido)"
@@ -118,8 +126,15 @@
     <a href="https://nubefact.com" target="_blank" rel="noopener noreferrer" class="fact-btn fact-btn--small text-decoration-none">IR A NUBEFACT</a>
   </div>
 
-  <div class="mb-3">
-    <input type="text" class="form-control" placeholder="Buscar comprobante..." [value]="busqueda()" (input)="onBuscar(($any($event.target)).value)" />
+  <div class="d-flex gap-2 mb-3 flex-wrap">
+    <input type="text" class="form-control flex-grow-1" placeholder="Buscar comprobante..." [value]="busqueda()" (input)="onBuscar(($any($event.target)).value)" />
+    <select class="form-select" style="width:auto" [value]="filtroTipo()" (change)="onFiltroTipo(($any($event.target)).value)">
+      <option value="">Todos los tipos</option>
+      @for (t of tiposComprobante(); track t.id_tipo) {
+        <option [value]="t.nombre">{{ t.nombre }}</option>
+      }
+    </select>
+    <input type="date" class="form-control" style="width:auto" [value]="filtroFecha()" (change)="onFiltroFecha(($any($event.target)).value)" />
   </div>
 
   <div class="fact-tabla-wrapper">
@@ -180,11 +195,7 @@
     </table>
   </div>
 
-  <div class="fact-paginacion">
-    <button class="fact-page-btn" [disabled]="page() <= 1" (click)="irPagina(page() - 1)">Anterior</button>
-    <span class="fact-page-info">P&aacute;gina {{ page() }} de {{ totalPages() }}</span>
-    <button class="fact-page-btn" [disabled]="page() >= totalPages()" (click)="irPagina(page() + 1)">Siguiente</button>
-  </div>
+  <app-paginacion [totalPaginas]="totalPages()" [paginaActual]="page()" [pageSize]="pageSize()" (paginaCambiada)="irPagina($event)" (pageSizeCambiado)="cambiarPageSize($event)" />
 
   <div class="fact-soporte">
     <div class="fact-soporte-card">
