@@ -1,6 +1,7 @@
+<div class="d-flex flex-column min-vh-100">
 <app-navbar></app-navbar>
 
-<div class="pedidos-page container py-4">
+<div class="pedidos-page container py-4 flex-grow-1">
   <h1 class="h3 fw-semibold mb-3">Mis Pedidos</h1>
 
   @if (!authService.authState().isAuthenticated) {
@@ -96,3 +97,4 @@
 </div>
 
 <app-footer></app-footer>
+</div>
